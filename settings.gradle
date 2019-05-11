@@ -3,6 +3,6 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'delivery'
 
+rootProject.name = 'delivery'
 include 'core'
