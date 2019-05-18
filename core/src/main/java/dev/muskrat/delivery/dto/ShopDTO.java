@@ -5,7 +5,7 @@ import lombok.Getter;
 public class ShopDTO {
 
     @Getter
-    private int id;
+    private Long id;
 
     @Getter
     private String name;

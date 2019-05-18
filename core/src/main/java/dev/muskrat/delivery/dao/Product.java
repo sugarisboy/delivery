@@ -20,12 +20,19 @@ public class Product {
 
     @Enumerated
     private Quantities quantity;
-
+    
+    @Column
     private String description;
-    private String url;
-    private boolean availability;
-    private double value;
+    
+    @Column
+    private String imageUrl;
+    
+    @Column
+    private boolean available;
+    
+    @Column
+    private double cost;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
 }
