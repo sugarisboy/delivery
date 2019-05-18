@@ -3,7 +3,7 @@ package dev.muskrat.delivery.auth.forms;
 import lombok.Getter;
 import lombok.Setter;
 
-public class RegisterForm {
+public class Partner {
 
     @Getter
     @Setter
@@ -22,5 +22,5 @@ public class RegisterForm {
     private String password;
 
     @Getter
-    private String repeat_password;
+    private String repeatPassword;
 }
