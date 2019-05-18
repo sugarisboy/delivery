@@ -23,15 +23,21 @@ dependencies {
     implementation 'com.h2database:h2'
     implementation 'mysql:mysql-connector-java'
     implementation 'org.postgresql:postgresql'
+    implementation 'org.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
-    testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testCompile 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
 }
 
 dependencyManagement {
     imports {
         mavenBom 'org.springframework.boot:spring-boot-dependencies:2.1.4.RELEASE'
     }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 springBoot {
