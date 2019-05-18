@@ -4,11 +4,9 @@ import dev.muskrat.delivery.dao.Product;
 import dev.muskrat.delivery.dao.ProductRepository;
 import dev.muskrat.delivery.dto.ProductDTO;
 import org.junit.After;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(SpringExtension.class)
 @Transactional
 @RunWith(SpringRunner.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ProductServiceImplTest {
 
     @Autowired
@@ -35,6 +32,7 @@ public class ProductServiceImplTest {
     @Test
     public void createProductTest() {
         ProductDTO productDTO = ProductDTO.builder()
+                .id(1L)
                 .title("test")
                 .price(20D)
                 .build();
@@ -48,6 +46,7 @@ public class ProductServiceImplTest {
     @Test
     public void updateProductDto() {
         ProductDTO productDTO = ProductDTO.builder()
+                .id(1L)
                 .title("test")
                 .price(20D)
                 .build();

@@ -10,13 +10,14 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository repository;
+    private final ProductRepository productRepository;
     private final ObjectConverter<Product, ProductDTO> productToProductDTOConverter;
 
 
@@ -24,14 +25,16 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setTitle(productDTO.getTitle());
         product.setPrice(productDTO.getPrice());
-        repository.save(product);
+        productRepository.save(product);
     }
 
     @Override
     public void delete(ProductDTO productDTO) {
         Long id = productDTO.getId();
-        Optional<Product> byId = repository.findById(id);
-        byId.ifPresent(repository::delete);
+        if (id != null) {
+            Optional<Product> byId = productRepository.findById(id);
+            byId.ifPresent(productRepository::delete);
+        }
     }
 
     @Override
@@ -41,11 +44,13 @@ public class ProductServiceImpl implements ProductService {
         if (id == null)
             throw new RuntimeException("Entity don't found");
 
-        Optional<Product> byId = repository.findById(id);
+        Optional<Product> byId = productRepository.findById(id);
         if (byId.isEmpty())
             throw new RuntimeException("Entity don't found");
 
         Product product = byId.get();
+        if (!byId.isPresent())
+            return;
 
         if (productDTO.getDescription() != null)
             product.setDescription(productDTO.getDescription());
@@ -62,17 +67,17 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getValue() != null)
             product.setValue(productDTO.getValue());
 
-        repository.save(product);
+        productRepository.save(product);
     }
     @Override
     public Optional<ProductDTO> findById(Long id) {
-        Optional<Product> product = repository.findById(id);
+        Optional<Product> product = productRepository.findById(id);
         return product.map(productToProductDTOConverter::convert);
     }
 
     @Override
     public List<ProductDTO> findAll() {
-        return repository.findAll()
+        return productRepository.findAll()
                 .stream()
                 .map(productToProductDTOConverter::convert)
                 .collect(Collectors.toList());

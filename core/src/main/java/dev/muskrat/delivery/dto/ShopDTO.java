@@ -1,12 +1,12 @@
 package dev.muskrat.delivery.dto;
 
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
+@Data
+@Builder
 public class ShopDTO {
 
-    @Getter
     private Long id;
-
-    @Getter
     private String name;
 }

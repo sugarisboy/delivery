@@ -16,7 +16,9 @@ public class Shop {
     @Column
     private String name;
 
-    @Column
+    @ManyToOne(targetEntity = Partner.class)
+    private Partner partner;
+
     @OneToMany(targetEntity = Product.class)
     private List<Product> products;
 
