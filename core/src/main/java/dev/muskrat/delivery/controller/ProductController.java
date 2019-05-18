@@ -17,8 +17,8 @@ public class ProductController {
     private ProductServiceImpl service;
 
     @PostMapping("/product/create")
-            private ResponseEntity<Product> create(
-            @RequestBody ProductDTO productDTO
+    private ResponseEntity<Product> create(
+        @RequestBody ProductDTO productDTO
     ) {
 
 

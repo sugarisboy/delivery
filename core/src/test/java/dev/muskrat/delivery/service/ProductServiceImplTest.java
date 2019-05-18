@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.service;
 
 import dev.muskrat.delivery.dao.Product;
+import dev.muskrat.delivery.dao.ProductRepository;
 import dev.muskrat.delivery.dto.ProductDTO;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Transactional
 @RunWith(SpringRunner.class)
 public class ProductServiceImplTest {
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private ProductService productService;
