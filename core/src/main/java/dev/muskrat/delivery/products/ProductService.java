@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.items;
+package dev.muskrat.delivery.products;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,8 +12,8 @@ public class ProductService {
     private ProductRepository repository;
 
     @Transactional
-    public void create(Product product) {
-        repository.save(product);
+    public ProductDTO create(ProductDTO product) {
+        return repository.save(product);
     }
 
 }
