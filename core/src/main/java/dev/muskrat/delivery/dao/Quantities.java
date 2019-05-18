@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.products;
+package dev.muskrat.delivery.dao;
 
 import lombok.Getter;
 

@@ -1,10 +1,11 @@
-package dev.muskrat.delivery.products;
+package dev.muskrat.delivery.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import dev.muskrat.delivery.dao.Product;
+import dev.muskrat.delivery.dto.ProductDTO;
+import dev.muskrat.delivery.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,13 +16,12 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
-    @JsonView(Product.Details.class)
     @PostMapping("/product/create")
-            private ResponseEntity<ProductDTO> create(
-            @Validated(Product.New.class) @RequestBody ProductDTO product
+            private ResponseEntity<Product> create(
+            @RequestBody ProductDTO productDTO
     ) {
 
 
-        return new ResponseEntity<>(service.create(product), HttpStatus.OK);
+        return new ResponseEntity<>(service.create(productDTO), HttpStatus.OK);
     }
 }

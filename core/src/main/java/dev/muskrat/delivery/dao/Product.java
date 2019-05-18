@@ -1,26 +1,21 @@
-package dev.muskrat.delivery.products;
+package dev.muskrat.delivery.dao;
 
 import lombok.Data;
-import lombok.NonNull;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 
 @Entity
 @Table(name = "products")
 @Data
-public class ProductDTO {
+public class Product {
 
     @Id
-    @Null
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue
     private Long id;
 
-    @NotNull
     private String title;
-    @NotNull
+
     private double price;
 
     @Enumerated
@@ -30,4 +25,7 @@ public class ProductDTO {
     private String url;
     private boolean availability;
     private double value;
+
+    @ManyToOne
+    private Shop shop;
 }
