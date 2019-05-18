@@ -23,7 +23,6 @@ dependencies {
     implementation 'com.h2database:h2'
     implementation 'mysql:mysql-connector-java'
     implementation 'org.postgresql:postgresql'
-    implementation 'org.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
