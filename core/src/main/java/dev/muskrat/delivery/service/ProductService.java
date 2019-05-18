@@ -1,27 +1,20 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.dao.Product;
-import dev.muskrat.delivery.dao.ProductRepository;
 import dev.muskrat.delivery.dto.ProductDTO;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 
-@Service
-@RequiredArgsConstructor
-public class ProductService {
+public interface ProductService {
 
-    private final ProductRepository repository;
+    void create(ProductDTO productDTO);
 
-    @Transactional
-    public Product create(ProductDTO productDTO) {
+    void delete(ProductDTO productDTO);
 
-        Product product = new Product();
-        product.setTitle(productDTO.getTitle());
-        product.setPrice(productDTO.getPrice());
+    void update(ProductDTO productDTO);
 
-        return repository.save(product);
-    }
+    Optional<ProductDTO> findById(Long id);
+
+    List<ProductDTO> findAll();
 
 }
