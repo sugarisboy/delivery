@@ -1,15 +1,17 @@
 package dev.muskrat.delivery.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class ProductDTO {
 
     private Long id;
 
     private String title;
 
-    private double price;
+    private Double price;
 
     private String description;
 
@@ -17,6 +19,6 @@ public class ProductDTO {
 
     private boolean availability;
 
-    private double value;
+    private Double value;
 
 }
