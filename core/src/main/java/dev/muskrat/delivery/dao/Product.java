@@ -31,7 +31,7 @@ public class Product {
     private boolean available;
     
     @Column
-    private double cost;
+    private double value;
 
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
