@@ -1,13 +1,10 @@
 package dev.muskrat.delivery.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
-public class PartnerDTO {
+public class PartnerRegisterResponseDTO {
 
     private Long id;
-    private String name;
 
 }

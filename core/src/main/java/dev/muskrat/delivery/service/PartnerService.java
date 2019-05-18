@@ -1,17 +1,22 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.model.PartnerRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import dev.muskrat.delivery.dto.PartnerDTO;
+import dev.muskrat.delivery.dto.PartnerRegisterDTO;
+import dev.muskrat.delivery.dto.PartnerRegisterResponseDTO;
 
-@Service
-@RequiredArgsConstructor
-public class PartnerService {
+import java.util.List;
+import java.util.Optional;
 
-    private final PartnerRepository partnerRepository;
+public interface PartnerService {
 
-    public void register() {
+    PartnerRegisterResponseDTO create(PartnerRegisterDTO partnerDTO);
 
-    }
+    void update(PartnerDTO partnerDTO);
+
+    void delete(PartnerDTO partnerDTO);
+
+    Optional<PartnerDTO> findById(long id);
+
+    List<PartnerDTO> findAll();
 
 }

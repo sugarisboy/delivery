@@ -11,12 +11,13 @@ public class Shop {
 
     @Id
     @GeneratedValue
-    private int id;
+    private Long id;
 
     @Column
     private String name;
 
     @Column
-    @OneToMany
+    @OneToMany(targetEntity = Product.class)
     private List<Product> products;
+
 }
