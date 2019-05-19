@@ -1,10 +1,11 @@
 package dev.muskrat.delivery.controller;
 
-import dev.muskrat.delivery.dto.ProductDTO;
+import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
+import dev.muskrat.delivery.dto.product.ProductDTO;
+import dev.muskrat.delivery.dto.product.ProductDeleteResponseDTO;
+import dev.muskrat.delivery.dto.product.ProductUpdateResponseDTO;
 import dev.muskrat.delivery.service.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,26 +17,24 @@ public class ProductController {
     private final ProductServiceImpl productService;
 
     @PostMapping("/product/create")
-    private ResponseEntity create(
+    public ProductCreateResponseDTO create(
             @RequestBody ProductDTO productDTO
     ) {
-        productService.create(productDTO);
-        return new ResponseEntity(HttpStatus.OK);
+        return productService.create(productDTO);
     }
 
     @PostMapping("/product/update")
-    private ResponseEntity update(
+    public ProductUpdateResponseDTO update(
             @RequestBody ProductDTO productDTO
     ) {
-        productService.update(productDTO);
-        return new ResponseEntity(HttpStatus.OK);
+        return productService.update(productDTO);
     }
 
     @PostMapping("/product/delete")
-    private ResponseEntity delete(
+    public ProductDeleteResponseDTO delete(
             @RequestBody ProductDTO productDTO
     ) {
-        productService.delete(productDTO);
-        return new ResponseEntity(HttpStatus.OK);
+
+        return productService.delete(productDTO);
     }
 }

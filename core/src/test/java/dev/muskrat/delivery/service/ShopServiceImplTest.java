@@ -2,7 +2,7 @@ package dev.muskrat.delivery.service;
 
 import dev.muskrat.delivery.dao.Shop;
 import dev.muskrat.delivery.dao.ShopRepository;
-import dev.muskrat.delivery.dto.ShopDTO;
+import dev.muskrat.delivery.dto.shop.ShopDTO;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;

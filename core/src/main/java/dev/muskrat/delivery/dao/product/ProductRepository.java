@@ -17,11 +17,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     default List<Category> findAllCategory() {
         List<Category> categories = new ArrayList<>();
 
-        categories.add(new Category(0, "Other"));
-        categories.add(new Category(1, "Vegetables & Fruits"));
-        categories.add(new Category(2, "Milk products"));
-        categories.add(new Category(3, "Fish"));
-        categories.add(new Category(4, "Meat"));
+        categories.add(new Category(0L, "Other"));
+        categories.add(new Category(1L, "Vegetables & Fruits"));
+        categories.add(new Category(2L, "Milk products"));
+        categories.add(new Category(3L, "Fish"));
+        categories.add(new Category(4L, "Meat"));
 
         return categories;
     }
