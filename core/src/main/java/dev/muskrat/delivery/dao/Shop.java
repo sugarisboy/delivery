@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.dao;
 
+import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
 
 import javax.persistence.*;
