@@ -37,11 +37,12 @@ public class ProductServiceImplTest {
         ProductDTO productDTO = ProductDTO.builder()
                 .id(1L)
                 .title("test")
+                .category(1L)
                 .price(20D)
                 .build();
         productService.create(productDTO);
 
-        Product next = productRepository.findAll().iterator().next();
+        Product next = productRepository.findAll().get(0);
         assertNotNull(next);
         assertEquals(next.getTitle(), "test");
     }

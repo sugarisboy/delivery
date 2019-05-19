@@ -1,6 +1,5 @@
-package dev.muskrat.delivery.dao.product;
+package dev.muskrat.delivery.dao;
 
-import dev.muskrat.delivery.dao.shop.Shop;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -37,7 +36,7 @@ public class Product {
     @Column
     private Double value;
 
-    @Column
+    @ManyToOne(targetEntity = Category.class)
     private Category category;
 
     @ManyToOne(targetEntity = Shop.class)
