@@ -1,11 +1,11 @@
 package dev.muskrat.delivery.service;
 
 import dev.muskrat.delivery.dao.product.Category;
+import dev.muskrat.delivery.dao.product.CategoryRepository;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.product.ProductDTO;
 import dev.muskrat.delivery.service.product.ProductService;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -32,10 +32,12 @@ public class ProductServiceImplTest {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Test
     public void createProductTest() {
         ProductDTO productDTO = ProductDTO.builder()
-                .id(1L)
                 .title("test")
                 .category(1L)
                 .price(20D)
@@ -53,6 +55,7 @@ public class ProductServiceImplTest {
                 .id(1L)
                 .title("test")
                 .price(20D)
+                .category(1L)
                 .build();
         productService.create(productDTO);
 
@@ -72,10 +75,10 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @After
     public void deleteProductDto() {
         ProductDTO productDTO = ProductDTO.builder()
                 .title("test")
+                .category(1L)
                 .price(20D)
                 .build();
         productService.create(productDTO);
@@ -93,7 +96,7 @@ public class ProductServiceImplTest {
 
     @Test
     public void getProductByCategoriesDto() {
-        Category category = productRepository.findAllCategory().get(0);
+        Category category = categoryRepository.findById(1L).orElseThrow();
         assertEquals(category.getTitle(), "Other");
 
         Double[] prices = {1D, 2D, 3D};
@@ -109,8 +112,7 @@ public class ProductServiceImplTest {
             productService.create(dto);
         }
 
-        System.out.println(productRepository.count());
-        List<Product> byCategory = productRepository.findByCategory(1);
+        List<Product> byCategory = productRepository.findByCategory(category);
         assertEquals(byCategory.size(), 2);
         assertEquals(byCategory.get(0).getTitle(), "item1");
         assertEquals(byCategory.get(1).getTitle(), "item3");
