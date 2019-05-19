@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.service;
+package dev.muskrat.delivery.service.partner;
 
 import dev.muskrat.delivery.dto.PartnerDTO;
 import dev.muskrat.delivery.dto.PartnerRegisterDTO;
@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface PartnerService {
 
-    PartnerRegisterResponseDTO create(PartnerRegisterDTO partnerDTO);
+    PartnerRegisterResponseDTO create(PartnerRegisterDTO partnerRegisterDTO);
 
     void update(PartnerDTO partnerDTO);
 

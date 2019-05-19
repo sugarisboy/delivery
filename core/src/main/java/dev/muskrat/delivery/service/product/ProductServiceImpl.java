@@ -1,13 +1,15 @@
-package dev.muskrat.delivery.service;
+package dev.muskrat.delivery.service.product;
 
 import dev.muskrat.delivery.converter.ObjectConverter;
+import dev.muskrat.delivery.dao.product.Category;
+import dev.muskrat.delivery.dao.product.CategoryRepository;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
 import dev.muskrat.delivery.dto.product.ProductDTO;
 import dev.muskrat.delivery.dto.product.ProductDeleteResponseDTO;
 import dev.muskrat.delivery.dto.product.ProductUpdateResponseDTO;
-import dev.muskrat.delivery.exceptions.EntityNotFoundException;
+import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +24,8 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ObjectConverter<Product, ProductDTO> productToProductDTOConverter;
-
 
     public ProductCreateResponseDTO create(ProductDTO productDTO) {
         Product product = new Product();
@@ -34,12 +36,17 @@ public class ProductServiceImpl implements ProductService {
         product.setValue(productDTO.getValue());
         product.setPrice(productDTO.getPrice());
         product.setImageUrl(productDTO.getUrl());
-        product.setCategory(productDTO.getCategory());
-        productRepository.save(product);
+
+        Long categoryId = productDTO.getCategory();
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        category.ifPresent(c -> {
+            product.setCategory(c);
+            productRepository.save(product);
+        });
 
         return ProductCreateResponseDTO.builder()
-                .id(productDTO.getId())
-                .build();
+            .id(productDTO.getId())
+            .build();
     }
 
     @Override
@@ -57,8 +64,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = byId.get();
         productRepository.delete(product);
         return ProductDeleteResponseDTO.builder()
-                .id(product.getId())
-                .build();
+            .id(product.getId())
+            .build();
     }
 
 
@@ -94,8 +101,8 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
 
         return ProductUpdateResponseDTO.builder()
-                .id(product.getId())
-                .build();
+            .id(product.getId())
+            .build();
     }
 
     @Override
@@ -107,8 +114,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> findAll() {
         return productRepository.findAll()
-                .stream()
-                .map(productToProductDTOConverter::convert)
-                .collect(Collectors.toList());
+            .stream()
+            .map(productToProductDTOConverter::convert)
+            .collect(Collectors.toList());
     }
 }

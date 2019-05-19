@@ -1,14 +1,14 @@
-package dev.muskrat.delivery.service;
+package dev.muskrat.delivery.service.shop;
 
 import dev.muskrat.delivery.converter.ShopToShopDTOConverter;
-import dev.muskrat.delivery.dao.Shop;
-import dev.muskrat.delivery.dao.ShopRepository;
+import dev.muskrat.delivery.dao.shop.Shop;
+import dev.muskrat.delivery.dao.shop.ShopRepository;
 import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
 import dev.muskrat.delivery.dto.shop.ShopDTO;
 import dev.muskrat.delivery.dto.shop.ShopDeleteResponseDTO;
 import dev.muskrat.delivery.dto.shop.ShopUpdateResponseDTO;
-import dev.muskrat.delivery.exceptions.EntityExistException;
-import dev.muskrat.delivery.exceptions.EntityNotFoundException;
+import dev.muskrat.delivery.exception.EntityExistException;
+import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +27,10 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public ShopCreateResponseDTO create(ShopDTO shopDTO) {
-        Optional<Shop> sameShoplPartner = shopRepository
+        Optional<Shop> sameShopPartner = shopRepository
                 .findByName(shopDTO.getName());
 
-        if (sameShoplPartner.isPresent()) {
+        if (sameShopPartner.isPresent()) {
             throw new EntityExistException("This shop name is already taken.");
         }
 

@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.dao.product;
 
-import dev.muskrat.delivery.dao.Shop;
+import dev.muskrat.delivery.dao.shop.Shop;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

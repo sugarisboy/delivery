@@ -1,13 +1,14 @@
-package dev.muskrat.delivery.service;
+package dev.muskrat.delivery.service.partner;
 
 import dev.muskrat.delivery.converter.ObjectConverter;
-import dev.muskrat.delivery.dao.Partner;
-import dev.muskrat.delivery.dao.PartnerRepository;
+import dev.muskrat.delivery.dao.partner.Partner;
+import dev.muskrat.delivery.dao.partner.PartnerRepository;
 import dev.muskrat.delivery.dto.PartnerDTO;
 import dev.muskrat.delivery.dto.PartnerRegisterDTO;
 import dev.muskrat.delivery.dto.PartnerRegisterResponseDTO;
-import dev.muskrat.delivery.exceptions.EntityExistException;
+import dev.muskrat.delivery.exception.EntityExistException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerRepository partnerRepository;
     private final ObjectConverter<Partner, PartnerDTO> partnerToPartnerDTOConverter;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public PartnerRegisterResponseDTO create(PartnerRegisterDTO partnerRegisterDTO) {
@@ -38,7 +40,9 @@ public class PartnerServiceImpl implements PartnerService {
         Partner partner = new Partner();
         partner.setEmail(partnerRegisterDTO.getEmail());
         partner.setName(partnerRegisterDTO.getName());
-        partner.setPassword(partnerRegisterDTO.getPassword());
+
+        String encodedPassword = passwordEncoder.encode(partnerRegisterDTO.getPassword());
+        partner.setPassword(encodedPassword);
         partner.setPhone(partnerRegisterDTO.getPhone());
         Partner saved = partnerRepository.save(partner);
 

@@ -18,7 +18,7 @@ public class ProductToProductDTOConverter implements ObjectConverter<Product, Pr
                 .price(product.getPrice())
                 .available(product.getAvailable())
                 .value(product.getValue())
-                .category(product.getCategory())
+                .category(product.getCategory().getId())
                 .build();
     }
 }
