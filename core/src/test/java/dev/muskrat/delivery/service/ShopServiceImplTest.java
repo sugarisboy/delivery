@@ -1,8 +1,9 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.dao.Shop;
-import dev.muskrat.delivery.dao.ShopRepository;
+import dev.muskrat.delivery.dao.shop.Shop;
+import dev.muskrat.delivery.dao.shop.ShopRepository;
 import dev.muskrat.delivery.dto.shop.ShopDTO;
+import dev.muskrat.delivery.service.shop.ShopService;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -70,7 +71,7 @@ public class ShopServiceImplTest {
 
         Shop shop = shopRepository.findAll().get(0);
         Long id = shop.getId();
-        Long count = shopRepository.count();
+        long count = shopRepository.count();
         shopDTO = ShopDTO.builder()
                 .id(id)
                 .build();
