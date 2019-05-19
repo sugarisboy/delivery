@@ -1,8 +1,10 @@
 package dev.muskrat.delivery.controller;
 
-import dev.muskrat.delivery.dao.Product;
-import dev.muskrat.delivery.dto.ProductDTO;
-import dev.muskrat.delivery.service.ProductServiceImpl;
+import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
+import dev.muskrat.delivery.dto.product.ProductDTO;
+import dev.muskrat.delivery.dto.product.ProductDeleteResponseDTO;
+import dev.muskrat.delivery.dto.product.ProductUpdateResponseDTO;
+import dev.muskrat.delivery.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

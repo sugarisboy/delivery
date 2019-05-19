@@ -1,6 +1,5 @@
 package dev.muskrat.delivery.dao.product;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -10,8 +9,15 @@ import javax.persistence.Id;
 
 @Entity
 @Data
-@AllArgsConstructor
 public class Category {
+
+    public Category() {
+
+    }
+
+    public Category(String title) {
+        this.title = title;
+    }
 
     @Id
     @GeneratedValue
