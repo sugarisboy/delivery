@@ -1,10 +1,14 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.EntityExistException;
 import dev.muskrat.delivery.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.dao.Shop;
 import dev.muskrat.delivery.dao.ShopRepository;
-import dev.muskrat.delivery.dto.ShopDTO;
+import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
+import dev.muskrat.delivery.dto.shop.ShopDTO;
+import dev.muskrat.delivery.dto.shop.ShopDeleteResponseDTO;
+import dev.muskrat.delivery.dto.shop.ShopUpdateResponseDTO;
+import dev.muskrat.delivery.exceptions.EntityExistException;
+import dev.muskrat.delivery.exceptions.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +26,7 @@ public class ShopServiceImpl implements ShopService {
     private final ShopToShopDTOConverter shopToShopDTOConverter;
 
     @Override
-    public void create(ShopDTO shopDTO) {
+    public ShopCreateResponseDTO create(ShopDTO shopDTO) {
         Optional<Shop> sameShoplPartner = shopRepository
                 .findByName(shopDTO.getName());
 
@@ -33,29 +37,49 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = new Shop();
         shop.setName(shopDTO.getName());
         shopRepository.save(shop);
+        return ShopCreateResponseDTO.builder()
+                .id(shop.getId())
+                .build();
     }
 
     @Override
-    public void delete(ShopDTO shopDTO) {
+    public ShopDeleteResponseDTO delete(ShopDTO shopDTO) {
         Long id = shopDTO.getId();
-        if (id != null) {
-            Optional<Shop> byId = shopRepository.findById(id);
-            byId.ifPresent(shopRepository::delete);
+        if (id == null) {
+            throw new EntityNotFoundException("ShopId don't send");
         }
+
+        Optional<Shop> byId = shopRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw new EntityNotFoundException("Shop with this id don't found");
+        }
+
+        Shop shop = byId.get();
+        return ShopDeleteResponseDTO.builder()
+                .id(shop.getId())
+                .build();
     }
 
     @Override
-    public void update(ShopDTO shopDTO) {
+    public ShopUpdateResponseDTO update(ShopDTO shopDTO) {
         Long id = shopDTO.getId();
-        String name = shopDTO.getName();
-        if (id != null && name != null) {
-            Optional<Shop> byId = shopRepository.findById(id);
-            if (!byId.isPresent())
-                return;
-
-            byId.ifPresent(shop -> shop.setName(name));
-            shopRepository.save(byId.get());
+        if (id == null) {
+            throw new EntityNotFoundException("ShopId don't send");
         }
+
+        Optional<Shop> byId = shopRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw new EntityNotFoundException("Shop with this id don't found");
+        }
+
+        Shop shop = byId.get();
+        if (shopDTO.getName() != null)
+            shop.setName(shopDTO.getName());
+        shopRepository.save(shop);
+
+        return ShopUpdateResponseDTO.builder()
+                .id(shop.getId())
+                .build();
     }
 
     @Override

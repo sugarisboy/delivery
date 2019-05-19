@@ -1,4 +1,4 @@
-package dev.muskrat.delivery;
+package dev.muskrat.delivery.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.converter;
 
 import dev.muskrat.delivery.dao.product.Product;
-import dev.muskrat.delivery.dto.ProductDTO;
+import dev.muskrat.delivery.dto.product.ProductDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +16,7 @@ public class ProductToProductDTOConverter implements ObjectConverter<Product, Pr
                 .description(product.getDescription())
                 .url(product.getImageUrl())
                 .price(product.getPrice())
-                .availability(product.isAvailable())
+                .available(product.getAvailable())
                 .value(product.getValue())
                 .category(product.getCategory())
                 .build();

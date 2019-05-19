@@ -32,13 +32,13 @@ public class Product {
     private String imageUrl;
     
     @Column
-    private boolean available;
+    private Boolean available;
     
     @Column
     private Double value;
 
     @Column
-    private int category;
+    private Integer category;
 
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
