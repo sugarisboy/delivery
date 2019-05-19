@@ -1,7 +1,8 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.dao.Product;
-import dev.muskrat.delivery.dao.ProductRepository;
+import dev.muskrat.delivery.dao.product.Category;
+import dev.muskrat.delivery.dao.product.Product;
+import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.ProductDTO;
 import org.junit.After;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -85,5 +87,30 @@ public class ProductServiceImplTest {
         productService.delete(productDTO);
 
         assertEquals(count - 1, productRepository.count());
+    }
+
+    @Test
+    public void getProductByCategoriesDto() {
+        Category category = productRepository.findAllCategory().get(0);
+        assertEquals(category.getTitle(), "Other");
+
+        Double[] prices = {1D, 2D, 3D};
+        String[] titles = {"item1", "item2", "item3"};
+        int[] categories = {1, 2, 1};
+
+        for (int i = 0; i < 3; i++) {
+            ProductDTO dto = ProductDTO.builder()
+                    .price(prices[i])
+                    .category(categories[i])
+                    .title(titles[i])
+                    .build();
+            productService.create(dto);
+        }
+
+        System.out.println(productRepository.count());
+        List<Product> byCategory = productRepository.findByCategory(1);
+        assertEquals(byCategory.size(), 2);
+        assertEquals(byCategory.get(0).getTitle(), "item1");
+        assertEquals(byCategory.get(1).getTitle(), "item3");
     }
 }

@@ -1,8 +1,8 @@
 package dev.muskrat.delivery.service;
 
 import dev.muskrat.delivery.converter.ObjectConverter;
-import dev.muskrat.delivery.dao.Product;
-import dev.muskrat.delivery.dao.ProductRepository;
+import dev.muskrat.delivery.dao.product.Product;
+import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.ProductDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,8 +23,15 @@ public class ProductServiceImpl implements ProductService {
 
     public void create(ProductDTO productDTO) {
         Product product = new Product();
+
         product.setTitle(productDTO.getTitle());
+        product.setAvailable(productDTO.getAvailability());
+        product.setDescription(productDTO.getDescription());
+        product.setValue(productDTO.getValue());
         product.setPrice(productDTO.getPrice());
+        product.setImageUrl(productDTO.getUrl());
+        product.setCategory(productDTO.getCategory());
+
         productRepository.save(product);
     }
 
