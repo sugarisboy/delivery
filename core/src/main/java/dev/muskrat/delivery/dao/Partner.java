@@ -2,10 +2,8 @@ package dev.muskrat.delivery.dao;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -30,4 +28,7 @@ public class Partner {
     @Column
     private boolean banned;
 
+    @Column
+    @OneToMany(targetEntity = Shop.class)
+    private List<Shop> shops;
 }
