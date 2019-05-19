@@ -14,5 +14,5 @@ public class ProductDTO {
     private String url;
     private Boolean available;
     private Double value;
-    private Integer category;
+    private Long category;
 }

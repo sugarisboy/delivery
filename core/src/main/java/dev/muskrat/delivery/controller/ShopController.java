@@ -4,7 +4,7 @@ import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
 import dev.muskrat.delivery.dto.shop.ShopDTO;
 import dev.muskrat.delivery.dto.shop.ShopDeleteResponseDTO;
 import dev.muskrat.delivery.dto.shop.ShopUpdateResponseDTO;
-import dev.muskrat.delivery.service.ShopServiceImpl;
+import dev.muskrat.delivery.service.shop.ShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ShopController {
 
-    private final ShopServiceImpl shopService;
+    private final ShopService shopService;
 
     @PostMapping("/shop/create")
     public ShopCreateResponseDTO create(

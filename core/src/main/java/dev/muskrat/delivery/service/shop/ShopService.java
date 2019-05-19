@@ -1,5 +1,5 @@
 
-package dev.muskrat.delivery.service;
+package dev.muskrat.delivery.service.shop;
 
 import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
 import dev.muskrat.delivery.dto.shop.ShopDTO;

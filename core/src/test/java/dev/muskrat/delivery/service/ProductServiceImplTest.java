@@ -4,6 +4,7 @@ import dev.muskrat.delivery.dao.product.Category;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.product.ProductDTO;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -69,6 +70,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
+    @After
     public void deleteProductDto() {
         ProductDTO productDTO = ProductDTO.builder()
                 .title("test")

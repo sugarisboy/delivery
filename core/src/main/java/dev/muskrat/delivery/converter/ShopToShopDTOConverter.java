@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.converter;
 
-import dev.muskrat.delivery.dao.Shop;
+import dev.muskrat.delivery.dao.shop.Shop;
 import dev.muskrat.delivery.dto.shop.ShopDTO;
 import org.springframework.stereotype.Component;
 

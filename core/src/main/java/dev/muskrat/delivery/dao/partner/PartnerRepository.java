@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.dao;
+package dev.muskrat.delivery.dao.partner;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
