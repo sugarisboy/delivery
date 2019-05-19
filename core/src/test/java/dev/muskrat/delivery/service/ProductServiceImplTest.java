@@ -4,6 +4,7 @@ import dev.muskrat.delivery.dao.product.Category;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.product.ProductDTO;
+import dev.muskrat.delivery.service.product.ProductService;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,7 +97,7 @@ public class ProductServiceImplTest {
 
         Double[] prices = {1D, 2D, 3D};
         String[] titles = {"item1", "item2", "item3"};
-        int[] categories = {1, 2, 1};
+        Long[] categories = {1L, 2L, 1L};
 
         for (int i = 0; i < 3; i++) {
             ProductDTO dto = ProductDTO.builder()
