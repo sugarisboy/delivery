@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ShopDTO {
+public class CategoryDTO {
 
-    private Long id;
-    private String name;
+    private int id;
+    private String title;
 }

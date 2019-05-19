@@ -1,8 +1,10 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.dao.Product;
-import dev.muskrat.delivery.dao.ProductRepository;
+import dev.muskrat.delivery.dao.product.Category;
+import dev.muskrat.delivery.dao.product.Product;
+import dev.muskrat.delivery.dao.product.ProductRepository;
 import dev.muskrat.delivery.dto.ProductDTO;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -12,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,13 +33,84 @@ public class ProductServiceImplTest {
 
     @Test
     public void createProductTest() {
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setTitle("test");
-
+        ProductDTO productDTO = ProductDTO.builder()
+                .id(1L)
+                .title("test")
+                .price(20D)
+                .build();
         productService.create(productDTO);
 
         Product next = productRepository.findAll().iterator().next();
         assertNotNull(next);
         assertEquals(next.getTitle(), "test");
+    }
+
+    @Test
+    public void updateProductDto() {
+        ProductDTO productDTO = ProductDTO.builder()
+                .id(1L)
+                .title("test")
+                .price(20D)
+                .build();
+        productService.create(productDTO);
+
+        Product product = productRepository.findAll().get(0);
+        Long id = product.getId();
+        productDTO = ProductDTO.builder()
+                .id(id)
+                .title("testo")
+                .description("fcku")
+                .build();
+        productService.update(productDTO);
+        product = productRepository.findById(id).get();
+
+        assertNotNull(product);
+        assertEquals(product.getTitle(), "testo");
+        assertEquals(product.getDescription(), "fcku");
+    }
+
+    @Test
+    @After
+    public void deleteProductDto() {
+        ProductDTO productDTO = ProductDTO.builder()
+                .title("test")
+                .price(20D)
+                .build();
+        productService.create(productDTO);
+
+        Product product = productRepository.findAll().get(0);
+        Long id = product.getId();
+        Long count = productRepository.count();
+        productDTO = ProductDTO.builder()
+                .id(id)
+                .build();
+        productService.delete(productDTO);
+
+        assertEquals(count - 1, productRepository.count());
+    }
+
+    @Test
+    public void getProductByCategoriesDto() {
+        Category category = productRepository.findAllCategory().get(0);
+        assertEquals(category.getTitle(), "Other");
+
+        Double[] prices = {1D, 2D, 3D};
+        String[] titles = {"item1", "item2", "item3"};
+        int[] categories = {1, 2, 1};
+
+        for (int i = 0; i < 3; i++) {
+            ProductDTO dto = ProductDTO.builder()
+                    .price(prices[i])
+                    .category(categories[i])
+                    .title(titles[i])
+                    .build();
+            productService.create(dto);
+        }
+
+        System.out.println(productRepository.count());
+        List<Product> byCategory = productRepository.findByCategory(1);
+        assertEquals(byCategory.size(), 2);
+        assertEquals(byCategory.get(0).getTitle(), "item1");
+        assertEquals(byCategory.get(1).getTitle(), "item3");
     }
 }

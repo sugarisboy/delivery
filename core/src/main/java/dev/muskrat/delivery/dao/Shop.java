@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.dao;
 
+import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -16,7 +17,9 @@ public class Shop {
     @Column
     private String name;
 
-    @Column
+    @ManyToOne(targetEntity = Partner.class)
+    private Partner partner;
+
     @OneToMany(targetEntity = Product.class)
     private List<Product> products;
 
