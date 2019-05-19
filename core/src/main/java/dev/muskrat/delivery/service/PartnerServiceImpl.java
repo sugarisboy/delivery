@@ -1,12 +1,12 @@
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.EntityExistException;
 import dev.muskrat.delivery.converter.ObjectConverter;
 import dev.muskrat.delivery.dao.Partner;
 import dev.muskrat.delivery.dao.PartnerRepository;
 import dev.muskrat.delivery.dto.PartnerDTO;
 import dev.muskrat.delivery.dto.PartnerRegisterDTO;
 import dev.muskrat.delivery.dto.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.exceptions.EntityExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

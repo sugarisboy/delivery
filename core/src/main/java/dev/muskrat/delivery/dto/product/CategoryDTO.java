@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.dto;
+package dev.muskrat.delivery.dto.product;
 
 import lombok.Builder;
 import lombok.Data;
