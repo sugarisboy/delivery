@@ -3,7 +3,11 @@ package dev.muskrat.delivery.service;
 import dev.muskrat.delivery.converter.ObjectConverter;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
-import dev.muskrat.delivery.dto.ProductDTO;
+import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
+import dev.muskrat.delivery.dto.product.ProductDTO;
+import dev.muskrat.delivery.dto.product.ProductDeleteResponseDTO;
+import dev.muskrat.delivery.dto.product.ProductUpdateResponseDTO;
+import dev.muskrat.delivery.exceptions.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,43 +25,56 @@ public class ProductServiceImpl implements ProductService {
     private final ObjectConverter<Product, ProductDTO> productToProductDTOConverter;
 
 
-    public void create(ProductDTO productDTO) {
+    public ProductCreateResponseDTO create(ProductDTO productDTO) {
         Product product = new Product();
 
         product.setTitle(productDTO.getTitle());
-        product.setAvailable(productDTO.getAvailability());
+        product.setAvailable(productDTO.getAvailable());
         product.setDescription(productDTO.getDescription());
         product.setValue(productDTO.getValue());
         product.setPrice(productDTO.getPrice());
         product.setImageUrl(productDTO.getUrl());
         product.setCategory(productDTO.getCategory());
-
         productRepository.save(product);
+
+        return ProductCreateResponseDTO.builder()
+                .id(productDTO.getId())
+                .build();
     }
 
     @Override
-    public void delete(ProductDTO productDTO) {
+    public ProductDeleteResponseDTO delete(ProductDTO productDTO) {
         Long id = productDTO.getId();
-        if (id != null) {
-            Optional<Product> byId = productRepository.findById(id);
-            byId.ifPresent(productRepository::delete);
+        if (id == null) {
+            throw new EntityNotFoundException("ProductId don't send");
         }
+
+        Optional<Product> byId = productRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw new EntityNotFoundException("Shop with this id don't found");
+        }
+
+        Product product = byId.get();
+        productRepository.delete(product);
+        return ProductDeleteResponseDTO.builder()
+                .id(product.getId())
+                .build();
     }
 
+
     @Override
-    public void update(ProductDTO productDTO) {
+    public ProductUpdateResponseDTO update(ProductDTO productDTO) {
         Long id = productDTO.getId();
 
         if (id == null)
-            throw new RuntimeException("Entity don't found");
+            throw new EntityNotFoundException("Entity with this id don't found");
 
         Optional<Product> byId = productRepository.findById(id);
-        if (byId.isEmpty())
-            throw new RuntimeException("Entity don't found");
+        if (byId.isEmpty()) {
+            throw new EntityNotFoundException("Entity don't found");
+        }
 
         Product product = byId.get();
-        if (!byId.isPresent())
-            return;
 
         if (productDTO.getDescription() != null)
             product.setDescription(productDTO.getDescription());
@@ -75,7 +92,12 @@ public class ProductServiceImpl implements ProductService {
             product.setValue(productDTO.getValue());
 
         productRepository.save(product);
+
+        return ProductUpdateResponseDTO.builder()
+                .id(product.getId())
+                .build();
     }
+
     @Override
     public Optional<ProductDTO> findById(Long id) {
         Optional<Product> product = productRepository.findById(id);
