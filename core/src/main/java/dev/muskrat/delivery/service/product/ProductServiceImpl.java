@@ -30,6 +30,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductCreateResponseDTO create(ProductDTO productDTO) {
         Product product = new Product();
 
+        if (productDTO.getCategory() == null)
+            throw new RuntimeException("Category is not defined");
+
         product.setTitle(productDTO.getTitle());
         product.setAvailable(productDTO.getAvailable());
         product.setDescription(productDTO.getDescription());

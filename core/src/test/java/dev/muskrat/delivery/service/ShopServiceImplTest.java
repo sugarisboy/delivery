@@ -71,13 +71,12 @@ public class ShopServiceImplTest {
 
         Shop shop = shopRepository.findAll().get(0);
         Long id = shop.getId();
-        long count = shopRepository.count();
         shopDTO = ShopDTO.builder()
                 .id(id)
                 .build();
         shopService.delete(shopDTO);
 
-        assertEquals(count - 1, shopRepository.count());
+        assertEquals(0, shopRepository.count());
     }
 
 }
