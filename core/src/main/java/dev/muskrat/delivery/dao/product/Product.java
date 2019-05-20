@@ -37,7 +37,7 @@ public class Product {
     @Column
     private Double value;
 
-    @Column
+    @ManyToOne(targetEntity = Category.class)
     private Category category;
 
     @ManyToOne(targetEntity = Shop.class)

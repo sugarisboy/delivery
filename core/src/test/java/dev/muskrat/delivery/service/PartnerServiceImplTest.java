@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -37,16 +37,16 @@ public class PartnerServiceImplTest {
             .email("test@email.com")
             .name("test")
             .password("password123")
-            .passwordRepeat("123password")
+            .passwordRepeat("password123")
             .build();
 
         PartnerRegisterResponseDTO partnerRegisterResponseDTO
             = partnerService.create(partnerRegisterDTO);
         Long id = partnerRegisterResponseDTO.getId();
 
-        Optional<Partner> partner = partnerRepository.findById(1L);
+        List<Partner> all = partnerRepository.findAll();
 
-        assertEquals(id, partner.orElseThrow().getId());
+        assertEquals(all.size(), 1);
     }
 
 }

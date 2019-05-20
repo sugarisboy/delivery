@@ -55,6 +55,7 @@ public class ShopServiceImpl implements ShopService {
         }
 
         Shop shop = byId.get();
+        shopRepository.delete(shop);
         return ShopDeleteResponseDTO.builder()
                 .id(shop.getId())
                 .build();

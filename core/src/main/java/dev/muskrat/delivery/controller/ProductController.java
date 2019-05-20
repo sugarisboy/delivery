@@ -32,7 +32,7 @@ public class ProductController {
 
     @PostMapping("/product/delete")
     public ProductDeleteResponseDTO delete(
-        @RequestBody ProductDTO productDTO
+            @RequestBody ProductDTO productDTO
     ) {
 
         return productService.delete(productDTO);
