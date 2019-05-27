@@ -3,6 +3,8 @@ package dev.muskrat.delivery.dto.shop;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class ShopDTO {
@@ -11,8 +13,9 @@ public class ShopDTO {
     private String name;
     private String logo;
     private String description;
-    private float minOrder;
-    private float freeOrder;
-    private WeekScheduleDTO schedule;
+    private Float minOrder;
+    private Float freeOrder;
+    private List<WorkDayDTO> schedule;
     private RegionDeliveryDTO region;
+    private Boolean visible;
 }

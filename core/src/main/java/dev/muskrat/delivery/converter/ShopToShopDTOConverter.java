@@ -17,6 +17,7 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
                 .logo(shop.getLogo())
                 // TODO Реализовать конвертер: .region(shop.getRegion())
                 // TODO Реализовать конвертер: .schedule(shop.getSchedule())
+                .visible(shop.getVisible())
                 .minOrder(shop.getMinOrder())
                 .build();
     }
