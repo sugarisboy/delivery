@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.converter;
 
-import dev.muskrat.delivery.dao.WorkDay;
+import dev.muskrat.delivery.dao.shop.WorkDay;
 import dev.muskrat.delivery.dto.shop.WorkDayDTO;
 import org.springframework.stereotype.Component;
 

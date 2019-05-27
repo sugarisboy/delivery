@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.dao;
+package dev.muskrat.delivery.dao.shop;
 
 public interface RegionDelivery {
 
