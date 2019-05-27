@@ -2,9 +2,9 @@ package dev.muskrat.delivery.service.shop;
 
 import dev.muskrat.delivery.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.converter.WorkDayDTOToWorkDayConverter;
-import dev.muskrat.delivery.dao.WorkDay;
 import dev.muskrat.delivery.dao.shop.Shop;
 import dev.muskrat.delivery.dao.shop.ShopRepository;
+import dev.muskrat.delivery.dao.shop.WorkDay;
 import dev.muskrat.delivery.dto.shop.*;
 import dev.muskrat.delivery.exception.EntityExistException;
 import dev.muskrat.delivery.exception.EntityNotFoundException;

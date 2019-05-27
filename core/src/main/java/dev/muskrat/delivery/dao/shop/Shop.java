@@ -1,7 +1,5 @@
 package dev.muskrat.delivery.dao.shop;
 
-import dev.muskrat.delivery.dao.RegionDelivery;
-import dev.muskrat.delivery.dao.WorkDay;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
