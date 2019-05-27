@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.dao.shop;
 
 import dev.muskrat.delivery.dao.RegionDelivery;
-import dev.muskrat.delivery.dao.WeekSchedule;
+import dev.muskrat.delivery.dao.WorkDay;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
@@ -33,15 +33,17 @@ public class Shop {
     private String description;
 
     @Column
-    private float minOrder;
+    private Float minOrder;
 
     @Column
-    private float freeOrder;
+    private Float freeOrder;
 
-    @Embedded
-    private WeekSchedule schedule;
+    @ElementCollection
+    private List<WorkDay> schedule;
 
     @Embedded
     private RegionDelivery region;
 
+    @Column
+    private Boolean visible;
 }

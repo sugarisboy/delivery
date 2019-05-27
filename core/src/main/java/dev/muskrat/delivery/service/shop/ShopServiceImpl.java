@@ -1,12 +1,11 @@
 package dev.muskrat.delivery.service.shop;
 
 import dev.muskrat.delivery.converter.ShopToShopDTOConverter;
+import dev.muskrat.delivery.converter.WorkDayDTOToWorkDayConverter;
+import dev.muskrat.delivery.dao.WorkDay;
 import dev.muskrat.delivery.dao.shop.Shop;
 import dev.muskrat.delivery.dao.shop.ShopRepository;
-import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
-import dev.muskrat.delivery.dto.shop.ShopDTO;
-import dev.muskrat.delivery.dto.shop.ShopDeleteResponseDTO;
-import dev.muskrat.delivery.dto.shop.ShopUpdateResponseDTO;
+import dev.muskrat.delivery.dto.shop.*;
 import dev.muskrat.delivery.exception.EntityExistException;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +23,7 @@ public class ShopServiceImpl implements ShopService {
 
     private final ShopRepository shopRepository;
     private final ShopToShopDTOConverter shopToShopDTOConverter;
+    private final WorkDayDTOToWorkDayConverter workDayDTOToWorkDayConverter;
 
     @Override
     public ShopCreateResponseDTO create(ShopDTO shopDTO) {
@@ -76,6 +76,27 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = byId.get();
         if (shopDTO.getName() != null)
             shop.setName(shopDTO.getName());
+        if (shopDTO.getDescription() != null)
+            shop.setDescription(shopDTO.getDescription());
+        if (shopDTO.getFreeOrder() != null)
+            shop.setFreeOrder(shopDTO.getFreeOrder());
+        if (shopDTO.getLogo() != null)
+            shop.setLogo(shopDTO.getLogo());
+        if (shopDTO.getMinOrder() != null)
+            shop.setMinOrder(shopDTO.getMinOrder());
+        if (shopDTO.getVisible() != null)
+            shop.setVisible(shopDTO.getVisible());
+
+        if (shopDTO.getSchedule() != null) {
+            List<WorkDayDTO> scheduleDTO = shopDTO.getSchedule();
+            List<WorkDay> schedule = scheduleDTO.stream()
+                    .map(workDayDTOToWorkDayConverter::convert)
+                    .collect(Collectors.toList());
+            shop.setSchedule(schedule);
+        }
+        //if (shopDTO.getRegion() != null)
+        //    shop.setRegion(shopDTO.getRegion());
+
         shopRepository.save(shop);
 
         return ShopUpdateResponseDTO.builder()

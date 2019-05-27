@@ -11,7 +11,7 @@ public class PartnerRegisterDTOToPartnerConverter
     @Override
     public Partner convert(PartnerRegisterDTO partnerRegisterDTO) {
         Partner partner = new Partner();
-        return null;
+        return partner;
     }
 
 }
