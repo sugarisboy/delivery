@@ -1,20 +1,17 @@
 package dev.muskrat.delivery.service.product;
 
-import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
-import dev.muskrat.delivery.dto.product.ProductDTO;
-import dev.muskrat.delivery.dto.product.ProductDeleteResponseDTO;
-import dev.muskrat.delivery.dto.product.ProductUpdateResponseDTO;
+import dev.muskrat.delivery.dto.product.*;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ProductService {
 
-    ProductCreateResponseDTO create(ProductDTO productDTO);
+    ProductCreateResponseDTO create(ProductCreateDTO productCreateDTO);
 
-    ProductDeleteResponseDTO delete(ProductDTO productDTO);
+    void delete(Long id);
 
-    ProductUpdateResponseDTO update(ProductDTO productDTO);
+    ProductUpdateResponseDTO update(ProductUpdateDTO productDTO);
 
     Optional<ProductDTO> findById(Long id);
 

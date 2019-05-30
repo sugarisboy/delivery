@@ -16,9 +16,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .csrf().disable()
             .authorizeRequests()
-            .anyRequest()
-            .permitAll();
+            .antMatchers("/**").permitAll();
+//            .antMatchers("/login").permitAll();
     }
 
     @Override
@@ -27,6 +28,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .ignoring()
             .antMatchers("/**");
     }
+
+//    @Autowired
+//    public GlobalAuthenticationConfigurerAdapter configureGlobal() {
+//
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

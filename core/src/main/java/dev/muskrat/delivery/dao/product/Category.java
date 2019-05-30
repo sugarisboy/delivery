@@ -11,14 +11,6 @@ import javax.persistence.Id;
 @Data
 public class Category {
 
-    public Category() {
-
-    }
-
-    public Category(String title) {
-        this.title = title;
-    }
-
     @Id
     @GeneratedValue
     private Long id;
@@ -26,4 +18,7 @@ public class Category {
     @Column
     private String title;
 
+    public Category(String title) {
+        this.title = title;
+    }
 }

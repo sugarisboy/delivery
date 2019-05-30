@@ -1,0 +1,71 @@
+package dev.muskrat.delivery.controller;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.dto.partner.PartnerDTO;
+import dev.muskrat.delivery.dto.partner.PartnerRegisterDTO;
+import dev.muskrat.delivery.dto.partner.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.service.partner.PartnerService;
+import lombok.SneakyThrows;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@RunWith(SpringRunner.class)
+@AutoConfigureMockMvc
+public class PartnerControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private PartnerService partnerService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private PartnerRegisterDTO registerDTO() {
+        return PartnerRegisterDTO.builder()
+            .name("test")
+            .email("test@test.te")
+            .password("123")
+            .passwordRepeat("123")
+            .phone("123")
+            .build();
+    }
+
+    @Test
+    @SneakyThrows
+    public void partnerRegistrationTest() {
+        String contentAsString = mockMvc.perform(post("/partner/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(registerDTO()))
+        )
+        .andExpect(status().isOk())
+        .andReturn().getRequest().getContentAsString();
+
+        PartnerRegisterResponseDTO partnerRegisterResponseDTO = objectMapper
+            .readValue(contentAsString, PartnerRegisterResponseDTO.class);
+
+        Long registeredPartnerId = partnerRegisterResponseDTO.getId();
+
+        PartnerDTO partnerDTO = partnerService
+            .findById(registeredPartnerId).orElseThrow();
+
+        assertEquals(partnerDTO.getId(), registeredPartnerId);
+        assertEquals(partnerDTO.getEmail(), "test@test.de");
+
+    }
+
+}
