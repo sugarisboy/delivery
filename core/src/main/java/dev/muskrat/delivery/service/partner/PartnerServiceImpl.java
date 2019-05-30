@@ -3,9 +3,7 @@ package dev.muskrat.delivery.service.partner;
 import dev.muskrat.delivery.converter.ObjectConverter;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.partner.PartnerRepository;
-import dev.muskrat.delivery.dto.PartnerDTO;
-import dev.muskrat.delivery.dto.PartnerRegisterDTO;
-import dev.muskrat.delivery.dto.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.dto.partner.*;
 import dev.muskrat.delivery.exception.EntityExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,20 +50,17 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public void update(PartnerDTO partnerDTO) {
-
+    public PartnerUpdateResponseDTO update(PartnerUpdateDTO partnerDTO) {
+        return null;
     }
 
     @Override
-    public void delete(PartnerDTO partnerDTO) {
-        Long id = partnerDTO.getId();
-        if (id != null) {
-            Optional<Partner> partner = partnerRepository.findById(id);
-            partner.ifPresent(p -> {
-                p.setBanned(true);
-                partnerRepository.save(p);
-            });
-        }
+    public void delete(Long id) {
+        Optional<Partner> partner = partnerRepository.findById(id);
+        partner.ifPresent(p -> {
+            p.setBanned(true);
+            partnerRepository.save(p);
+        });
     }
 
     @Override
@@ -80,6 +75,12 @@ public class PartnerServiceImpl implements PartnerService {
             .stream()
             .map(partnerToPartnerDTOConverter::convert)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<PartnerDTO> findByEmail(String email) {
+        return partnerRepository.findByEmail(email)
+            .map(partnerToPartnerDTOConverter::convert);
     }
 
 }

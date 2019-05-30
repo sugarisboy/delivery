@@ -10,8 +10,8 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
     @Override
     public ShopDTO convert(Shop shop) {
         return ShopDTO.builder()
-                .id(shop.getId())
-                .name(shop.getName())
-                .build();
+            .id(shop.getId())
+            .name(shop.getName())
+            .build();
     }
 }
