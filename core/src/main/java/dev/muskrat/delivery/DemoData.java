@@ -27,6 +27,5 @@ public class DemoData {
         categories.add(new Category("Meat"));
 
         categoryRepository.saveAll(categories);
-        //repo.save(new Entity(...));
     }
 }

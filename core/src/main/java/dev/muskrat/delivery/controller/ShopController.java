@@ -1,39 +1,45 @@
 package dev.muskrat.delivery.controller;
 
-import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
-import dev.muskrat.delivery.dto.shop.ShopDTO;
-import dev.muskrat.delivery.dto.shop.ShopDeleteResponseDTO;
-import dev.muskrat.delivery.dto.shop.ShopUpdateResponseDTO;
+import dev.muskrat.delivery.dto.shop.*;
+import dev.muskrat.delivery.exception.EntityNotFoundException;
 import dev.muskrat.delivery.service.shop.ShopService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController("/shop")
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+@RestController
+@RequestMapping("/shop")
 @RequiredArgsConstructor
 public class ShopController {
 
     private final ShopService shopService;
 
-    @PostMapping("/shop/create")
+    @PostMapping("/create")
     public ShopCreateResponseDTO create(
-            @RequestBody ShopDTO shopDTO
+        @Valid @RequestBody ShopCreateDTO shopCreateDTO
     ) {
-        return shopService.create(shopDTO);
+        return shopService.create(shopCreateDTO);
     }
 
-    @PostMapping("/shop/update")
+    @PatchMapping("/update")
     public ShopUpdateResponseDTO update(
-            @RequestBody ShopDTO shopDTO
+        @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
     ) {
-        return shopService.update(shopDTO);
+        return shopService.update(shopUpdateDTO);
     }
 
-    @PostMapping("/shop/delete")
-    public ShopDeleteResponseDTO delete(
-            @RequestBody ShopDTO shopDTO
-    ) {
-        return shopService.delete(shopDTO);
+    @GetMapping("/{id}")
+    public ShopDTO findById(@NotNull @PathVariable Long id) {
+        return shopService.findById(id).orElseThrow(() ->
+            new EntityNotFoundException("Partner not found")
+        );
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@NotNull @PathVariable Long id) {
+        shopService.delete(id);
+    }
+
 }
