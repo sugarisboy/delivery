@@ -88,7 +88,9 @@ public class ProductControllerTest {
                 .content(objectMapper.writeValueAsString(updateDTO))
         )
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         ProductUpdateResponseDTO productUpdateDTO = objectMapper
                 .readValue(contentAsString, ProductUpdateResponseDTO.class);

@@ -5,33 +5,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.time.LocalTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopUpdateDTO {
+public class ShopScheduleUpdateDTO {
 
     @NotNull
     @Positive
     private Long id;
 
-    @Size(min = 1, max = 64)
-    private String name;
+    @NotEmpty
+    @Size(min = 7, max = 7)
+    private List<LocalTime> open;
 
-    private String logo;
-
-    private String description;
-
-    @Positive
-    private Double minOrderPrice;
-
-    @Positive
-    private Double freeOrderPrice;
-
-    private Boolean visible;
-
+    @NotEmpty
+    @Size(min = 7, max = 7)
+    private List<LocalTime> close;
 }
