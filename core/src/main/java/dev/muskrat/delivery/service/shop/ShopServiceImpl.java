@@ -4,6 +4,7 @@ import dev.muskrat.delivery.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.converter.WorkDayDTOToWorkDayConverter;
 import dev.muskrat.delivery.dao.shop.Shop;
 import dev.muskrat.delivery.dao.shop.ShopRepository;
+import dev.muskrat.delivery.dao.shop.WorkDay;
 import dev.muskrat.delivery.dto.shop.*;
 import dev.muskrat.delivery.exception.EntityExistException;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
@@ -63,19 +64,19 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = byId.get();
         if (shopUpdateDTO.getName() != null)
             shop.setName(shopUpdateDTO.getName());
-        if (shopDTO.getDescription() != null)
-            shop.setDescription(shopDTO.getDescription());
-        if (shopDTO.getFreeOrder() != null)
-            shop.setFreeOrder(shopDTO.getFreeOrder());
-        if (shopDTO.getLogo() != null)
-            shop.setLogo(shopDTO.getLogo());
-        if (shopDTO.getMinOrder() != null)
-            shop.setMinOrder(shopDTO.getMinOrder());
-        if (shopDTO.getVisible() != null)
-            shop.setVisible(shopDTO.getVisible());
+        if (shopUpdateDTO.getDescription() != null)
+            shop.setDescription(shopUpdateDTO.getDescription());
+        if (shopUpdateDTO.getFreeOrder() != null)
+            shop.setFreeOrder(shopUpdateDTO.getFreeOrder());
+        if (shopUpdateDTO.getLogo() != null)
+            shop.setLogo(shopUpdateDTO.getLogo());
+        if (shopUpdateDTO.getMinOrder() != null)
+            shop.setMinOrder(shopUpdateDTO.getMinOrder());
+        if (shopUpdateDTO.getVisible() != null)
+            shop.setVisible(shopUpdateDTO.getVisible());
 
-        if (shopDTO.getSchedule() != null) {
-            List<WorkDayDTO> scheduleDTO = shopDTO.getSchedule();
+        if (shopUpdateDTO.getSchedule() != null) {
+            List<WorkDayDTO> scheduleDTO = shopUpdateDTO.getSchedule();
             List<WorkDay> schedule = scheduleDTO.stream()
                     .map(workDayDTOToWorkDayConverter::convert)
                     .collect(Collectors.toList());

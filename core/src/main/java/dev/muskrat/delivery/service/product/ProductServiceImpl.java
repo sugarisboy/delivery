@@ -80,11 +80,19 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getValue() != null)
             product.setValue(productDTO.getValue());
 
-        productRepository.save(product);
+        if (productDTO.getCategory() != null) {
+            long productCategoryId = productDTO.getCategory();
+            Optional<Category> category = categoryRepository.findById(productCategoryId);
+            if (category.isPresent()) {
+                product.setCategory(category.get());
+            } else
+                throw new EntityNotFoundException("Category don't found");
+        }
 
+        productRepository.save(product);
         return ProductUpdateResponseDTO.builder()
-            .id(product.getId())
-            .build();
+                .id(product.getId())
+                .build();
     }
 
     @Override

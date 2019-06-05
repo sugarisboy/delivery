@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.converter;
 
 import dev.muskrat.delivery.dao.partner.Partner;
-import dev.muskrat.delivery.dto.PartnerRegisterDTO;
+import dev.muskrat.delivery.dto.partner.PartnerRegisterDTO;
 import org.springframework.stereotype.Component;
 
 @Component
