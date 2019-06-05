@@ -1,15 +1,13 @@
-#spring.jpa.hibernate.ddl-auto: create-drop
-#spring.datasource.url: "jdbc:mysql://134.0.119.88:3306/test?encoding=UTF8"
-#spring.datasource.username: "root"
-#spring.datasource.password: "728s!PIvo4cF8trUw"
-#spring.jpa.generate-ddl: true
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa.database-platform: org.hibernate.dialect.H2Dialect
+  resources:
+    chain.strategy.content:
+      enabled: true
+      paths: /**
+  session.jdbc.initialize-schema: "always"
 
-spring.datasource.url: jdbc:h2:mem:testdb
-spring.datasource.driverClassName: org.h2.Driver
-spring.datasource.username: sa
-spring.datasource.password: password
-spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
-
-spring.resources.chain.strategy.content.enabled: true
-spring.resources.chain.strategy.content.paths: /**
-spring.session.jdbc.initialize-schema: "always"

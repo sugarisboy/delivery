@@ -8,4 +8,5 @@ import lombok.Data;
 public class ProductCreateResponseDTO {
 
     private Long id;
+
 }
