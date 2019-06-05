@@ -5,14 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkDayDTO {
+public class ShopScheduleResponseDTO {
 
-    private LocalTime open;
-    private LocalTime close;
+    private Long id;
 }

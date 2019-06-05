@@ -5,6 +5,7 @@ import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -31,13 +32,16 @@ public class Shop {
     private String description;
 
     @Column
-    private Float minOrder;
+    private Double minOrderPrice;
 
     @Column
-    private Float freeOrder;
+    private Double freeOrderPrice;
 
     @ElementCollection
-    private List<WorkDay> schedule;
+    private List<LocalTime> open;
+
+    @ElementCollection
+    private List<LocalTime> close;
 
     @Embedded
     private RegionDelivery region;

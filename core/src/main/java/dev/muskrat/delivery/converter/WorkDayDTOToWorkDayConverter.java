@@ -1,11 +1,15 @@
+/*
+
 package dev.muskrat.delivery.converter;
 
 import dev.muskrat.delivery.dao.shop.WorkDay;
-import dev.muskrat.delivery.dto.shop.WorkDayDTO;
+import dev.muskrat.delivery.dto.shop.ShopScheduleUpdateDTO;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
-public class WorkDayDTOToWorkDayConverter implements ObjectConverter<WorkDayDTO, WorkDay> {
+public class WorkDayDTOToWorkDayConverter implements ObjectConverter<ShopScheduleUpdateDTO, List<WorkDay>> {
 
     @Override
     public WorkDay convert(WorkDayDTO workDayDTO) {
@@ -14,4 +18,11 @@ public class WorkDayDTOToWorkDayConverter implements ObjectConverter<WorkDayDTO,
         day.setClose(workDayDTO.getClose());
         return day;
     }
+
+    @Override
+    public List<WorkDay> convert(ShopScheduleUpdateDTO shopScheduleUpdateDTO) {
+        return null;
+    }
 }
+
+*/
