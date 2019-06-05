@@ -44,7 +44,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderProduct> products = productsDTO.stream()
                 .map(orderProductDTOTOOrderProductConverter::convert)
                 .collect(Collectors.toList());
-        order.setProducts(products);
+        //order.setProducts(products);
 
         orderRepository.save(order);
 
