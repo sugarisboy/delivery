@@ -5,10 +5,7 @@ import dev.muskrat.delivery.dao.product.Category;
 import dev.muskrat.delivery.dao.product.CategoryRepository;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
-import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
-import dev.muskrat.delivery.dto.product.ProductDTO;
-import dev.muskrat.delivery.dto.product.ProductDeleteResponseDTO;
-import dev.muskrat.delivery.dto.product.ProductUpdateResponseDTO;
+import dev.muskrat.delivery.dto.product.*;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,61 +24,46 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ObjectConverter<Product, ProductDTO> productToProductDTOConverter;
 
-    public ProductCreateResponseDTO create(ProductDTO productDTO) {
+    public ProductCreateResponseDTO create(ProductCreateDTO productCreateDTO) {
         Product product = new Product();
 
-        if (productDTO.getCategory() == null)
-            throw new RuntimeException("Category is not defined");
+        product.setTitle(productCreateDTO.getTitle());
+        product.setDescription(productCreateDTO.getDescription());
+        product.setValue(productCreateDTO.getValue());
+        product.setPrice(productCreateDTO.getPrice());
 
-        product.setTitle(productDTO.getTitle());
-        product.setAvailable(productDTO.getAvailable());
-        product.setDescription(productDTO.getDescription());
-        product.setValue(productDTO.getValue());
-        product.setPrice(productDTO.getPrice());
-        product.setImageUrl(productDTO.getUrl());
-
-        Long categoryId = productDTO.getCategory();
+        Long categoryId = productCreateDTO.getCategory();
         Optional<Category> category = categoryRepository.findById(categoryId);
-        category.ifPresent(c -> {
-            product.setCategory(c);
-            productRepository.save(product);
-        });
+        if (category.isPresent()) {
+            product.setCategory(category.get());
+            Product productWithId = productRepository.save(product);
 
-        return ProductCreateResponseDTO.builder()
-            .id(productDTO.getId())
-            .build();
+            return ProductCreateResponseDTO.builder()
+                .id(productWithId.getId())
+                .build();
+        }
+        throw new RuntimeException("Category is not defined");
     }
 
     @Override
-    public ProductDeleteResponseDTO delete(ProductDTO productDTO) {
-        Long id = productDTO.getId();
-        if (id == null) {
-            throw new EntityNotFoundException("ProductId don't send");
-        }
-
+    public void delete(Long id) {
         Optional<Product> byId = productRepository.findById(id);
+
         if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with this id don't found");
+            throw new EntityNotFoundException("Shop with id " + id + " not found");
         }
 
         Product product = byId.get();
         productRepository.delete(product);
-        return ProductDeleteResponseDTO.builder()
-            .id(product.getId())
-            .build();
     }
 
-
     @Override
-    public ProductUpdateResponseDTO update(ProductDTO productDTO) {
+    public ProductUpdateResponseDTO update(ProductUpdateDTO productDTO) {
         Long id = productDTO.getId();
-
-        if (id == null)
-            throw new EntityNotFoundException("Entity with this id don't found");
 
         Optional<Product> byId = productRepository.findById(id);
         if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Entity don't found");
+            throw new EntityNotFoundException("Entity not found");
         }
 
         Product product = byId.get();
@@ -95,17 +77,22 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getTitle() != null)
             product.setTitle(productDTO.getTitle());
 
-        if (productDTO.getUrl() != null)
-            product.setImageUrl(productDTO.getUrl());
-
         if (productDTO.getValue() != null)
             product.setValue(productDTO.getValue());
 
-        productRepository.save(product);
+        if (productDTO.getCategory() != null) {
+            long productCategoryId = productDTO.getCategory();
+            Optional<Category> category = categoryRepository.findById(productCategoryId);
+            if (category.isPresent()) {
+                product.setCategory(category.get());
+            } else
+                throw new EntityNotFoundException("Category don't found");
+        }
 
+        productRepository.save(product);
         return ProductUpdateResponseDTO.builder()
-            .id(product.getId())
-            .build();
+                .id(product.getId())
+                .build();
     }
 
     @Override

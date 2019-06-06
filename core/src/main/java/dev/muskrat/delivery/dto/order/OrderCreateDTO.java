@@ -1,11 +1,11 @@
-package dev.muskrat.delivery.dto.product;
+package dev.muskrat.delivery.dto.order;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ProductDeleteResponseDTO {
+public class OrderCreateDTO {
 
     private Long id;
 }
