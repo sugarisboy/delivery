@@ -12,6 +12,13 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
         return ShopDTO.builder()
                 .id(shop.getId())
                 .name(shop.getName())
+                .description(shop.getDescription())
+                .freeOrderPrice(shop.getFreeOrderPrice())
+                .logo(shop.getLogo())
+                // TODO Реализовать конвертер: .region(shop.getRegion())
+                // TODO Реализовать конвертер: .schedule(shop.getSchedule())
+                .visible(shop.getVisible())
+                .minOrderPrice(shop.getMinOrderPrice())
                 .build();
     }
 }

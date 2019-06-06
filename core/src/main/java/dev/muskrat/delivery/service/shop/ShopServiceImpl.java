@@ -3,16 +3,15 @@ package dev.muskrat.delivery.service.shop;
 import dev.muskrat.delivery.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.dao.shop.Shop;
 import dev.muskrat.delivery.dao.shop.ShopRepository;
-import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
-import dev.muskrat.delivery.dto.shop.ShopDTO;
-import dev.muskrat.delivery.dto.shop.ShopDeleteResponseDTO;
-import dev.muskrat.delivery.dto.shop.ShopUpdateResponseDTO;
+import dev.muskrat.delivery.dto.shop.*;
 import dev.muskrat.delivery.exception.EntityExistException;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class ShopServiceImpl implements ShopService {
     private final ShopToShopDTOConverter shopToShopDTOConverter;
 
     @Override
-    public ShopCreateResponseDTO create(ShopDTO shopDTO) {
+    public ShopCreateResponseDTO create(ShopCreateDTO shopDTO) {
         Optional<Shop> sameShopPartner = shopRepository
                 .findByName(shopDTO.getName());
 
@@ -36,46 +35,45 @@ public class ShopServiceImpl implements ShopService {
 
         Shop shop = new Shop();
         shop.setName(shopDTO.getName());
-        shopRepository.save(shop);
+        Shop shopWithId = shopRepository.save(shop);
         return ShopCreateResponseDTO.builder()
-                .id(shop.getId())
+                .id(shopWithId.getId())
                 .build();
     }
 
     @Override
-    public ShopDeleteResponseDTO delete(ShopDTO shopDTO) {
-        Long id = shopDTO.getId();
-        if (id == null) {
-            throw new EntityNotFoundException("ShopId don't send");
-        }
-
+    public void delete(Long id) {
         Optional<Shop> byId = shopRepository.findById(id);
         if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with this id don't found");
+            throw new EntityNotFoundException("Shop with id " + id + " not found");
         }
 
         Shop shop = byId.get();
         shopRepository.delete(shop);
-        return ShopDeleteResponseDTO.builder()
-                .id(shop.getId())
-                .build();
     }
 
     @Override
-    public ShopUpdateResponseDTO update(ShopDTO shopDTO) {
-        Long id = shopDTO.getId();
-        if (id == null) {
-            throw new EntityNotFoundException("ShopId don't send");
-        }
-
+    public ShopUpdateResponseDTO update(ShopUpdateDTO shopUpdateDTO) {
+        Long id = shopUpdateDTO.getId();
         Optional<Shop> byId = shopRepository.findById(id);
         if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with this id don't found");
+            throw new EntityNotFoundException("Shop with id " + id + " not exists");
         }
 
         Shop shop = byId.get();
-        if (shopDTO.getName() != null)
-            shop.setName(shopDTO.getName());
+        if (shopUpdateDTO.getName() != null)
+            shop.setName(shopUpdateDTO.getName());
+        if (shopUpdateDTO.getDescription() != null)
+            shop.setDescription(shopUpdateDTO.getDescription());
+        if (shopUpdateDTO.getFreeOrderPrice() != null)
+            shop.setFreeOrderPrice(shopUpdateDTO.getFreeOrderPrice());
+        if (shopUpdateDTO.getLogo() != null)
+            shop.setLogo(shopUpdateDTO.getLogo());
+        if (shopUpdateDTO.getMinOrderPrice() != null)
+            shop.setMinOrderPrice(shopUpdateDTO.getMinOrderPrice());
+        if (shopUpdateDTO.getVisible() != null)
+            shop.setVisible(shopUpdateDTO.getVisible());
+
         shopRepository.save(shop);
 
         return ShopUpdateResponseDTO.builder()
@@ -84,10 +82,50 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
+    public ShopScheduleResponseDTO updateSchedule(ShopScheduleUpdateDTO updateDTO) {
+        Long id = updateDTO.getId();
+        Optional<Shop> byId = shopRepository.findById(id);
+        if (byId.isEmpty()) {
+            throw new EntityNotFoundException("Shop with id " + id + " not found");
+        }
+
+        Shop shopById = byId.get();
+        shopById.setOpen(updateDTO.getOpen());
+        shopById.setClose(updateDTO.getClose());
+        Shop shopWithTd = shopRepository.save(shopById);
+
+        return ShopScheduleResponseDTO.builder()
+                .id(shopWithTd.getId())
+                .build();
+    }
+
+    @Override
     public Optional<ShopDTO> findById(Long id) {
         return shopRepository
                 .findById(id)
                 .map(shopToShopDTOConverter::convert);
+    }
+
+    @Override
+    public Optional<ShopScheduleDTO> findScheduleById(Long id) {
+        Optional<Shop> byId = shopRepository
+                .findById(id);
+        if (byId.isPresent()) {
+            Shop shop = byId.get();
+
+            Hibernate.initialize(shop.getOpen());
+            List<LocalTime> open = shop.getOpen();
+            Hibernate.initialize(shop.getClose());
+            List<LocalTime> close = shop.getClose();
+
+            return Optional.of(ShopScheduleDTO.builder()
+                    .id(id)
+                    .open(open)
+                    .close(close)
+                    .build()
+            );
+        }
+        throw new EntityNotFoundException("Shop with id " + id + "don't found");
     }
 
     @Override
