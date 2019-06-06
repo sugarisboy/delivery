@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
-@Where(clause = "deleted = false")
+@Where(clause = "deleted = 0")
 public class Shop {
 
     @Id

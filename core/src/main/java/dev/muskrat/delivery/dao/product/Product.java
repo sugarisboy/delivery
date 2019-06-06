@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @Table(name = "products")
-@Where(clause = "deleted = false")
+@Where(clause = "deleted = 0")
 public class Product {
 
     @Id
