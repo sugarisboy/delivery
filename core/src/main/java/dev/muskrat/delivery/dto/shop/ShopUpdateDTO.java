@@ -31,7 +31,4 @@ public class ShopUpdateDTO {
 
     @Positive
     private Double freeOrderPrice;
-
-    private Boolean visible;
-
 }

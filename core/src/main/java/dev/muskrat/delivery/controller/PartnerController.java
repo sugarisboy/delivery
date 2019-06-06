@@ -4,10 +4,9 @@ import dev.muskrat.delivery.dto.partner.PartnerRegisterDTO;
 import dev.muskrat.delivery.dto.partner.PartnerRegisterResponseDTO;
 import dev.muskrat.delivery.service.partner.PartnerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/partner")
@@ -23,6 +22,13 @@ public class PartnerController {
     ) {
 //        return str;
         return partnerService.create(partnerRegisterDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(
+            @NotNull @PathVariable Long id
+    ) {
+        partnerService.delete(id);
     }
 
 }
