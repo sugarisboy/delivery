@@ -14,5 +14,4 @@ public class ShopDTO {
     private Double minOrderPrice;
     private Double freeOrderPrice;
     private RegionDeliveryDTO region;
-    private Boolean visible;
 }

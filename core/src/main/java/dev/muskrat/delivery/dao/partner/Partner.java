@@ -2,6 +2,7 @@ package dev.muskrat.delivery.dao.partner;
 
 import dev.muskrat.delivery.dao.shop.Shop;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "partners")
+@Where(clause = "banned = false")
 public class Partner {
 
     @Id
