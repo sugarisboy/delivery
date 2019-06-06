@@ -3,6 +3,7 @@ package dev.muskrat.delivery.dao.shop;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalTime;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Where(clause = "deleted = 0")
 public class Shop {
 
     @Id
@@ -46,6 +48,5 @@ public class Shop {
     @Embedded
     private RegionDelivery region;
 
-    @Column
-    private Boolean visible;
+    private Boolean deleted = false;
 }

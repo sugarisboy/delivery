@@ -44,12 +44,13 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public void delete(Long id) {
         Optional<Shop> byId = shopRepository.findById(id);
-        if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with id " + id + " not found");
-        }
 
-        Shop shop = byId.get();
-        shopRepository.delete(shop);
+        byId.ifPresentOrElse(p -> {
+            p.setDeleted(true);
+            shopRepository.save(p);
+        }, () -> {
+            throw new EntityNotFoundException("Shop with id " + id + " not found");
+        });
     }
 
     @Override
@@ -71,8 +72,6 @@ public class ShopServiceImpl implements ShopService {
             shop.setLogo(shopUpdateDTO.getLogo());
         if (shopUpdateDTO.getMinOrderPrice() != null)
             shop.setMinOrderPrice(shopUpdateDTO.getMinOrderPrice());
-        if (shopUpdateDTO.getVisible() != null)
-            shop.setVisible(shopUpdateDTO.getVisible());
 
         shopRepository.save(shop);
 
