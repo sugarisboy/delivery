@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "partners")
-@Where(clause = "banned = false")
+@Where(clause = "banned = 0")
 public class Partner {
 
     @Id
@@ -30,7 +30,7 @@ public class Partner {
     private String password;
 
     @Column
-    private boolean banned;
+    private Boolean banned;
 
     @Column
     @OneToMany(targetEntity = Shop.class)
