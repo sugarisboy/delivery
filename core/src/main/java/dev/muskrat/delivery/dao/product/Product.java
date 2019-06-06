@@ -2,6 +2,7 @@ package dev.muskrat.delivery.dao.product;
 
 import dev.muskrat.delivery.dao.shop.Shop;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @Table(name = "products")
+@Where(clause = "deleted = false")
 public class Product {
 
     @Id
@@ -42,4 +44,6 @@ public class Product {
 
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
+
+    private Boolean deleted = false;
 }

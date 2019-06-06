@@ -49,12 +49,12 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         Optional<Product> byId = productRepository.findById(id);
 
-        if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with id " + id + " not found");
-        }
-
-        Product product = byId.get();
-        productRepository.delete(product);
+        byId.ifPresentOrElse(p -> {
+            p.setDeleted(true);
+            productRepository.save(p);
+        }, () -> {
+            throw new EntityNotFoundException("Product with id " + id + " not found");
+        });
     }
 
     @Override

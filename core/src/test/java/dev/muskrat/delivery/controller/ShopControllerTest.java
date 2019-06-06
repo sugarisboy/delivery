@@ -16,16 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-@Transactional
 public class ShopControllerTest {
 
     @Autowired
@@ -57,6 +57,7 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void ShopCreateTest() {
         ShopCreateResponseDTO item = createTestItem();
 
@@ -71,6 +72,7 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void shopUpdateDTO() {
         ShopCreateResponseDTO item = createTestItem();
 
@@ -82,7 +84,6 @@ public class ShopControllerTest {
                 .freeOrderPrice(10D)
                 .minOrderPrice(5D)
                 .logo("logo")
-                .visible(true)
                 .name("new name")
                 .build();
 
@@ -107,12 +108,12 @@ public class ShopControllerTest {
         assertEquals(updateDTO.getFreeOrderPrice(), updatedShopDTO.getFreeOrderPrice());
         assertEquals(updateDTO.getMinOrderPrice(), updatedShopDTO.getMinOrderPrice());
         assertEquals(updateDTO.getLogo(), updatedShopDTO.getLogo());
-        assertEquals(updateDTO.getVisible(), updatedShopDTO.getVisible());
         assertEquals(updateDTO.getName(), "new name");
     }
 
     @Test
     @SneakyThrows
+    @Transactional
     public void shopScheduleUpdateDTO() {
         ShopCreateResponseDTO item = createTestItem();
 
@@ -159,5 +160,23 @@ public class ShopControllerTest {
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
         assertEquals(updateDTO.getOpen(), updatedShopDTO.getOpen());
         assertEquals(updateDTO.getClose(), updatedShopDTO.getClose());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shopDeleteTest() {
+        ShopCreateResponseDTO item = createTestItem();
+
+        Long itemId = item.getId();
+
+        mockMvc.perform(delete("/shop/" + itemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Optional<ShopDTO> byId = shopService.findById(itemId);
+        assertTrue(byId.isEmpty());
     }
 }
