@@ -2,12 +2,12 @@ package dev.muskrat.delivery.controller;
 
 import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderDTO;
+import dev.muskrat.delivery.dto.order.OrderUpdateDTO;
 import dev.muskrat.delivery.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +18,15 @@ public class OrderController {
 
     @PostMapping("/create")
     public OrderDTO orderCreate(
-        @RequestBody OrderCreateDTO orderDTO
+        @Valid @RequestBody OrderCreateDTO orderDTO
     ) {
         return orderService.create(orderDTO);
+    }
+
+    @PatchMapping("/update/status")
+    public OrderDTO orderStatusUpdate(
+        @Valid @RequestBody OrderUpdateDTO orderDTO
+    ) {
+        return orderService.updateStatus(orderDTO);
     }
 }

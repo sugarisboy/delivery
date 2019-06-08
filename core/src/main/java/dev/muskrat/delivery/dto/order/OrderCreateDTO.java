@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderCreateDTO {
 
-    @Size(min=6, max=10)
+    @Size(min=6, max=11)
     private String phone;
 
     @NotNull
@@ -27,6 +26,7 @@ public class OrderCreateDTO {
     private String name;
 
     @Email
+    @NotNull
     private String email;
 
     private String comment;
@@ -34,6 +34,6 @@ public class OrderCreateDTO {
     @NotNull
     private Long shopId;
 
-    @NotEmpty
+    //@NotEmpty
     private List<OrderProductDTO> products;
 }
