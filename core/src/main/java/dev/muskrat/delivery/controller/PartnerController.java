@@ -1,13 +1,12 @@
 package dev.muskrat.delivery.controller;
 
-import dev.muskrat.delivery.dto.partner.PartnerRegisterDTO;
-import dev.muskrat.delivery.dto.partner.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.dto.partner.*;
 import dev.muskrat.delivery.service.partner.PartnerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/partner")
@@ -18,11 +17,21 @@ public class PartnerController {
 
     @PostMapping("/register")
     public PartnerRegisterResponseDTO register(
-        @RequestBody PartnerRegisterDTO partnerRegisterDTO
-//        @RequestBody String str
+        @Valid @RequestBody PartnerRegisterDTO partnerRegisterDTO
     ) {
-//        return str;
         return partnerService.create(partnerRegisterDTO);
+    }
+
+    @GetMapping("/{id}")
+    public PartnerDTO findById(@Positive @PathVariable Long id) {
+        return partnerService.findById(id).orElseThrow();
+    }
+
+    @PatchMapping
+    public PartnerUpdateResponseDTO update(
+        @Valid @RequestBody PartnerUpdateDTO partnerUpdateDTO
+    ) {
+        return partnerService.update(partnerUpdateDTO);
     }
 
 }
