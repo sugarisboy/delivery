@@ -24,4 +24,24 @@ public class Shop {
     @OneToMany(targetEntity = Product.class)
     private List<Product> products;
 
+    @Column
+    private String logo;
+
+    @Column
+    private String description;
+
+    @Column
+    private Float minOrder;
+
+    @Column
+    private Float freeOrder;
+
+    @ElementCollection
+    private List<WorkDay> schedule;
+
+    @Embedded
+    private RegionDelivery region;
+
+    @Column
+    private Boolean visible;
 }

@@ -1,14 +1,14 @@
 package dev.muskrat.delivery.dao.product;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
+@Table(name = "categories")
+@NoArgsConstructor
 public class Category {
 
     @Id
