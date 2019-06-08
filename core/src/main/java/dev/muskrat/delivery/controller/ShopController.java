@@ -18,21 +18,21 @@ public class ShopController {
 
     @PostMapping("/create")
     public ShopCreateResponseDTO create(
-            @Valid @RequestBody ShopCreateDTO shopCreateDTO
+        @Valid @RequestBody ShopCreateDTO shopCreateDTO
     ) {
         return shopService.create(shopCreateDTO);
     }
 
     @PatchMapping("/update")
     public ShopUpdateResponseDTO update(
-            @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
+        @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
     ) {
         return shopService.update(shopUpdateDTO);
     }
 
     @PatchMapping("/schedule/update")
     public ShopScheduleResponseDTO updateSchedule(
-            @Valid @RequestBody ShopScheduleUpdateDTO shopScheduleUpdateDTO
+        @Valid @RequestBody ShopScheduleUpdateDTO shopScheduleUpdateDTO
     ) {
         return shopService.updateSchedule(shopScheduleUpdateDTO);
     }
@@ -40,14 +40,14 @@ public class ShopController {
     @GetMapping("/{id}")
     public ShopDTO findById(@NotNull @PathVariable Long id) {
         return shopService.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Shop not found")
+            new EntityNotFoundException("Shop not found")
         );
     }
 
     @GetMapping("/schedule/{id}")
     public ShopScheduleDTO findScheduleById(@NotNull @PathVariable Long id) {
         return shopService.findScheduleById(id).orElseThrow(() ->
-                new EntityNotFoundException("Shop schedule not found")
+            new EntityNotFoundException("Shop schedule not found")
         );
     }
 

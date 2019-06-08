@@ -30,7 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-public class OrderContollerTest {
+@Transactional
+public class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,14 +68,14 @@ public class OrderContollerTest {
         ProductCreateResponseDTO second = createTestableProduct("second");
 
         List<OrderProductDTO> products = Arrays.asList(
-                OrderProductDTO.builder().product(first.getId()).count(1).build(),
-                OrderProductDTO.builder().product(second.getId()).count(2).build()
+                OrderProductDTO.builder().productId(first.getId()).count(1).build(),
+                OrderProductDTO.builder().productId(second.getId()).count(2).build()
         );
 
         OrderCreateDTO createDTO = OrderCreateDTO.builder()
                 .name("Ivan Ivanov")
                 .address("street")
-                .comments("no comments")
+                .comment("no comment")
                 .email("sugarisboy@outlook.com")
                 .phone("79201213333")
                 .products(products)
@@ -95,7 +96,7 @@ public class OrderContollerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void ShopCreateTest() {
+    public void orderCreateTest() {
         ShopCreateResponseDTO item = createTestableOrder();
 
         Long createdOrderId = item.getId();

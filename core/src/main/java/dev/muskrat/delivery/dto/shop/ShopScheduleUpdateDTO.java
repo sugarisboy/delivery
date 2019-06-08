@@ -24,9 +24,9 @@ public class ShopScheduleUpdateDTO {
 
     @NotEmpty
     @Size(min = 7, max = 7)
-    private List<LocalTime> open;
+    private List<LocalTime> openTimeList;
 
     @NotEmpty
     @Size(min = 7, max = 7)
-    private List<LocalTime> close;
+    private List<LocalTime> closeTimeList;
 }

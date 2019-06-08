@@ -10,7 +10,7 @@ public class OrderProductDTOTOOrderProductConverter implements ObjectConverter<O
     @Override
     public OrderProduct convert(OrderProductDTO dto) {
         OrderProduct product = new OrderProduct();
-        product.setProductId(dto.getProduct());
+        product.setProductId(dto.getProductId());
         product.setCount(dto.getCount());
         return product;
     }

@@ -29,11 +29,10 @@ public class OrderCreateDTO {
     @Email
     private String email;
 
-    @NotNull
-    private String comments;
+    private String comment;
 
     @NotNull
-    private Long shop;
+    private Long shopId;
 
     @NotEmpty
     private List<OrderProductDTO> products;

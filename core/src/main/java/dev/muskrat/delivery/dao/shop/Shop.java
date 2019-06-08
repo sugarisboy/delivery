@@ -48,5 +48,6 @@ public class Shop {
     @Embedded
     private RegionDelivery region;
 
+    @Column
     private Boolean deleted = false;
 }

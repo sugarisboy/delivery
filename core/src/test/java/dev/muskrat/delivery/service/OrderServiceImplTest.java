@@ -43,8 +43,8 @@ public class OrderServiceImplTest {
     @Test
     public void createOrderTest() {
         List<OrderProductDTO> products = Arrays.asList(
-                OrderProductDTO.builder().product(1L).count(1).build(),
-                OrderProductDTO.builder().product(2L).count(2).build()
+                OrderProductDTO.builder().productId(1L).count(1).build(),
+                OrderProductDTO.builder().productId(2L).count(2).build()
         );
 
         OrderCreateDTO orderDTO = OrderCreateDTO.builder()

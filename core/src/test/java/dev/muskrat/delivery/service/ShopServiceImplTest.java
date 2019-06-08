@@ -1,10 +1,10 @@
 /*
 package dev.muskrat.delivery.service;
 
-import dev.muskrat.delivery.dao.shop.Shop;
-import dev.muskrat.delivery.dao.shop.ShopRepository;
-import dev.muskrat.delivery.dto.shop.ShopDTO;
-import dev.muskrat.delivery.service.shop.ShopService;
+import dev.muskrat.delivery.dao.shopId.Shop;
+import dev.muskrat.delivery.dao.shopId.ShopRepository;
+import dev.muskrat.delivery.dto.shopId.ShopDTO;
+import dev.muskrat.delivery.service.shopId.ShopService;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -36,10 +36,10 @@ public class ShopServiceImplTest {
                 .name("name")
                 .build();
         shopService.create(shopDTO);
-        Shop shop = shopRepository.findAll().get(0);
+        Shop shopId = shopRepository.findAll().get(0);
 
-        assertNotNull(shop);
-        assertEquals(shop.getName(), "name");
+        assertNotNull(shopId);
+        assertEquals(shopId.getName(), "name");
     }
 
     @Test
@@ -49,18 +49,18 @@ public class ShopServiceImplTest {
                 .build();
         shopService.create(shopDTO);
 
-        Shop shop = shopRepository.findAll().get(0);
-        Long id = shop.getId();
+        Shop shopId = shopRepository.findAll().get(0);
+        Long id = shopId.getId();
         shopDTO = ShopDTO.builder()
                 .id(id)
                 .name("newname")
                 .build();
 
         shopService.update(shopDTO);
-        shop = shopRepository.findById(id).get();
+        shopId = shopRepository.findById(id).get();
 
-        assertNotNull(shop);
-        assertEquals(shop.getName(), "newname");
+        assertNotNull(shopId);
+        assertEquals(shopId.getName(), "newname");
     }
 
     @Test
@@ -70,8 +70,8 @@ public class ShopServiceImplTest {
                 .build();
         shopService.create(shopDTO);
 
-        Shop shop = shopRepository.findAll().get(0);
-        Long id = shop.getId();
+        Shop shopId = shopRepository.findAll().get(0);
+        Long id = shopId.getId();
         shopDTO = ShopDTO.builder()
                 .id(id)
                 .build();

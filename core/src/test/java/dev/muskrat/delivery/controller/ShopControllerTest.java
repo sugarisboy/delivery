@@ -121,7 +121,7 @@ public class ShopControllerTest {
 
         ShopScheduleUpdateDTO updateDTO = ShopScheduleUpdateDTO.builder()
                 .id(createdShopId)
-                .open(Arrays.asList(
+                .openTimeList(Arrays.asList(
                         LocalTime.of(9, 0),
                         LocalTime.of(9, 0),
                         LocalTime.of(9, 0),
@@ -130,7 +130,7 @@ public class ShopControllerTest {
                         LocalTime.of(9, 0),
                         LocalTime.of(9, 0))
                 )
-                .close(Arrays.asList(
+                .closeTimeList(Arrays.asList(
                         LocalTime.of(22, 0),
                         LocalTime.of(22, 0),
                         LocalTime.of(22, 0),
@@ -158,8 +158,8 @@ public class ShopControllerTest {
                 .findScheduleById(updatedProductId).orElseThrow();
 
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
-        assertEquals(updateDTO.getOpen(), updatedShopDTO.getOpen());
-        assertEquals(updateDTO.getClose(), updatedShopDTO.getClose());
+        assertEquals(updateDTO.getOpenTimeList(), updatedShopDTO.getOpen());
+        assertEquals(updateDTO.getCloseTimeList(), updatedShopDTO.getClose());
     }
 
     @Test
