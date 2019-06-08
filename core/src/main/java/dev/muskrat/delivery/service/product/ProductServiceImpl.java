@@ -39,8 +39,8 @@ public class ProductServiceImpl implements ProductService {
             Product productWithId = productRepository.save(product);
 
             return ProductCreateResponseDTO.builder()
-                .id(productWithId.getId())
-                .build();
+                    .id(productWithId.getId())
+                    .build();
         }
         throw new RuntimeException("Category is not defined");
     }
@@ -49,12 +49,12 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         Optional<Product> byId = productRepository.findById(id);
 
-        if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with id " + id + " not found");
-        }
-
-        Product product = byId.get();
-        productRepository.delete(product);
+        byId.ifPresentOrElse(p -> {
+            p.setDeleted(true);
+            productRepository.save(p);
+        }, () -> {
+            throw new EntityNotFoundException("Product with id " + id + " not found");
+        });
     }
 
     @Override
@@ -104,8 +104,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> findAll() {
         return productRepository.findAll()
-            .stream()
-            .map(productToProductDTOConverter::convert)
-            .collect(Collectors.toList());
+                .stream()
+                .map(productToProductDTOConverter::convert)
+                .collect(Collectors.toList());
     }
 }

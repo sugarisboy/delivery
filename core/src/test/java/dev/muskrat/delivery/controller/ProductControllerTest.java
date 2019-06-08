@@ -13,9 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -27,7 +29,7 @@ public class ProductControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ProductService partnerService;
+    private ProductService productService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,7 +63,7 @@ public class ProductControllerTest {
 
         Long createdProductId = productCreateResponseDTO.getId();
 
-        ProductDTO productDTO = partnerService
+        ProductDTO productDTO = productService
                 .findById(createdProductId).orElseThrow();
 
         assertEquals(productDTO.getId(), createdProductId);
@@ -88,14 +90,16 @@ public class ProductControllerTest {
                 .content(objectMapper.writeValueAsString(updateDTO))
         )
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         ProductUpdateResponseDTO productUpdateDTO = objectMapper
                 .readValue(contentAsString, ProductUpdateResponseDTO.class);
 
         Long updatedProductId = productUpdateDTO.getId();
 
-        ProductDTO productDTO = partnerService
+        ProductDTO productDTO = productService
                 .findById(updatedProductId).orElseThrow();
 
         assertEquals(productDTO.getId(), updatedProductId);
@@ -104,5 +108,23 @@ public class ProductControllerTest {
         assertEquals(productDTO.getPrice(), updateDTO.getPrice());
         assertEquals(productDTO.getCategory(), updateDTO.getCategory());
         assertEquals(productDTO.getValue(), updateDTO.getValue());
+    }
+
+    @Test
+    @SneakyThrows
+    public void productDeleteTest() {
+        ProductCreateResponseDTO item = createTestItem();
+
+        Long itemId = item.getId();
+
+        mockMvc.perform(delete("/product/" + itemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Optional<ProductDTO> byId = productService.findById(itemId);
+        assertTrue(byId.isEmpty());
     }
 }

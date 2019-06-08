@@ -65,7 +65,32 @@ public class PartnerControllerTest {
 
         assertEquals(partnerDTO.getId(), registeredPartnerId);
         assertEquals(partnerDTO.getEmail(), "test@test.de");
-
     }
 
+    /*@Test
+    @SneakyThrows
+    public void partnerDeleteTest() {
+        String contentAsString = mockMvc.perform(post("/partner/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerDTO()))
+        )
+                .andExpect(status().isOk())
+                .andReturn().getRequest().getContentAsString();
+
+        PartnerRegisterResponseDTO partnerRegisterResponseDTO = objectMapper
+                .readValue(contentAsString, PartnerRegisterResponseDTO.class);
+
+        Long itemId = partnerRegisterResponseDTO.getId();
+
+        mockMvc.perform(delete("/partner/" + itemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Optional<PartnerDTO> byId = partnerService.findById(itemId);
+        assertTrue(byId.isEmpty());
+    }*/
 }

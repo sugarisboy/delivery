@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.dao.order;
 
+import dev.muskrat.delivery.dao.shop.Shop;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,7 +15,6 @@ public class Order {
     @GeneratedValue
     private Long id;
 
-    //@Embedded
     @ElementCollection
     private List<OrderProduct> products;
 
@@ -31,8 +31,11 @@ public class Order {
     private String email;
 
     @Column
-    private String token;
+    private String comments;
 
     @Column
-    private String comments;
+    private Integer status = 0;
+
+    @ManyToOne(targetEntity = Shop.class)
+    private Shop shop;
 }

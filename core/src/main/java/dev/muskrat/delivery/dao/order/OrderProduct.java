@@ -8,9 +8,7 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class OrderProduct {
 
-    //@NotNull
     private Long productId;
 
-    //@NotNull
     private Integer count;
 }
