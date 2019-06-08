@@ -33,6 +33,9 @@ public class Order {
     @Column
     private String comments;
 
+    @Column
+    private Integer status = 0;
+
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
 }
