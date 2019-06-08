@@ -17,7 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderCreateDTO {
 
-    @Size(min=6, max=10)
+    @NotNull
+    @Size(min=6, max=11)
     private String phone;
 
     @NotNull
@@ -27,6 +28,7 @@ public class OrderCreateDTO {
     private String name;
 
     @Email
+    @NotNull
     private String email;
 
     private String comment;

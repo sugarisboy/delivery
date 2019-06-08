@@ -25,8 +25,8 @@ public class OrderCreateDTOTOOrderConverter implements ObjectConverter<OrderCrea
         order.setAddress(dto.getAddress());
         // TODO order.setShopId(..);
         List<OrderProduct> collect = dto.getProducts().stream()
-                .map(orderProductDTOTOOrderProductConverter::convert)
-                .collect(Collectors.toList());
+            .map(orderProductDTOTOOrderProductConverter::convert)
+            .collect(Collectors.toList());
         order.setProducts(collect);
         return order;
     }
