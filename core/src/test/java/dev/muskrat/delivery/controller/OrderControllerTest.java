@@ -1,11 +1,11 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import dev.muskrat.delivery.dto.ValidationExceptionDTO;
 import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderProductDTO;
+import dev.muskrat.delivery.dto.order.OrderUpdateDTO;
 import dev.muskrat.delivery.dto.product.ProductCreateDTO;
 import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
 import dev.muskrat.delivery.dto.shop.ShopCreateDTO;
@@ -22,14 +22,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -110,7 +109,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
-    public void OrderCreateSuccessfulTest() {
+    public void orderCreateSuccessfulTest() {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
@@ -133,7 +132,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
-    public void OrderCreateWithBadEmailTest() {
+    public void orderCreateWithBadEmailTest() {
         OrderCreateDTO dto = createDTO();
         dto.setEmail("notemail");
 
@@ -183,7 +182,88 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
-    public void UpdateStatusTest() {
+    public void updateStatusTest() {
+        MockHttpServletResponse response = mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO()))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
 
+        ShopCreateResponseDTO item = objectMapper
+            .readValue(response.getContentAsString(), ShopCreateResponseDTO.class);
+
+        Long createdOrderId = item.getId();
+
+        OrderUpdateDTO updateDTO = OrderUpdateDTO.builder()
+            .id(createdOrderId)
+            .status(10)
+            .build();
+
+        response = mockMvc.perform(patch("/order/update/status")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updateDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+
+        OrderDTO updatedItem = objectMapper
+            .readValue(response.getContentAsString(), OrderDTO.class);
+
+        assertTrue(updatedItem.getStatus() == 10L);
+    }
+
+    @Test
+    @SneakyThrows
+    public void OrderCreateGetTest() {
+        MockHttpServletResponse response = mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO()))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+        ShopCreateResponseDTO item = objectMapper
+            .readValue(response.getContentAsString(), ShopCreateResponseDTO.class);
+        Long orderId = item.getId();
+
+        MockHttpServletResponse responseById = mockMvc
+            .perform(get("/order/" + orderId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+        OrderDTO responseDTO = objectMapper
+            .readValue(responseById.getContentAsString(), OrderDTO.class);
+        assertEquals(responseDTO.getId(), orderId);
+
+        MockHttpServletResponse responseByEmail = mockMvc
+            .perform(get("/order/email/" + "sugarisboy@outlook.com")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+        responseDTO = objectMapper
+            .readValue(responseByEmail.getContentAsString(), OrderDTO.class);
+        assertEquals(responseDTO.getId(), orderId);
+
+        MockHttpServletResponse responseByShop = mockMvc
+            .perform(get("/order/shop/" + responseDTO.getShop())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+
+        List<OrderDTO> responseList = objectMapper
+            .readValue(
+                responseByShop.getContentAsString(),
+                objectMapper.getTypeFactory().constructCollectionType(List.class, OrderDTO.class)
+            );
+        assertEquals(responseList.get(0).getId(), orderId);
     }
 }
