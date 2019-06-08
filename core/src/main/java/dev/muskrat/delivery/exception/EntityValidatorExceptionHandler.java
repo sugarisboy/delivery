@@ -32,23 +32,23 @@ public class EntityValidatorExceptionHandler extends ResponseEntityExceptionHand
                 String message = error.getDefaultMessage();
                 String field = error.getField();
 
-                String data[] = message.split(":");
+                /*String data[] = message.split(":");
                 if (data.length == 2) {
                     exception = ValidationExceptionDTO.builder()
                         .id(Integer.valueOf(data[0]))
                         .message(data[1])
                         .field(field)
                         .build();
-                } else {
-                    exception = ValidationExceptionDTO.builder()
-                        .id(0)
-                        .message(message)
-                        .field(field)
-                        .build();
-                }
+                } else {*/
+                exception = ValidationExceptionDTO.builder()
+                    .id(0)
+                    .message(message)
+                    .field(field)
+                    .build();
+                //}
             }
         }
 
-        return handleExceptionInternal(ex, exception, headers, HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(ex, exception, headers, status, request);
     }
 }
