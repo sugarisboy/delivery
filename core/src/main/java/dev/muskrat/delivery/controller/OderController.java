@@ -6,17 +6,19 @@ import dev.muskrat.delivery.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/order")
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/order")
 public class OderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/order/")
-    public OrderCreateDTO orderCreate(
-            @RequestBody OrderDTO orderDTO
+    @PostMapping("/create")
+    public OrderDTO orderCreate(
+            @RequestBody OrderCreateDTO orderDTO
     ) {
         return orderService.create(orderDTO);
     }

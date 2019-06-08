@@ -9,17 +9,16 @@ import java.util.List;
 @Builder
 public class OrderDTO {
 
+    private Long id;
+
     private List<OrderProductDTO> products;
 
-    /**
-     * user auth identification
-     * use user token or phone, address, name, email, etc..
-     */
     private String phone;
     private String address;
     private String name;
     private String email;
-    private String token;
+    private Long shop;
+    private Integer status;
 
     private String comments;
 }

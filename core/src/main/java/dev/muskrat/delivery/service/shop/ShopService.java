@@ -10,10 +10,13 @@ public interface ShopService {
 
     ShopCreateResponseDTO create(ShopCreateDTO shopDTO);
 
-
     ShopUpdateResponseDTO update(ShopUpdateDTO shopDTO);
 
+    ShopScheduleResponseDTO updateSchedule(ShopScheduleUpdateDTO workDayDTO);
+
     Optional<ShopDTO> findById(Long id);
+
+    Optional<ShopScheduleDTO> findScheduleById(Long id);
 
     List<ShopDTO> findAll();
 

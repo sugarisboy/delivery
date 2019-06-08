@@ -3,12 +3,15 @@ package dev.muskrat.delivery.dao.shop;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
 @Data
+@Where(clause = "deleted = 0")
 public class Shop {
 
     @Id
@@ -31,17 +34,19 @@ public class Shop {
     private String description;
 
     @Column
-    private Float minOrder;
+    private Double minOrderPrice;
 
     @Column
-    private Float freeOrder;
+    private Double freeOrderPrice;
 
     @ElementCollection
-    private List<WorkDay> schedule;
+    private List<LocalTime> open;
+
+    @ElementCollection
+    private List<LocalTime> close;
 
     @Embedded
     private RegionDelivery region;
 
-    @Column
-    private Boolean visible;
+    private Boolean deleted = false;
 }

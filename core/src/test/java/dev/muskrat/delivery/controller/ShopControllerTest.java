@@ -12,14 +12,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -56,6 +57,7 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void ShopCreateTest() {
         ShopCreateResponseDTO item = createTestItem();
 
@@ -70,30 +72,18 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void shopUpdateDTO() {
         ShopCreateResponseDTO item = createTestItem();
 
         Long createdShopId = item.getId();
 
-        List<WorkDayDTO> workDayDTO = Arrays.asList(
-                new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0)),
-                new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0)),
-                new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0)),
-                //new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0)),
-                new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0)),
-                new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0)),
-                new WorkDayDTO(LocalTime.of(9, 0), LocalTime.of(22, 0))
-        );
-
         ShopUpdateDTO updateDTO = ShopUpdateDTO.builder()
                 .id(createdShopId)
                 .description("description")
-                .freeOrder(10F)
+                .freeOrderPrice(10D)
+                .minOrderPrice(5D)
                 .logo("logo")
-                .minOrder(5F)
-                // TODO .region()
-                .schedule(workDayDTO)
-                .visible(true)
                 .name("new name")
                 .build();
 
@@ -115,12 +105,78 @@ public class ShopControllerTest {
 
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
         assertEquals(updateDTO.getDescription(), updatedShopDTO.getDescription());
-        assertEquals(updateDTO.getFreeOrder(), updatedShopDTO.getFreeOrder());
-        assertEquals(updateDTO.getMinOrder(), updatedShopDTO.getMinOrder());
+        assertEquals(updateDTO.getFreeOrderPrice(), updatedShopDTO.getFreeOrderPrice());
+        assertEquals(updateDTO.getMinOrderPrice(), updatedShopDTO.getMinOrderPrice());
         assertEquals(updateDTO.getLogo(), updatedShopDTO.getLogo());
-        assertEquals(updateDTO.getVisible(), updatedShopDTO.getVisible());
-        assertEquals(updateDTO.getSchedule(), updateDTO.getSchedule());
-        assertEquals(updateDTO.getRegion(), updateDTO.getRegion());
         assertEquals(updateDTO.getName(), "new name");
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void shopScheduleUpdateDTO() {
+        ShopCreateResponseDTO item = createTestItem();
+
+        Long createdShopId = item.getId();
+
+        ShopScheduleUpdateDTO updateDTO = ShopScheduleUpdateDTO.builder()
+                .id(createdShopId)
+                .open(Arrays.asList(
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 0))
+                )
+                .close(Arrays.asList(
+                        LocalTime.of(22, 0),
+                        LocalTime.of(22, 0),
+                        LocalTime.of(22, 0),
+                        LocalTime.of(22, 0),
+                        LocalTime.of(22, 0),
+                        LocalTime.of(22, 0),
+                        LocalTime.of(22, 0))
+                )
+                .build();
+
+        String contentAsString = mockMvc.perform(patch("/shop/schedule/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO))
+        )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        ShopScheduleResponseDTO productUpdateDTO = objectMapper
+                .readValue(contentAsString, ShopScheduleResponseDTO.class);
+
+        Long updatedProductId = productUpdateDTO.getId();
+
+        ShopScheduleDTO updatedShopDTO = shopService
+                .findScheduleById(updatedProductId).orElseThrow();
+
+        assertEquals(updateDTO.getId(), updatedShopDTO.getId());
+        assertEquals(updateDTO.getOpen(), updatedShopDTO.getOpen());
+        assertEquals(updateDTO.getClose(), updatedShopDTO.getClose());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shopDeleteTest() {
+        ShopCreateResponseDTO item = createTestItem();
+
+        Long itemId = item.getId();
+
+        mockMvc.perform(delete("/shop/" + itemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        Optional<ShopDTO> byId = shopService.findById(itemId);
+        assertTrue(byId.isEmpty());
     }
 }
