@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.service.order;
+package dev.muskrat.delivery.exception;
 
 import dev.muskrat.delivery.dto.ValidationExceptionDTO;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestController
 @ControllerAdvice
-public class OrderAdvice extends ResponseEntityExceptionHandler {
+public class EntityValidatorExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -31,27 +31,24 @@ public class OrderAdvice extends ResponseEntityExceptionHandler {
 
                 String message = error.getDefaultMessage();
                 String field = error.getField();
-                if (message != null) {
 
-                    String data[] = message.split(":");
-                    if (data.length == 2) {
-                        exception = ValidationExceptionDTO.builder()
-                            .id(Integer.valueOf(data[0]))
-                            .message(data[1])
-                            .field(field)
-                            .build();
-                    } else {
-                        exception = ValidationExceptionDTO.builder()
-                            .id(0)
-                            .message(message)
-                            .field(field)
-                            .build();
-                    }
+                String data[] = message.split(":");
+                if (data.length == 2) {
+                    exception = ValidationExceptionDTO.builder()
+                        .id(Integer.valueOf(data[0]))
+                        .message(data[1])
+                        .field(field)
+                        .build();
+                } else {
+                    exception = ValidationExceptionDTO.builder()
+                        .id(0)
+                        .message(message)
+                        .field(field)
+                        .build();
                 }
             }
         }
 
-        return handleExceptionInternal(
-            ex, exception, headers, HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(ex, exception, headers, HttpStatus.BAD_REQUEST, request);
     }
 }

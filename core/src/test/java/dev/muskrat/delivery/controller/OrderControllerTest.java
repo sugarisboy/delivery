@@ -1,6 +1,8 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import dev.muskrat.delivery.dto.ValidationExceptionDTO;
 import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderProductDTO;
@@ -82,21 +84,16 @@ public class OrderControllerTest {
             .build();
     }
 
-    @SneakyThrows
-    private MockHttpServletResponse createTestableOrder(OrderCreateDTO orderCreateDTO) {
-        return mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(orderCreateDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse();
-    }
-
     @Test
     @SneakyThrows
     public void OrderCreateSuccessfulTest() {
-        MockHttpServletResponse response = createTestableOrder(createDTO());
+        MockHttpServletResponse response = mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO()))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
 
         ShopCreateResponseDTO item = objectMapper
             .readValue(response.getContentAsString(), ShopCreateResponseDTO.class);
@@ -112,17 +109,57 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
-    public void OrderCreateTest() {
+    public void OrderCreateWithBadEmailTest() {
         OrderCreateDTO dto = createDTO();
-        dto.setAddress(null);
-        System.out.println(createTestableOrder(dto).getContentAsString());
+        dto.setEmail("notemail");
+
+        MockHttpServletResponse response = mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(dto))
+        )
+            .andExpect(status().isBadRequest())
+            .andReturn().getResponse();
+
+        ValidationExceptionDTO validationExceptionDTO = objectMapper
+            .readValue(response.getContentAsString(), ValidationExceptionDTO.class);
+
+        assertEquals(validationExceptionDTO.getField(), "email");
+    }
+
+    @Test
+    @SneakyThrows
+    public void createWithoutDataTest() {
+        String[] badFields = {"products", "shopId", "email", "phone", "name", "address"};
+
+        for (int i = 0; i < badFields.length; i++) {
+            OrderCreateDTO dto = createDTO();
+
+            if (i == 0) dto.setProducts(null);
+            else if (i == 1) dto.setShopId(null);
+            else if (i == 2) dto.setEmail(null);
+            else if (i == 3) dto.setPhone(null);
+            else if (i == 4) dto.setName(null);
+            else if (i == 5) dto.setAddress(null);
+
+            MockHttpServletResponse response = mockMvc.perform(post("/order/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto))
+            )
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse();
+
+            ValidationExceptionDTO validationExceptionDTO = objectMapper
+                .readValue(response.getContentAsString(), ValidationExceptionDTO.class);
+
+            assertEquals(validationExceptionDTO.getField(), badFields[i]);
+        }
     }
 
     @Test
     @SneakyThrows
     public void UpdateStatusTest() {
-        // TODO
+
     }
-
-
 }
