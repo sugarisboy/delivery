@@ -3,7 +3,7 @@ package dev.muskrat.delivery.service;
 import dev.muskrat.delivery.dao.order.Order;
 import dev.muskrat.delivery.dao.order.OrderRepository;
 import dev.muskrat.delivery.dao.shop.ShopRepository;
-import dev.muskrat.delivery.dto.order.OrderDTO;
+import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderProductDTO;
 import dev.muskrat.delivery.service.order.OrderService;
 import dev.muskrat.delivery.service.shop.ShopService;
@@ -47,7 +47,7 @@ public class OrderServiceImplTest {
                 OrderProductDTO.builder().product(2L).count(2).build()
         );
 
-        OrderDTO orderDTO = OrderDTO.builder()
+        OrderCreateDTO orderDTO = OrderCreateDTO.builder()
                 .phone("+79999999999")
                 .address("The best address")
                 .email("best@gmail.com")
