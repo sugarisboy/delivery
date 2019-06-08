@@ -1,16 +1,20 @@
 package dev.muskrat.delivery.service.product;
 
 import dev.muskrat.delivery.converter.ObjectConverter;
+import dev.muskrat.delivery.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.dao.product.Category;
 import dev.muskrat.delivery.dao.product.CategoryRepository;
 import dev.muskrat.delivery.dao.product.Product;
 import dev.muskrat.delivery.dao.product.ProductRepository;
+import dev.muskrat.delivery.dao.shop.Shop;
+import dev.muskrat.delivery.dao.shop.ShopRepository;
 import dev.muskrat.delivery.dto.product.*;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,7 +26,8 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ObjectConverter<Product, ProductDTO> productToProductDTOConverter;
+    private final ShopRepository shopRepository;
+    private final ProductToProductDTOConverter productToProductDTOConverter;
 
     public ProductCreateResponseDTO create(ProductCreateDTO productCreateDTO) {
         Product product = new Product();
@@ -31,6 +36,13 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(productCreateDTO.getDescription());
         product.setValue(productCreateDTO.getValue());
         product.setPrice(productCreateDTO.getPrice());
+
+        Long shopId = productCreateDTO.getShopId();
+        Optional<Shop> byId = shopRepository.findById(shopId);
+        if (byId.isEmpty())
+            throw new RuntimeException("Shop with id " + shopId + " not found");
+        Shop shop = byId.get();
+        product.setShop(shop);
 
         Long categoryId = productCreateDTO.getCategory();
         Optional<Category> category = categoryRepository.findById(categoryId);

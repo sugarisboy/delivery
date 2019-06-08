@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 
 @Entity
@@ -42,6 +43,7 @@ public class Product {
     @ManyToOne(targetEntity = Category.class)
     private Category category;
 
+    @NotNull
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
 
