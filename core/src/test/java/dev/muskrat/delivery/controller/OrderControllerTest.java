@@ -8,6 +8,7 @@ import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderProductDTO;
 import dev.muskrat.delivery.dto.product.ProductCreateDTO;
 import dev.muskrat.delivery.dto.product.ProductCreateResponseDTO;
+import dev.muskrat.delivery.dto.shop.ShopCreateDTO;
 import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
 import dev.muskrat.delivery.service.order.OrderService;
 import lombok.SneakyThrows;
@@ -21,8 +22,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -44,11 +47,12 @@ public class OrderControllerTest {
     private ObjectMapper objectMapper;
 
     @SneakyThrows
-    private ProductCreateResponseDTO createTestableProduct(String title) {
+    private ProductCreateResponseDTO createTestableProduct(String title, Long shopId) {
         ProductCreateDTO productCreateDTO = ProductCreateDTO.builder()
             .title(title)
             .category(1L)
             .price(20D)
+            .shopId(shopId)
             .build();
 
         String contentAsString = mockMvc.perform(post("/product/create")
@@ -64,9 +68,29 @@ public class OrderControllerTest {
     }
 
     @SneakyThrows
+    private ShopCreateResponseDTO createTestableShop() {
+        ShopCreateDTO createDTO = ShopCreateDTO.builder().name("shop" +
+            ThreadLocalRandom.current().nextInt()).build();
+
+        String contentAsString = mockMvc.perform(post("/shop/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        return objectMapper
+            .readValue(contentAsString, ShopCreateResponseDTO.class);
+    }
+
+    @SneakyThrows
     private OrderCreateDTO createDTO() {
-        ProductCreateResponseDTO first = createTestableProduct("first");
-        ProductCreateResponseDTO second = createTestableProduct("second");
+        ShopCreateResponseDTO testableShop = createTestableShop();
+        Long shopId = testableShop.getId();
+
+        ProductCreateResponseDTO first = createTestableProduct("first", shopId);
+        ProductCreateResponseDTO second = createTestableProduct("second", shopId);
 
         List<OrderProductDTO> products = Arrays.asList(
             OrderProductDTO.builder().productId(first.getId()).count(1).build(),
@@ -79,7 +103,7 @@ public class OrderControllerTest {
             .comment("no comments")
             .email("sugarisboy@outlook.com")
             .phone("79201213333")
-            .shopId(2L)
+            .shopId(shopId)
             .products(products)
             .build();
     }

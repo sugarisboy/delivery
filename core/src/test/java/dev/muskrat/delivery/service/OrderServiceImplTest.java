@@ -1,3 +1,4 @@
+/*
 package dev.muskrat.delivery.service;
 
 import dev.muskrat.delivery.dao.order.Order;
@@ -62,3 +63,4 @@ public class OrderServiceImplTest {
         assertEquals(order.getName(), "order");
     }
 }
+*/
