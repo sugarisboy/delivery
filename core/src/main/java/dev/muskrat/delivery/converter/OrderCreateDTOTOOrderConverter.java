@@ -8,9 +8,7 @@ import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component

@@ -10,12 +10,13 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
     @Override
     public ShopDTO convert(Shop shop) {
         return ShopDTO.builder()
-                .id(shop.getId())
-                .name(shop.getName())
-                .description(shop.getDescription())
-                .freeOrderPrice(shop.getFreeOrderPrice())
-                .logo(shop.getLogo())
-                .minOrderPrice(shop.getMinOrderPrice())
-                .build();
+            .id(shop.getId())
+            .name(shop.getName())
+            .description(shop.getDescription())
+            .freeOrderPrice(shop.getFreeOrderPrice())
+            .logo(shop.getLogo())
+            .shopId(shop.getId())
+            .minOrderPrice(shop.getMinOrderPrice())
+            .build();
     }
 }

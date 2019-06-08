@@ -1,6 +1,5 @@
 package dev.muskrat.delivery.service.product;
 
-import dev.muskrat.delivery.converter.ObjectConverter;
 import dev.muskrat.delivery.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.dao.product.Category;
 import dev.muskrat.delivery.dao.product.CategoryRepository;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,15 +44,14 @@ public class ProductServiceImpl implements ProductService {
 
         Long categoryId = productCreateDTO.getCategory();
         Optional<Category> category = categoryRepository.findById(categoryId);
-        if (category.isPresent()) {
-            product.setCategory(category.get());
-            Product productWithId = productRepository.save(product);
+        if (category.isEmpty())
+            throw new RuntimeException("Category is not defined");
+        product.setCategory(category.get());
+        Product productWithId = productRepository.save(product);
 
-            return ProductCreateResponseDTO.builder()
-                    .id(productWithId.getId())
-                    .build();
-        }
-        throw new RuntimeException("Category is not defined");
+        return ProductCreateResponseDTO.builder()
+            .id(productWithId.getId())
+            .build();
     }
 
     @Override
@@ -103,8 +100,8 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.save(product);
         return ProductUpdateResponseDTO.builder()
-                .id(product.getId())
-                .build();
+            .id(product.getId())
+            .build();
     }
 
     @Override
@@ -116,8 +113,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> findAll() {
         return productRepository.findAll()
-                .stream()
-                .map(productToProductDTOConverter::convert)
-                .collect(Collectors.toList());
+            .stream()
+            .map(productToProductDTOConverter::convert)
+            .collect(Collectors.toList());
     }
 }
