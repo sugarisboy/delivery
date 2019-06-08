@@ -11,7 +11,7 @@ public class OrderProductTOOrderProductDTOConverter implements ObjectConverter<O
     public OrderProductDTO convert(OrderProduct orderProduct) {
         return OrderProductDTO.builder()
                 .count(orderProduct.getCount())
-                .product(orderProduct.getProductId())
+                .productId(orderProduct.getProductId())
                 .build();
     }
 }

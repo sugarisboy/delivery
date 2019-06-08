@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/order")
-public class OderController {
+public class OrderController {
 
     private final OrderService orderService;
 
     @PostMapping("/create")
     public OrderDTO orderCreate(
-            @RequestBody OrderCreateDTO orderDTO
+        @RequestBody OrderCreateDTO orderDTO
     ) {
         return orderService.create(orderDTO);
     }

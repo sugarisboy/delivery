@@ -19,11 +19,11 @@ public class OrderCreateDTOTOOrderConverter implements ObjectConverter<OrderCrea
     public Order convert(OrderCreateDTO dto) {
         Order order = new Order();
         order.setName(dto.getName());
-        order.setComments(dto.getComments());
+        order.setComments(dto.getComment());
         order.setPhone(dto.getPhone());
         order.setEmail(dto.getEmail());
         order.setAddress(dto.getAddress());
-        // TODO order.setShop(..);
+        // TODO order.setShopId(..);
         List<OrderProduct> collect = dto.getProducts().stream()
                 .map(orderProductDTOTOOrderProductConverter::convert)
                 .collect(Collectors.toList());

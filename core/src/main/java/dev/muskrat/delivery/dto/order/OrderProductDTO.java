@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class OrderProductDTO {
 
     @NotNull
-    private Long product;
+    private Long productId;
 
     @NotNull
     private Integer count;

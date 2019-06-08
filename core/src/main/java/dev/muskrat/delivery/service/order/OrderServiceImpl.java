@@ -8,7 +8,6 @@ import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderUpdateDTO;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
-import dev.muskrat.delivery.exception.OrderException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,17 +25,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
-        if (orderDTO.getProducts().size() == 0)
-            throw new OrderException("Cart is clear");
-
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
         orderRepository.save(order);
 
+        //TODO trigger event
+
         return OrderDTO.builder()
-                .id(order.getId())
-                .status(order.getStatus())
-                .build();
+            .id(order.getId())
+            .status(order.getStatus())
+            .build();
     }
 
     @Override
@@ -49,6 +47,8 @@ public class OrderServiceImpl implements OrderService {
         Order order = byId.get();
         order.setStatus(orderDTO.getStatus());
         orderRepository.save(order);
+
+        //TODO: trigger event
 
         return OrderDTO.builder()
                 .id(order.getId())

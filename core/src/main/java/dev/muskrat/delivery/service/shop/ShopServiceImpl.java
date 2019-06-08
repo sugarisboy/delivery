@@ -89,8 +89,8 @@ public class ShopServiceImpl implements ShopService {
         }
 
         Shop shopById = byId.get();
-        shopById.setOpen(updateDTO.getOpen());
-        shopById.setClose(updateDTO.getClose());
+        shopById.setOpen(updateDTO.getOpenTimeList());
+        shopById.setClose(updateDTO.getCloseTimeList());
         Shop shopWithTd = shopRepository.save(shopById);
 
         return ShopScheduleResponseDTO.builder()

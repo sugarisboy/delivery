@@ -45,5 +45,7 @@ public class Product {
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
 
+    @Column
     private Boolean deleted = false;
+
 }

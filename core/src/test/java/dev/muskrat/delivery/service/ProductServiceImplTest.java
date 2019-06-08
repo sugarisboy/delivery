@@ -1,11 +1,11 @@
 //package dev.muskrat.delivery.service;
 //
-//import dev.muskrat.delivery.dao.product.Category;
-//import dev.muskrat.delivery.dao.product.CategoryRepository;
-//import dev.muskrat.delivery.dao.product.Product;
-//import dev.muskrat.delivery.dao.product.ProductRepository;
-//import dev.muskrat.delivery.dto.product.ProductDTO;
-//import dev.muskrat.delivery.service.product.ProductService;
+//import dev.muskrat.delivery.dao.productId.Category;
+//import dev.muskrat.delivery.dao.productId.CategoryRepository;
+//import dev.muskrat.delivery.dao.productId.Product;
+//import dev.muskrat.delivery.dao.productId.ProductRepository;
+//import dev.muskrat.delivery.dto.productId.ProductDTO;
+//import dev.muskrat.delivery.service.productId.ProductService;
 //import org.junit.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
 //import org.junit.runner.RunWith;
@@ -59,19 +59,19 @@
 //                .build();
 //        productService.create(productDTO);
 //
-//        Product product = productRepository.findAll().get(0);
-//        Long id = product.getId();
+//        Product productId = productRepository.findAll().get(0);
+//        Long id = productId.getId();
 //        productDTO = ProductDTO.builder()
 //                .id(id)
 //                .title("testo")
 //                .description("fcku")
 //                .build();
 //        productService.update(productDTO);
-//        product = productRepository.findById(id).get();
+//        productId = productRepository.findById(id).get();
 //
-//        assertNotNull(product);
-//        assertEquals(product.getTitle(), "testo");
-//        assertEquals(product.getDescription(), "fcku");
+//        assertNotNull(productId);
+//        assertEquals(productId.getTitle(), "testo");
+//        assertEquals(productId.getDescription(), "fcku");
 //    }
 //
 //    @Test
@@ -83,8 +83,8 @@
 //                .build();
 //        productService.create(productDTO);
 //
-//        Product product = productRepository.findAll().get(0);
-//        Long id = product.getId();
+//        Product productId = productRepository.findAll().get(0);
+//        Long id = productId.getId();
 //        Long count = productRepository.count();
 //        productDTO = ProductDTO.builder()
 //                .id(id)

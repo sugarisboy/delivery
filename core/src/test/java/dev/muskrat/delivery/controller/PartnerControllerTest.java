@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.transaction.Transactional;
+
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
+@Transactional
 public class PartnerControllerTest {
 
     @Autowired
@@ -52,8 +55,8 @@ public class PartnerControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(registerDTO()))
         )
-        .andExpect(status().isOk())
-        .andReturn().getRequest().getContentAsString();
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
 
         PartnerRegisterResponseDTO partnerRegisterResponseDTO = objectMapper
             .readValue(contentAsString, PartnerRegisterResponseDTO.class);
