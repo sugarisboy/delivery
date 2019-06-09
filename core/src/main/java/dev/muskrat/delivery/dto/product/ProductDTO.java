@@ -21,4 +21,6 @@ public class ProductDTO {
 
     private Long category;
 
+    private Long shopId;
+
 }
