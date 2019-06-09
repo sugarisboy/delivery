@@ -87,9 +87,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Optional<OrderDTO> findByEmail(String email) {
-        Optional<Order> byId = orderRepository.findByEmail(email);
-        return byId.map(orderTOOrderDTOConverter::convert);
+    public Optional<List<OrderDTO>> findByEmail(String email) {
+        Optional<List<Order>> byEmail = orderRepository.findByEmail(email);
+        if (byEmail.isEmpty())
+            throw new EntityNotFoundException("Shop not found");
+
+        List<Order> orders = byEmail.get();
+        List<OrderDTO> collect = orders.stream()
+            .map(orderTOOrderDTOConverter::convert)
+            .collect(Collectors.toList());
+
+        return Optional.of(collect);
     }
 
     @Override
@@ -97,8 +105,8 @@ public class OrderServiceImpl implements OrderService {
         Optional<Shop> byId = shopRepository.findById(shopId);
         if (byId.isEmpty())
             throw new EntityNotFoundException("Shop not found");
-        Shop shop = byId.get();
 
+        Shop shop = byId.get();
         Optional<List<Order>> byShop = orderRepository.findByShop(shop);
         if (byId.isEmpty())
             return null;

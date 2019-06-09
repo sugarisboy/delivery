@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -247,9 +248,12 @@ public class OrderControllerTest {
             )
             .andExpect(status().isOk())
             .andReturn().getResponse();
-        responseDTO = objectMapper
-            .readValue(responseByEmail.getContentAsString(), OrderDTO.class);
-        assertEquals(responseDTO.getId(), orderId);
+        List<OrderDTO> responseList = objectMapper
+            .readValue(
+                responseByEmail.getContentAsString(),
+                objectMapper.getTypeFactory().constructCollectionType(List.class, OrderDTO.class)
+            );
+        assertEquals(responseList.get(0).getEmail(), "sugarisboy@outlook.com");
 
         MockHttpServletResponse responseByShop = mockMvc
             .perform(get("/order/shop/" + responseDTO.getShop())
@@ -259,11 +263,11 @@ public class OrderControllerTest {
             .andExpect(status().isOk())
             .andReturn().getResponse();
 
-        List<OrderDTO> responseList = objectMapper
+        responseList = objectMapper
             .readValue(
                 responseByShop.getContentAsString(),
                 objectMapper.getTypeFactory().constructCollectionType(List.class, OrderDTO.class)
             );
-        assertEquals(responseList.get(0).getId(), orderId);
+        assertEquals(responseList.get(0).getShop(), responseDTO.getShop());
     }
 }

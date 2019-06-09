@@ -10,5 +10,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<List<Order>> findByShop(Shop shop);
 
-    Optional<Order> findByEmail(String email);
+    Optional<List<Order>> findByEmail(String email);
 }
