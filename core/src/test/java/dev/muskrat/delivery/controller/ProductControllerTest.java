@@ -2,6 +2,8 @@ package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.dto.product.*;
+import dev.muskrat.delivery.dto.shop.ShopCreateDTO;
+import dev.muskrat.delivery.dto.shop.ShopCreateResponseDTO;
 import dev.muskrat.delivery.service.product.ProductService;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,25 +38,46 @@ public class ProductControllerTest {
     private ObjectMapper objectMapper;
 
     private ProductCreateDTO productDTO() {
+        ShopCreateResponseDTO testableShop = createTestableShop();
+        Long shopId = testableShop.getId();
+
         return ProductCreateDTO.builder()
-                .title("title")
-                .category(1L)
-                .price(20D)
-                .build();
+            .title("title")
+            .category(1L)
+            .price(20D)
+            .shopId(shopId)
+            .build();
+    }
+
+    @SneakyThrows
+    private ShopCreateResponseDTO createTestableShop() {
+        ShopCreateDTO createDTO = ShopCreateDTO.builder().name("shop" +
+            ThreadLocalRandom.current().nextInt()).build();
+
+        String contentAsString = mockMvc.perform(post("/shop/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        return objectMapper
+            .readValue(contentAsString, ShopCreateResponseDTO.class);
     }
 
     @SneakyThrows
     private ProductCreateResponseDTO createTestItem() {
         String contentAsString = mockMvc.perform(post("/product/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(productDTO()))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(productDTO()))
         )
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
 
         return objectMapper
-                .readValue(contentAsString, ProductCreateResponseDTO.class);
+            .readValue(contentAsString, ProductCreateResponseDTO.class);
     }
 
     @Test
@@ -64,7 +88,7 @@ public class ProductControllerTest {
         Long createdProductId = productCreateResponseDTO.getId();
 
         ProductDTO productDTO = productService
-                .findById(createdProductId).orElseThrow();
+            .findById(createdProductId).orElseThrow();
 
         assertEquals(productDTO.getId(), createdProductId);
         assertEquals(productDTO.getTitle(), "title");
@@ -76,31 +100,31 @@ public class ProductControllerTest {
         ProductCreateResponseDTO createResponseDTO = createTestItem();
 
         ProductUpdateDTO updateDTO = ProductUpdateDTO.builder()
-                .id(createResponseDTO.getId())
-                .description("description")
-                .price(100D)
-                .category(2L)
-                .title("new title")
-                .value(0D)
-                .build();
+            .id(createResponseDTO.getId())
+            .description("description")
+            .price(100D)
+            .category(2L)
+            .title("new title")
+            .value(0D)
+            .build();
 
         String contentAsString = mockMvc.perform(patch("/product/update")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateDTO))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updateDTO))
         )
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
         ProductUpdateResponseDTO productUpdateDTO = objectMapper
-                .readValue(contentAsString, ProductUpdateResponseDTO.class);
+            .readValue(contentAsString, ProductUpdateResponseDTO.class);
 
         Long updatedProductId = productUpdateDTO.getId();
 
         ProductDTO productDTO = productService
-                .findById(updatedProductId).orElseThrow();
+            .findById(updatedProductId).orElseThrow();
 
         assertEquals(productDTO.getId(), updatedProductId);
         assertEquals(productDTO.getTitle(), updateDTO.getTitle());
@@ -118,11 +142,11 @@ public class ProductControllerTest {
         Long itemId = item.getId();
 
         mockMvc.perform(delete("/product/" + itemId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
         )
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
 
         Optional<ProductDTO> byId = productService.findById(itemId);
         assertTrue(byId.isEmpty());
