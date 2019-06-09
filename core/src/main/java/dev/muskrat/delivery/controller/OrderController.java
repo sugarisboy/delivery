@@ -45,8 +45,8 @@ public class OrderController {
         );
     }
 
-    @GetMapping(value = "/email/{email:.+}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public OrderDTO findByEmail(
+    @GetMapping(value = "/email/{email:.+}")
+    public List<OrderDTO> findByEmail(
         @Email @PathVariable String email
     ) {
         return orderService.findByEmail(email).orElseThrow(() ->

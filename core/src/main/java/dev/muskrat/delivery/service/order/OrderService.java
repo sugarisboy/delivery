@@ -28,7 +28,7 @@ public interface OrderService {
 
     Optional<OrderDTO> findById(Long id);
 
-    Optional<OrderDTO> findByEmail(String email);
+    Optional<List<OrderDTO>> findByEmail(String email);
 
     Optional<List<OrderDTO>> findOrdersByShop(Long shopId);
 }
