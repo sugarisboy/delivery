@@ -108,8 +108,8 @@ public class OrderServiceImpl implements OrderService {
 
         Shop shop = byId.get();
         Optional<List<Order>> byShop = orderRepository.findByShop(shop);
-        if (byId.isEmpty())
-            return null;
+        if (byShop.isEmpty())
+            return Optional.empty();
 
         List<OrderDTO> collect = byShop.get().stream()
             .map(orderTOOrderDTOConverter::convert)
