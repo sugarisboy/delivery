@@ -1,13 +1,13 @@
 package dev.muskrat.delivery.controller;
 
-import dev.muskrat.delivery.geocoder.AutoComplete;
-import dev.muskrat.delivery.dto.mapping.AutoCompleteDTO;
+import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
+import dev.muskrat.delivery.dto.mapping.RegionUpdateResponseDTO;
+import dev.muskrat.delivery.service.mapping.MappingService;
+import dev.muskrat.delivery.dto.mapping.AutoCompleteResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -15,14 +15,19 @@ import javax.validation.constraints.NotNull;
 @RequestMapping("/map")
 public class MapController {
 
-    private final AutoComplete autoComplete;
+    private final MappingService mappingService;
 
     @GetMapping("/ac/{label:.+}")
-    public AutoCompleteDTO autoComplete(
+    public AutoCompleteResponseDTO autoComplete(
         @NotNull @PathVariable String label
     ) {
-        System.out.println(label);
-        return autoComplete.complete(label);
+        return mappingService.autoComplete(label);
     }
 
+    @PatchMapping("/update")
+    public RegionUpdateResponseDTO updateRegion(
+        @Valid @RequestBody RegionUpdateDTO regionUpdateDTO
+    ) {
+       return mappingService.updateRegion(regionUpdateDTO);
+    }
 }
