@@ -1,6 +1,8 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
+import dev.muskrat.delivery.dto.mapping.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.dto.shop.*;
 import dev.muskrat.delivery.service.shop.ShopService;
 import lombok.SneakyThrows;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,9 +41,9 @@ public class ShopControllerTest {
     private ObjectMapper objectMapper;
 
     @SneakyThrows
-    private ShopCreateResponseDTO createTestItem() {
+    private ShopCreateResponseDTO createTestItem(String shopName) {
         ShopCreateDTO createDTO = ShopCreateDTO.builder()
-                .name("test")
+                .name(shopName)
                 .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
@@ -59,7 +62,8 @@ public class ShopControllerTest {
     @SneakyThrows
     @Transactional
     public void ShopCreateTest() {
-        ShopCreateResponseDTO item = createTestItem();
+        String shopName = "test" + ThreadLocalRandom.current().nextInt();
+        ShopCreateResponseDTO item = createTestItem(shopName);
 
         Long createdShopId = item.getId();
 
@@ -67,14 +71,14 @@ public class ShopControllerTest {
                 .findById(createdShopId).orElseThrow();
 
         assertEquals(createdShopDTO.getId(), createdShopId);
-        assertEquals(createdShopDTO.getName(), "test");
+        assertEquals(createdShopDTO.getName(), shopName);
     }
 
     @Test
     @SneakyThrows
     @Transactional
     public void shopUpdateDTO() {
-        ShopCreateResponseDTO item = createTestItem();
+        ShopCreateResponseDTO item = createTestItem("test");
 
         Long createdShopId = item.getId();
 
@@ -113,9 +117,8 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
-    @Transactional
     public void shopScheduleUpdateDTO() {
-        ShopCreateResponseDTO item = createTestItem();
+        ShopCreateResponseDTO item = createTestItem("test");
 
         Long createdShopId = item.getId();
 
@@ -165,7 +168,7 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     public void shopDeleteTest() {
-        ShopCreateResponseDTO item = createTestItem();
+        ShopCreateResponseDTO item = createTestItem("test");
 
         Long itemId = item.getId();
 
@@ -178,5 +181,35 @@ public class ShopControllerTest {
 
         Optional<ShopDTO> byId = shopService.findById(itemId);
         assertTrue(byId.isEmpty());
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void regionUpdateDTO() {
+        ShopCreateResponseDTO item = createTestItem("test");
+
+        Long itemId = item.getId();
+
+        RegionUpdateDTO regionUpdateDTO = RegionUpdateDTO.builder()
+            .shopId(itemId)
+            .points(Arrays.asList(
+                1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D
+            )).build();
+
+        String contentAsString = mockMvc.perform(patch("/map/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(regionUpdateDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        RegionUpdateResponseDTO regionUpdateResponseDTO = objectMapper
+            .readValue(contentAsString, RegionUpdateResponseDTO.class);
+
+        Long updatableId = regionUpdateResponseDTO.getId();
+
+        assertEquals(itemId, updatableId);
     }
 }

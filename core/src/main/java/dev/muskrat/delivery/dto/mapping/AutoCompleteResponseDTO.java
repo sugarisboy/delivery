@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AutoCompleteDTO {
+public class AutoCompleteResponseDTO {
 
     private List<AutoCompleteElementDTO> suggestions;
 }
