@@ -3,16 +3,12 @@ package dev.muskrat.delivery.exception;
 import dev.muskrat.delivery.dto.ValidationExceptionDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.AbstractPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -20,12 +16,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 @ControllerAdvice
 public class EntityValidatorExceptionHandler extends ResponseEntityExceptionHandler {
-
-    // now8 June remove after 10 June
-    /*@InitBinder
-    private void activateDirectFieldAccess(DataBinder dataBinder) {
-        dataBinder.initDirectFieldAccess();
-    }*/
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -49,13 +39,17 @@ public class EntityValidatorExceptionHandler extends ResponseEntityExceptionHand
                         .field(field)
                         .build();
                 } else {
-                    System.out.println("\n\n\\n\n\n\n\n\n\\n\n\n\\n\n");
+                    ObjectError error = objError;
+                    String message = error.getDefaultMessage();
+                    exception = ValidationExceptionDTO.builder()
+                        .id(0)
+                        .message(message)
+                        .field("dto")
+                        .build();
                 }
             }
         }
 
         return handleExceptionInternal(ex, exception, headers, status, request);
     }
-
-
 }
