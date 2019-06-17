@@ -1,3 +1,10 @@
+geocode:
+  app.id: 'PwhAzeVFHuSMGdcjtFvQ'
+  app.code: 'yE6QWws10hfiJKPyLE-hIQ'
+  country: 'MYS'
+  complete:
+    maxresults: 5
+
 spring:
   datasource:
     url: jdbc:h2:mem:testdb

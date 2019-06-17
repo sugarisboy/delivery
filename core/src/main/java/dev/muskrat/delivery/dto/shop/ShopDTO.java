@@ -13,6 +13,5 @@ public class ShopDTO {
     private String description;
     private Double minOrderPrice;
     private Double freeOrderPrice;
-    private RegionDeliveryDTO region;
     private Long shopId;
 }

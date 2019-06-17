@@ -38,7 +38,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO create(OrderCreateDTO orderDTO) {
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
-        //TODO check region
         //TODO trigger event
 
         for (OrderProduct orderProduct : order.getProducts()) {
@@ -117,5 +116,4 @@ public class OrderServiceImpl implements OrderService {
 
         return Optional.of(collect);
     }
-
 }
