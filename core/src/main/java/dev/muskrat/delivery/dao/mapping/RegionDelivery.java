@@ -6,7 +6,6 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Table;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -17,7 +16,7 @@ public class RegionDelivery {
     @Embedded
     private List<RegionPoint> points;
 
-    private boolean isRegionAvailable(RegionPoint point) {
+    public boolean isRegionAvailable(RegionPoint point) {
         int size = points.size();
         double[] pointX = points.stream().mapToDouble(RegionPoint::getX).toArray();
         double[] pointY = points.stream().mapToDouble(RegionPoint::getY).toArray();

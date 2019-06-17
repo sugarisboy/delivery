@@ -9,6 +9,7 @@ import dev.muskrat.delivery.dao.shop.ShopRepository;
 import dev.muskrat.delivery.dto.mapping.AutoCompleteResponseDTO;
 import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
 import dev.muskrat.delivery.dto.mapping.RegionUpdateResponseDTO;
+import dev.muskrat.delivery.exception.AddressNotFoundException;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import dev.muskrat.delivery.exception.LocationParseException;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class MappingServiceImpl implements MappingService {
             .query("locationattributes=none")
             .query("country=" + COUNTRY)
             .query("maxresults=" + MAX_RESULTS)
-            .query("searchtext=" + "Jalan Teoh Kim Swee, 4")
+            .query("searchtext=" + label)
             .build().toString();
 
         RestTemplate restTemplate = new RestTemplate();
@@ -84,7 +85,7 @@ public class MappingServiceImpl implements MappingService {
 
             JsonNode view = httpResponse.get("Response").get("View");
             if (!view.has(0))
-                throw new LocationParseException("Location not found");
+                throw new AddressNotFoundException("Address not found");
 
             location = view.get(0)
                 .get("Result").get(0)
@@ -96,9 +97,8 @@ public class MappingServiceImpl implements MappingService {
 
         double latitude = location.get("Latitude").asDouble();
         double longitude = location.get("Longitude").asDouble();
-        RegionPoint regionPoint = new RegionPoint(latitude, longitude, 100D);
 
-        return regionPoint;
+        return new RegionPoint(latitude, longitude, 100D);
     }
 
     public RegionUpdateResponseDTO updateRegion(RegionUpdateDTO regionUpdateDTO) {
