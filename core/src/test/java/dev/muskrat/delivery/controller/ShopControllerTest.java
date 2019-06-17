@@ -1,6 +1,9 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.dao.mapping.RegionDelivery;
+import dev.muskrat.delivery.dao.shop.Shop;
+import dev.muskrat.delivery.dao.shop.ShopRepository;
 import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
 import dev.muskrat.delivery.dto.mapping.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.dto.shop.*;
@@ -22,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,6 +40,9 @@ public class ShopControllerTest {
 
     @Autowired
     private ShopService shopService;
+
+    @Autowired
+    private ShopRepository shopRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -197,7 +204,7 @@ public class ShopControllerTest {
                 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D
             )).build();
 
-        String contentAsString = mockMvc.perform(patch("/map/update")
+        String contentAsString = mockMvc.perform(patch("/map/regionupdate")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(regionUpdateDTO))
@@ -211,5 +218,11 @@ public class ShopControllerTest {
         Long updatableId = regionUpdateResponseDTO.getId();
 
         assertEquals(itemId, updatableId);
+
+        Optional<Shop> byId = shopRepository.findById(itemId);
+        Shop shop = byId.get();
+        RegionDelivery region = shop.getRegion();
+
+        assertNotNull(region);
     }
 }
