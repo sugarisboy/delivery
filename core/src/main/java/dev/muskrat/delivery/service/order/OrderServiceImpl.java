@@ -2,6 +2,8 @@ package dev.muskrat.delivery.service.order;
 
 import dev.muskrat.delivery.converter.OrderCreateDTOTOOrderConverter;
 import dev.muskrat.delivery.converter.OrderTOOrderDTOConverter;
+import dev.muskrat.delivery.dao.mapping.RegionDelivery;
+import dev.muskrat.delivery.dao.mapping.RegionPoint;
 import dev.muskrat.delivery.dao.order.Order;
 import dev.muskrat.delivery.dao.order.OrderProduct;
 import dev.muskrat.delivery.dao.order.OrderRepository;
@@ -14,11 +16,13 @@ import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderUpdateDTO;
 import dev.muskrat.delivery.dto.product.ProductDTO;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
+import dev.muskrat.delivery.service.mapping.MappingService;
 import dev.muskrat.delivery.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
+    private final MappingService mappingService;
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
@@ -38,20 +43,34 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO create(OrderCreateDTO orderDTO) {
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
-        //TODO check region
         //TODO trigger event
+
+        Long shopId = orderDTO.getShopId();
+        String address = orderDTO.getAddress();
 
         for (OrderProduct orderProduct : order.getProducts()) {
             Long productId = orderProduct.getProductId();
             Optional<Product> byId = productRepository.findById(productId);
-            if (byId.isEmpty())
+            if (byId.isEmpty()) {
                 throw new EntityNotFoundException("Product with id " + productId + " not found");
+            }
 
             Product product = byId.get();
-            if (product.getShop().getId() != orderDTO.getShopId())
+            if (product.getShop().getId() != shopId) {
                 throw new RuntimeException("Order contains products from two and more shop");
-
+            }
         }
+
+        Optional<Shop> byId = shopRepository.findById(shopId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+        Shop shop = byId.get();
+
+        RegionPoint pointByAddress = mappingService.getPointByAddress(address);
+        RegionDelivery region = shop.getRegion();
+        boolean regionAvailable = region.isRegionAvailable(pointByAddress);
+        if (!regionAvailable)
+            throw new RuntimeException("Out of delivery area");
 
         orderRepository.save(order);
 
@@ -108,8 +127,8 @@ public class OrderServiceImpl implements OrderService {
 
         Shop shop = byId.get();
         Optional<List<Order>> byShop = orderRepository.findByShop(shop);
-        if (byId.isEmpty())
-            return null;
+        if (byShop.isEmpty())
+            return Optional.empty();
 
         List<OrderDTO> collect = byShop.get().stream()
             .map(orderTOOrderDTOConverter::convert)
@@ -117,5 +136,4 @@ public class OrderServiceImpl implements OrderService {
 
         return Optional.of(collect);
     }
-
 }
