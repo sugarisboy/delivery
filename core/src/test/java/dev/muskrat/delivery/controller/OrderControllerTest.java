@@ -2,6 +2,7 @@ package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.dto.ValidationExceptionDTO;
+import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
 import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderProductDTO;
@@ -47,6 +48,28 @@ public class OrderControllerTest {
     private ObjectMapper objectMapper;
 
     @SneakyThrows
+    private void shopRegionSet(ShopCreateResponseDTO item) {
+        Long itemId = item.getId();
+
+        RegionUpdateDTO regionUpdateDTO = RegionUpdateDTO.builder()
+            .shopId(itemId)
+            .points(Arrays.asList(
+                4.5272D, 101.1638D, 100D,
+                4.6335D, 101.1250D, 100D,
+                4.5452D, 101.0834D, 100D,
+                4.5272D, 101.1638D, 100D
+            )).build();
+
+        mockMvc.perform(patch("/map/regionupdate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(regionUpdateDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+    }
+
+    @SneakyThrows
     private ProductCreateResponseDTO createTestableProduct(String title, Long shopId) {
         ProductCreateDTO productCreateDTO = ProductCreateDTO.builder()
             .title(title)
@@ -69,8 +92,9 @@ public class OrderControllerTest {
 
     @SneakyThrows
     private ShopCreateResponseDTO createTestableShop() {
-        ShopCreateDTO createDTO = ShopCreateDTO.builder().name("shop" +
-            ThreadLocalRandom.current().nextInt()).build();
+        ShopCreateDTO createDTO = ShopCreateDTO.builder()
+            .name("shop" + ThreadLocalRandom.current().nextInt())
+            .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
             .contentType(MediaType.APPLICATION_JSON)
@@ -87,6 +111,7 @@ public class OrderControllerTest {
     @SneakyThrows
     private OrderCreateDTO createDTO() {
         ShopCreateResponseDTO testableShop = createTestableShop();
+        shopRegionSet(testableShop);
         Long shopId = testableShop.getId();
 
         ProductCreateResponseDTO first = createTestableProduct("first", shopId);
@@ -99,7 +124,7 @@ public class OrderControllerTest {
 
         return OrderCreateDTO.builder()
             .name("Ivan Ivanov")
-            .address("street")
+            .address("Jalan Teoh Kim Swee, 4")
             .comment("no comments")
             .email("sugarisboy@outlook.com")
             .phone("79201213333")
@@ -110,6 +135,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void orderCreateSuccessfulTest() {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
@@ -183,6 +209,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void updateStatusTest() {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
@@ -218,6 +245,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void OrderCreateGetTest() {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)

@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.dao.shop;
 
+import dev.muskrat.delivery.dao.mapping.RegionDelivery;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.product.Product;
 import lombok.Data;
@@ -46,7 +47,7 @@ public class Shop {
     private List<LocalTime> close;
 
     @Embedded
-    private RegionDelivery region;
+    private RegionDelivery region = RegionDelivery.getEmpty();
 
     @Column
     private Boolean deleted = false;
