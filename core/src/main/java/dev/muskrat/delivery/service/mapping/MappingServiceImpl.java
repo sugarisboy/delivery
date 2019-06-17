@@ -1,5 +1,7 @@
 package dev.muskrat.delivery.service.mapping;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.dao.mapping.RegionDelivery;
 import dev.muskrat.delivery.dao.mapping.RegionPoint;
 import dev.muskrat.delivery.dao.shop.Shop;
@@ -8,10 +10,14 @@ import dev.muskrat.delivery.dto.mapping.AutoCompleteResponseDTO;
 import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
 import dev.muskrat.delivery.dto.mapping.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
+import dev.muskrat.delivery.exception.LocationParseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,36 +27,78 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MappingServiceImpl implements MappingService {
 
-    // TODO move to config file @value("{mapapi.appId}")
-    private final int MAX_RESULT = 5;
-    private final String APP_ID = "PwhAzeVFHuSMGdcjtFvQ";
-    private final String APP_CODE = "yE6QWws10hfiJKPyLE-hIQ";
-    private final String COUNTRY = "MYS";
-
-    // TODO https://www.baeldung.com/spring-uricomponentsbuilder
-    private final String URL_TEMPLATE = "http://autocomplete.mapping.api.here.com/6.2/" +
-        "suggest.json?" +
-        "app_id=[APP_ID]" +
-        "&app_code=[APP_CODE]" +
-        "&query=[FIELD]" +
-        "&country=[COUNTRY]" +
-        "&maxresults=[MAX_RESULT]";
-
     private final ShopRepository shopRepository;
 
+    @Value("${geocode.app.id}")
+    private String APP_ID;
+
+    @Value("${geocode.app.code}")
+    private String APP_CODE;
+
+    @Value("${geocode.country}")
+    private String COUNTRY;
+
+    @Value("${geocode.complete.maxresults}")
+    private Integer MAX_RESULTS;
+
     public AutoCompleteResponseDTO autoComplete(String label) {
+        String http = UriComponentsBuilder.newInstance()
+            .scheme("http")
+            .host("autocomplete.mapping.api.here.com")
+            .path("/6.2/geocode.json")
+            .query("app_id=" + APP_ID)
+            .query("app_code=" + APP_CODE)
+            .query("country" + COUNTRY)
+            .query("maxresults" + MAX_RESULTS)
+            .query("query" + label)
+            .build().toString();
+
         RestTemplate restTemplate = new RestTemplate();
-        AutoCompleteResponseDTO dto = restTemplate.getForObject(url(label), AutoCompleteResponseDTO.class);
-        return dto;
+        AutoCompleteResponseDTO autoCompleteResponseDTO = restTemplate
+            .getForObject(http, AutoCompleteResponseDTO.class);
+        return autoCompleteResponseDTO;
     }
 
-    private String url(String label) {
-        return URL_TEMPLATE
-            .replace("[APP_ID]", APP_ID)
-            .replace("[APP_CODE]", APP_CODE)
-            .replace("[COUNTRY]", COUNTRY)
-            .replace("[MAX_RESULT]", MAX_RESULT + "")
-            .replace("[FIELD]", label);
+    public RegionPoint getPointByAddress(String label) {
+        String http = UriComponentsBuilder.newInstance()
+            .scheme("http")
+            .host("geocoder.api.here.com")
+            .path("/6.2/geocode.json")
+            .query("app_id=" + APP_ID)
+            .query("app_code=" + APP_CODE)
+            .query("locationattributes=none")
+            .query("country=" + COUNTRY)
+            .query("maxresults=" + MAX_RESULTS)
+            .query("searchtext=" + "Jalan Teoh Kim Swee, 4")
+            .build().toString();
+
+        RestTemplate restTemplate = new RestTemplate();
+        String json = restTemplate.getForObject(http, String.class);
+
+        JsonNode location;
+
+        try {
+            JsonNode httpResponse = new ObjectMapper().readTree(json);
+            if (!httpResponse.has("Response"))
+                throw new LocationParseException("MapApi timeout");
+
+            JsonNode view = httpResponse.get("Response").get("View");
+            if (!view.has(0))
+                throw new LocationParseException("Location not found");
+
+            location = view.get(0)
+                .get("Result").get(0)
+                .get("Location")
+                .get("NavigationPosition").get(0);
+        } catch (IOException ex) {
+            throw new LocationParseException("Location don't parsed");
+        }
+
+        double latitude = location.get("Latitude").asDouble();
+        double longitude = location.get("Longitude").asDouble();
+        RegionPoint regionPoint = new RegionPoint(latitude, longitude, 100D);
+
+        return regionPoint;
     }
 
     public RegionUpdateResponseDTO updateRegion(RegionUpdateDTO regionUpdateDTO) {
@@ -81,6 +129,4 @@ public class MappingServiceImpl implements MappingService {
             .id(shopId)
             .build();
     }
-
-
 }

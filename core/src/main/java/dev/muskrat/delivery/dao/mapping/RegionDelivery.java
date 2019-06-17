@@ -5,6 +5,8 @@ import lombok.Data;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -14,10 +16,6 @@ public class RegionDelivery {
 
     @Embedded
     private List<RegionPoint> points;
-
-    public boolean getAvailability() {
-        return true;
-    }
 
     private boolean isRegionAvailable(RegionPoint point) {
         int size = points.size();
@@ -33,5 +31,11 @@ public class RegionDelivery {
                 c = !c;
         }
         return c;
+    }
+
+    public static RegionDelivery getEmpty() {
+        RegionDelivery regionDelivery = new RegionDelivery();
+        regionDelivery.setPoints(new ArrayList<>());
+        return regionDelivery;
     }
 }

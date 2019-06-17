@@ -24,7 +24,7 @@ public class MapController {
         return mappingService.autoComplete(label);
     }
 
-    @PatchMapping("/update")
+    @PatchMapping("/regionupdate")
     public RegionUpdateResponseDTO updateRegion(
         @Valid @RequestBody RegionUpdateDTO regionUpdateDTO
     ) {
