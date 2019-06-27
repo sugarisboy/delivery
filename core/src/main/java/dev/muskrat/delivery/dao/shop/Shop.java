@@ -46,6 +46,7 @@ public class Shop {
     @ElementCollection
     private List<LocalTime> close;
 
+    @Column
     @Embedded
     private RegionDelivery region = RegionDelivery.getEmpty();
 

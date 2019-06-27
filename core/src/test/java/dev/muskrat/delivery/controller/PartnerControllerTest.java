@@ -67,7 +67,7 @@ public class PartnerControllerTest {
             .findById(registeredPartnerId).orElseThrow();
 
         assertEquals(partnerDTO.getId(), registeredPartnerId);
-        assertEquals(partnerDTO.getEmail(), "test@test.de");
+        assertEquals(partnerDTO.getEmail(), "test@test.te");
     }
 
     /*@Test

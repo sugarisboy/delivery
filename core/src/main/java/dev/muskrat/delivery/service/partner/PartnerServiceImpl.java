@@ -1,10 +1,12 @@
 package dev.muskrat.delivery.service.partner;
 
-import dev.muskrat.delivery.converter.ObjectConverter;
+import dev.muskrat.delivery.converter.PartnerToPartnerDTOConverter;
+import dev.muskrat.delivery.dao.order.Order;
 import dev.muskrat.delivery.dao.partner.Partner;
 import dev.muskrat.delivery.dao.partner.PartnerRepository;
 import dev.muskrat.delivery.dto.partner.*;
 import dev.muskrat.delivery.exception.EntityExistException;
+import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerRepository partnerRepository;
-    private final ObjectConverter<Partner, PartnerDTO> partnerToPartnerDTOConverter;
+    private final PartnerToPartnerDTOConverter partnerToPartnerDTOConverter;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -50,8 +52,40 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
+    public PartnerRegisterResponseDTO createByOrder(Order order) {
+        PartnerRegisterDTO partnerRegisterDTO = PartnerRegisterDTO.builder()
+            .email(order.getEmail())
+            .name(order.getName())
+            .phone(order.getPhone())
+            // TODO: Fix it. How here generate password?
+            .password("password")
+            .passwordRepeat("password")
+            .build();
+        return create(partnerRegisterDTO);
+    }
+
+    @Override
     public PartnerUpdateResponseDTO update(PartnerUpdateDTO partnerDTO) {
-        return null;
+        Long id = partnerDTO.getId();
+        Optional<Partner> byId = partnerRepository.findById(id);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Partner with id " + id + " don't found");
+
+        Partner partner = byId.get();
+        if (partnerDTO.getEmail() != null)
+            partner.setEmail(partnerDTO.getEmail());
+        if (partnerDTO.getName() != null)
+            partner.setName(partnerDTO.getName());
+        if (partnerDTO.getId() != null)
+            partner.setPhone(partnerDTO.getPhone());
+
+        // TODO: function for change password
+
+        partnerRepository.save(partner);
+
+        return PartnerUpdateResponseDTO.builder()
+            .id(id)
+            .build();
     }
 
     @Override
@@ -82,5 +116,4 @@ public class PartnerServiceImpl implements PartnerService {
         return partnerRepository.findByEmail(email)
             .map(partnerToPartnerDTOConverter::convert);
     }
-
 }

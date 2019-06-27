@@ -14,15 +14,12 @@ import dev.muskrat.delivery.dao.shop.ShopRepository;
 import dev.muskrat.delivery.dto.order.OrderCreateDTO;
 import dev.muskrat.delivery.dto.order.OrderDTO;
 import dev.muskrat.delivery.dto.order.OrderUpdateDTO;
-import dev.muskrat.delivery.dto.product.ProductDTO;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import dev.muskrat.delivery.service.mapping.MappingService;
-import dev.muskrat.delivery.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

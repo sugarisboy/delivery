@@ -12,6 +12,8 @@ public class PartnerToPartnerDTOConverter implements ObjectConverter<Partner, Pa
         return PartnerDTO.builder()
             .id(partner.getId())
             .name(partner.getName())
+            .email(partner.getEmail())
+            .phone(partner.getPhone())
             .build();
     }
 
