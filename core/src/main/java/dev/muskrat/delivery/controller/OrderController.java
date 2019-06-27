@@ -6,7 +6,6 @@ import dev.muskrat.delivery.dto.order.OrderUpdateDTO;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import dev.muskrat.delivery.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

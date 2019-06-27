@@ -11,6 +11,8 @@ public class PartnerRegisterDTOToPartnerConverter
     @Override
     public Partner convert(PartnerRegisterDTO partnerRegisterDTO) {
         Partner partner = new Partner();
+        partner.setEmail(partnerRegisterDTO.getEmail());
+        partner.setPassword(partnerRegisterDTO.getPassword());
         return partner;
     }
 
