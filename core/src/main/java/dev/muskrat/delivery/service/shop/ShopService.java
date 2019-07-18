@@ -2,6 +2,7 @@
 package dev.muskrat.delivery.service.shop;
 
 import dev.muskrat.delivery.dto.shop.*;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +23,5 @@ public interface ShopService {
 
     void delete(Long id);
 
+    ShopPageDTO findAll(Pageable page);
 }
