@@ -4,6 +4,10 @@ import dev.muskrat.delivery.dto.shop.*;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import dev.muskrat.delivery.service.shop.ShopService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -49,6 +53,16 @@ public class ShopController {
         return shopService.findScheduleById(id).orElseThrow(() ->
             new EntityNotFoundException("Shop schedule not found")
         );
+    }
+
+    @GetMapping("/page")
+    public ShopPageDTO page(
+        @PageableDefault(value = 10, size = 3, page = 0, sort = {"id"},
+            direction = Sort.Direction.DESC)
+            Pageable page
+    ) {
+
+        return shopService.findAll(page);
     }
 
     @DeleteMapping("/{id}")

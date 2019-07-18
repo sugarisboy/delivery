@@ -8,6 +8,8 @@ import dev.muskrat.delivery.exception.EntityExistException;
 import dev.muskrat.delivery.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -51,6 +53,22 @@ public class ShopServiceImpl implements ShopService {
         }, () -> {
             throw new EntityNotFoundException("Shop with id " + id + " not found");
         });
+    }
+
+    @Override
+    public ShopPageDTO findAll(Pageable pageable) {
+        Page<Shop> page = shopRepository.findAll(pageable);
+
+        List<Shop> content = page.getContent();
+        List<ShopDTO> collect = content.stream()
+            .map(shopToShopDTOConverter::convert)
+            .collect(Collectors.toList());
+
+        return ShopPageDTO.builder()
+            .shops(collect)
+            .currentPage(pageable.getPageNumber())
+            .lastPage(page.getTotalPages())
+            .build();
     }
 
     @Override
