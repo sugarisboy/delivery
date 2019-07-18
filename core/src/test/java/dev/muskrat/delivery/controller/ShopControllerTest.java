@@ -1,13 +1,13 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.muskrat.delivery.dao.mapping.RegionDelivery;
-import dev.muskrat.delivery.dao.shop.Shop;
-import dev.muskrat.delivery.dao.shop.ShopRepository;
-import dev.muskrat.delivery.dto.mapping.RegionUpdateDTO;
-import dev.muskrat.delivery.dto.mapping.RegionUpdateResponseDTO;
-import dev.muskrat.delivery.dto.shop.*;
-import dev.muskrat.delivery.service.shop.ShopService;
+import dev.muskrat.delivery.map.dao.RegionDelivery;
+import dev.muskrat.delivery.shop.dao.Shop;
+import dev.muskrat.delivery.shop.dao.ShopRepository;
+import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
+import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
+import dev.muskrat.delivery.shop.service.ShopService;
+import dev.muskrat.delivery.shop.dto.*;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
