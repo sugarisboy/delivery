@@ -4,7 +4,6 @@ geocode:
   country: 'MYS'
   complete:
     maxresults: 5
-
 server:
   port: 8080
 spring:
