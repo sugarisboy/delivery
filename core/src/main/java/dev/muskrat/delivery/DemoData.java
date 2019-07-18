@@ -1,7 +1,7 @@
 package dev.muskrat.delivery;
 
-import dev.muskrat.delivery.dao.product.Category;
-import dev.muskrat.delivery.dao.product.CategoryRepository;
+import dev.muskrat.delivery.product.dao.Category;
+import dev.muskrat.delivery.product.dao.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;

@@ -2,10 +2,10 @@ package dev.muskrat.delivery.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.muskrat.delivery.dto.partner.PartnerDTO;
-import dev.muskrat.delivery.dto.partner.PartnerRegisterDTO;
-import dev.muskrat.delivery.dto.partner.PartnerRegisterResponseDTO;
-import dev.muskrat.delivery.service.partner.PartnerService;
+import dev.muskrat.delivery.partner.dto.PartnerDTO;
+import dev.muskrat.delivery.partner.dto.PartnerRegisterDTO;
+import dev.muskrat.delivery.partner.dto.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.partner.service.PartnerService;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
