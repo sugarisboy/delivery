@@ -21,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
@@ -224,5 +226,53 @@ public class ShopControllerTest {
         RegionDelivery region = shop.getRegion();
 
         assertNotNull(region);
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void findAllByPage() {
+        Random random = new Random();
+        long i = random.nextLong();
+
+        createTestItem("shop" + i + 0);
+        createTestItem("shop" + i + 1);
+        createTestItem("shop" + i + 2);
+        createTestItem("shop" + i + 3);
+        createTestItem("shop" + i + 4);
+        createTestItem("shop" + i + 5);
+        createTestItem("shop" + i + 6);
+        createTestItem("shop" + i + 7);
+        createTestItem("shop" + i + 8);
+
+        String firstContentAsString = mockMvc.perform(get("/shop/page?page=0")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        ShopPageDTO firstPage = objectMapper
+            .readValue(firstContentAsString, ShopPageDTO.class);
+
+        String secondContentAsString = mockMvc.perform(get("/shop/page?page=1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        ShopPageDTO secondPage = objectMapper
+            .readValue(secondContentAsString, ShopPageDTO.class);
+
+        assertNotNull(secondPage);
+
+        List<ShopDTO> shops = secondPage.getShops();
+        assertTrue(shops.get(0).getName().endsWith("5"));
+        assertTrue(shops.get(1).getName().endsWith("4"));
+        assertTrue(shops.get(2).getName().endsWith("3"));
+
+        assertEquals(secondPage.getCurrentPage().intValue(), 1);
+        assertEquals(secondPage.getLastPage().intValue(), 3);
     }
 }
