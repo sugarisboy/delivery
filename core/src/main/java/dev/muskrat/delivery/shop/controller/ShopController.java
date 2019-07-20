@@ -57,11 +57,20 @@ public class ShopController {
     @GetMapping("/page")
     public ShopPageDTO page(
         @PageableDefault(value = 10, size = 3, page = 0, sort = {"id"},
-            direction = Sort.Direction.DESC)
-            Pageable page
+            direction = Sort.Direction.DESC) Pageable page
     ) {
 
         return shopService.findAll(page);
+    }
+
+    @GetMapping("/page/{cityId}")
+    public ShopPageDTO pageByCity(
+        @PageableDefault(value = 10, size = 3, page = 0, sort = {"id"},
+            direction = Sort.Direction.DESC) Pageable page,
+        @PathVariable Long cityId
+    ) {
+
+        return shopService.findAll(page, cityId);
     }
 
     @DeleteMapping("/{id}")

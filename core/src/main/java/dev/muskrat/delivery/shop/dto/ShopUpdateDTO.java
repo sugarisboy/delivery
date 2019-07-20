@@ -22,6 +22,8 @@ public class ShopUpdateDTO {
     @Size(min = 1, max = 64)
     private String name;
 
+    private Long cityId;
+
     private String logo;
 
     private String description;

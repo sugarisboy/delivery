@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.shop.dao;
 
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
@@ -24,6 +25,9 @@ public class Shop {
 
     @ManyToOne(targetEntity = Partner.class)
     private Partner partner;
+
+    @ManyToOne(targetEntity = City.class)
+    private City city;
 
     @OneToMany(targetEntity = Product.class)
     private List<Product> products;

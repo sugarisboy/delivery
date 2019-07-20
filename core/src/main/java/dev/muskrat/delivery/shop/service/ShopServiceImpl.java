@@ -1,5 +1,7 @@
 package dev.muskrat.delivery.shop.service;
 
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,20 +28,28 @@ import java.util.stream.Collectors;
 public class ShopServiceImpl implements ShopService {
 
     private final ShopRepository shopRepository;
+    private final CitiesRepository citiesRepository;
     private final ShopToShopDTOConverter shopToShopDTOConverter;
 
     @Override
     public ShopCreateResponseDTO create(ShopCreateDTO shopDTO) {
+
         Optional<Shop> sameShopPartner = shopRepository
                 .findByName(shopDTO.getName());
-
-        if (sameShopPartner.isPresent()) {
+        if (sameShopPartner.isPresent())
             throw new EntityExistException("This shop name is already taken.");
-        }
+
+        Long cityId = shopDTO.getCityId();
+        Optional<City> cityById = citiesRepository.findById(cityId);
+        if (cityById.isEmpty())
+            throw new EntityNotFoundException("City with id " + cityId + " not found");
+        City city = cityById.get();
 
         Shop shop = new Shop();
         shop.setName(shopDTO.getName());
+        shop.setCity(city);
         Shop shopWithId = shopRepository.save(shop);
+
         return ShopCreateResponseDTO.builder()
                 .id(shopWithId.getId())
                 .build();
@@ -72,6 +84,27 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
+    public ShopPageDTO findAll(Pageable pageable, Long cityId) {
+        Optional<City> byId = citiesRepository.findById(cityId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("City with id " + cityId + "not found");
+        City city = byId.get();
+
+        Page<Shop> page = shopRepository.findAllByCity(city, pageable);
+
+        List<Shop> content = page.getContent();
+        List<ShopDTO> collect = content.stream()
+            .map(shopToShopDTOConverter::convert)
+            .collect(Collectors.toList());
+
+        return ShopPageDTO.builder()
+            .shops(collect)
+            .currentPage(pageable.getPageNumber())
+            .lastPage(page.getTotalPages())
+            .build();
+    }
+
+    @Override
     public ShopUpdateResponseDTO update(ShopUpdateDTO shopUpdateDTO) {
         Long id = shopUpdateDTO.getId();
         Optional<Shop> byId = shopRepository.findById(id);
@@ -90,6 +123,16 @@ public class ShopServiceImpl implements ShopService {
             shop.setLogo(shopUpdateDTO.getLogo());
         if (shopUpdateDTO.getMinOrderPrice() != null)
             shop.setMinOrderPrice(shopUpdateDTO.getMinOrderPrice());
+        if (shopUpdateDTO.getCityId() != null) {
+            Long cityId = shopUpdateDTO.getCityId();
+            Optional<City> cityById = citiesRepository.findById(cityId);
+
+            if (cityById.isEmpty())
+                throw new EntityNotFoundException("City with id " + id + " not found");
+
+            City city = cityById.get();
+            shop.setCity(city);
+        }
 
         shopRepository.save(shop);
 
@@ -148,8 +191,8 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public List<ShopDTO> findAll() {
         return shopRepository.findAll()
-                .stream()
-                .map(shopToShopDTOConverter::convert)
-                .collect(Collectors.toList());
+            .stream()
+            .map(shopToShopDTOConverter::convert)
+            .collect(Collectors.toList());
     }
 }
