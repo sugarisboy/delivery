@@ -31,6 +31,11 @@ public class CitiesController {
         return citiesService.update(cityUpdateDTO);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@NotNull @PathVariable Long id) {
+        citiesService.delete(id);
+    }
+
     @GetMapping("/")
     public List<CityDTO> findAll() {
         return citiesService.findAll();

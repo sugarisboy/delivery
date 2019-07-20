@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -119,5 +120,23 @@ public class CitiesControllerTest {
             .readValue(contentAsString, CityCreateResponseDTO.class);
 
         return cityCreateResponseDTO;
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteTest() {
+        CityCreateResponseDTO city = createCity("city");
+        Long id = city.getId();
+
+        String contentAsString = mockMvc.perform(delete("/cities/" + id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        Optional<City> byId = citiesRepository.findById(id);
+
+        assertTrue(byId.isEmpty());
     }
 }
