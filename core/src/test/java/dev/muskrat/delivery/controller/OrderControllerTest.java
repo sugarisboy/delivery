@@ -246,7 +246,7 @@ public class OrderControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void OrderCreateGetTest() {
+    public void orderCreateGetTest() {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)

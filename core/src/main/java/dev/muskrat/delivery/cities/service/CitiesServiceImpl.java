@@ -1,17 +1,18 @@
 package dev.muskrat.delivery.cities.service;
 
+import dev.muskrat.delivery.cities.converter.CityToCityDTOConverter;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.cities.dto.*;
 import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.product.dao.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class CitiesServiceImpl implements CitiesService {
 
     private final CitiesRepository citiesRepository;
+    private final CityToCityDTOConverter cityToCityDTOConverter;
 
     @Override
     public CityCreateResponseDTO create(CityCreateDTO cityCreateDTO) {
@@ -64,12 +66,15 @@ public class CitiesServiceImpl implements CitiesService {
 
     @Override
     public List<CityDTO> findAll() {
-        return null;
+        return citiesRepository.findAll().stream()
+            .map(cityToCityDTOConverter::convert)
+            .collect(Collectors.toList());
     }
 
     @Override
     public Optional<CityDTO> findById(Long id) {
-        return Optional.empty();
+        Optional<City> byId = citiesRepository.findById(id);
+        return byId.map(cityToCityDTOConverter::convert);
     }
 
     @Override
