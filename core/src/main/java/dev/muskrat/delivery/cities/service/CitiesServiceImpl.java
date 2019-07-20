@@ -5,6 +5,7 @@ import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.cities.dto.*;
 import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.product.dao.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,5 +70,17 @@ public class CitiesServiceImpl implements CitiesService {
     @Override
     public Optional<CityDTO> findById(Long id) {
         return Optional.empty();
+    }
+
+    @Override
+    public void delete(Long id) {
+        Optional<City> byId = citiesRepository.findById(id);
+
+        byId.ifPresentOrElse(p -> {
+            p.setDeleted(true);
+            citiesRepository.save(p);
+        }, () -> {
+            throw new EntityNotFoundException("City with id " + id + " not found");
+        });
     }
 }

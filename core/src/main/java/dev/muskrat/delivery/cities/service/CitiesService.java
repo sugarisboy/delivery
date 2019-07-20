@@ -14,4 +14,6 @@ public interface CitiesService {
     List<CityDTO> findAll();
 
     Optional<CityDTO> findById(Long id);
+
+    void delete(Long id);
 }
