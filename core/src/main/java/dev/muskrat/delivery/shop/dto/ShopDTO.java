@@ -17,5 +17,5 @@ public class ShopDTO {
     private String description;
     private Double minOrderPrice;
     private Double freeOrderPrice;
-    private Long shopId;
+    private Long cityId;
 }
