@@ -9,7 +9,11 @@ import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.shop.dto.ShopDTO;
+import dev.muskrat.delivery.shop.dto.ShopPageDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -116,5 +120,21 @@ public class ProductServiceImpl implements ProductService {
             .stream()
             .map(productToProductDTOConverter::convert)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductPageDTO findAll(Pageable pageable) {
+        Page<Product> page = productRepository.findAll(pageable);
+
+        List<Product> content = page.getContent();
+        List<ProductDTO> collect = content.stream()
+            .map(productToProductDTOConverter::convert)
+            .collect(Collectors.toList());
+
+        return ProductPageDTO.builder()
+            .products(collect)
+            .currentPage(pageable.getPageNumber())
+            .lastPage(page.getTotalPages())
+            .build();
     }
 }

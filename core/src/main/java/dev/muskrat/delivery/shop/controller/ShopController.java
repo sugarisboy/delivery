@@ -56,9 +56,7 @@ public class ShopController {
 
     @GetMapping("/page")
     public ShopPageDTO page(
-        @PageableDefault(value = 10, size = 3, page = 0, sort = {"id"},
-            direction = Sort.Direction.DESC)
-            Pageable page
+        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
     ) {
 
         return shopService.findAll(page);
