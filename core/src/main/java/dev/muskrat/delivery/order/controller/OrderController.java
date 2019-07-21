@@ -44,7 +44,7 @@ public class OrderController {
         );
     }
 
-    @GetMapping(value = "/email/{email:.+}")
+    @GetMapping("/email/{email:.+}")
     public List<OrderDTO> findByEmail(
         @Email @PathVariable String email
     ) {

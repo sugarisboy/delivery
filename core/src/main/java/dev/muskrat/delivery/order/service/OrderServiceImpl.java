@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.order.service;
 
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.order.converter.OrderCreateDTOTOOrderConverter;
 import dev.muskrat.delivery.order.converter.OrderTOOrderDTOConverter;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
@@ -38,14 +39,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
-        Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
-
         //TODO trigger event
+
+        Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
         Long shopId = orderDTO.getShopId();
         String address = orderDTO.getAddress();
+        List<OrderProduct> products = order.getProducts();
 
-        for (OrderProduct orderProduct : order.getProducts()) {
+        // Check products
+        for (OrderProduct orderProduct : products) {
             Long productId = orderProduct.getProductId();
             Optional<Product> byId = productRepository.findById(productId);
             if (byId.isEmpty()) {
@@ -58,16 +61,21 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+        // Check shopId
         Optional<Shop> byId = shopRepository.findById(shopId);
         if (byId.isEmpty())
             throw new EntityNotFoundException("Shop with id " + shopId + " not found");
         Shop shop = byId.get();
 
+        // Check region delivery
         RegionPoint pointByAddress = mappingService.getPointByAddress(address);
-        RegionDelivery region = shop.getRegion();
-        boolean regionAvailable = region.isRegionAvailable(pointByAddress);
+        RegionDelivery shopRegion = shop.getRegion();
+        boolean regionAvailable = shopRegion.isRegionAvailable(pointByAddress);
         if (!regionAvailable)
             throw new RuntimeException("Out of delivery area");
+
+        City city = shop.getCity();
+        order.setCity(city);
 
         orderRepository.save(order);
 

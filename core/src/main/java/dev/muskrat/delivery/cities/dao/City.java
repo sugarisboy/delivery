@@ -22,6 +22,8 @@ public class City {
     @Column
     private String name;
 
+    @OneToMany(targetEntity = Order.class)
+    private List<Order> products;
 
     @OneToMany(targetEntity = Shop.class)
     private List<Shop> shops;
