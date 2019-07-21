@@ -16,7 +16,7 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
             .description(shop.getDescription())
             .freeOrderPrice(shop.getFreeOrderPrice())
             .logo(shop.getLogo())
-            .shopId(shop.getId())
+            .cityId(shop.getCity().getId())
             .minOrderPrice(shop.getMinOrderPrice())
             .build();
     }

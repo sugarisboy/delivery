@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.order.dao;
 
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.dao.Shop;
 import lombok.Data;
 
@@ -17,6 +18,9 @@ public class Order {
 
     @ElementCollection
     private List<OrderProduct> products;
+
+    @ManyToOne(targetEntity = City.class)
+    private City city;
 
     @Column
     private String phone;
@@ -38,4 +42,6 @@ public class Order {
 
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
+
+    // todo add time create order
 }

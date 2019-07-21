@@ -1,11 +1,14 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.shop.dto.ShopCreateDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateResponseDTO;
 import dev.muskrat.delivery.product.service.ProductService;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -37,6 +42,26 @@ public class ProductControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private CitiesRepository citiesRepository;
+
+
+    private List<City> cities;
+
+    @Before
+    @SneakyThrows
+    public void before() {
+        cities = new ArrayList<>();
+        City city1 = new City();
+        city1.setName("city1");
+        cities.add(city1);
+        citiesRepository.save(city1);
+        City city2 = new City();
+        city1.setName("city2");
+        cities.add(city2);
+        citiesRepository.save(city2);
+    }
+
     private ProductCreateDTO productDTO() {
         ShopCreateResponseDTO testableShop = createTestableShop();
         Long shopId = testableShop.getId();
@@ -51,8 +76,10 @@ public class ProductControllerTest {
 
     @SneakyThrows
     private ShopCreateResponseDTO createTestableShop() {
-        ShopCreateDTO createDTO = ShopCreateDTO.builder().name("shop" +
-            ThreadLocalRandom.current().nextInt()).build();
+        ShopCreateDTO createDTO = ShopCreateDTO.builder()
+            .name("shopId" + ThreadLocalRandom.current().nextInt())
+            .cityId(cities.get(0).getId())
+            .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
             .contentType(MediaType.APPLICATION_JSON)

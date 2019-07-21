@@ -21,7 +21,7 @@ public class OrderDTO {
     private String address;
     private String name;
     private String email;
-    private Long shop;
+    private Long shopId;
     private Integer status;
 
     private String comments;

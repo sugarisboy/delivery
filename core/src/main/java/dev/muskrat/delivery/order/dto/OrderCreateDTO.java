@@ -33,7 +33,6 @@ public class OrderCreateDTO {
     @NotNull
     private String email;
 
-    private String comment;
 
     @NotNull
     @ValidShop
@@ -42,4 +41,6 @@ public class OrderCreateDTO {
     @Valid
     @NotEmpty
     private List<OrderProductDTO> products;
+
+    private String comment;
 }

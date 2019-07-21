@@ -62,6 +62,16 @@ public class ShopController {
         return shopService.findAll(page);
     }
 
+    @GetMapping("/page/{cityId}")
+    public ShopPageDTO pageByCity(
+        @PageableDefault(value = 10, size = 3, page = 0, sort = {"id"},
+            direction = Sort.Direction.DESC) Pageable page,
+        @PathVariable Long cityId
+    ) {
+
+        return shopService.findAll(page, cityId);
+    }
+
     @DeleteMapping("/{id}")
     public void delete(@NotNull @PathVariable Long id) {
         shopService.delete(id);
