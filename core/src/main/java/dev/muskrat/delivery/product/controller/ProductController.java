@@ -3,7 +3,11 @@ package dev.muskrat.delivery.product.controller;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.product.service.ProductService;
+import dev.muskrat.delivery.shop.dto.ShopPageDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,7 +34,7 @@ public class ProductController {
         return productService.update(productDTO);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
     public ProductDTO findById(@NotNull @PathVariable Long id) {
         return productService.findById(id).orElseThrow(() ->
             new EntityNotFoundException("Product not found")
@@ -42,4 +46,10 @@ public class ProductController {
         productService.delete(id);
     }
 
+    @GetMapping("/page")
+    public ProductPageDTO page(
+        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
+    ) {
+        return productService.findAll(page);
+    }
 }
