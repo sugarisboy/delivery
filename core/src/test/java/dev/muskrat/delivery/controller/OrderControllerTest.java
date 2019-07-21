@@ -3,17 +3,15 @@ package dev.muskrat.delivery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
-import dev.muskrat.delivery.order.dto.OrderCreateDTO;
-import dev.muskrat.delivery.order.dto.OrderDTO;
-import dev.muskrat.delivery.order.dto.OrderProductDTO;
-import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
+import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dto.*;
+import dev.muskrat.delivery.order.service.OrderService;
 import dev.muskrat.delivery.product.dto.ProductCreateDTO;
 import dev.muskrat.delivery.product.dto.ProductCreateResponseDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateResponseDTO;
-import dev.muskrat.delivery.order.service.OrderService;
+import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +52,14 @@ public class OrderControllerTest {
     @Autowired
     private CitiesRepository citiesRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
 
     private List<City> cities;
 
     @Before
     @SneakyThrows
-    public void before() {
+    public void beforeCities() {
         cities = new ArrayList<>();
         City city1 = new City();
         city1.setName("city1");
@@ -152,10 +152,64 @@ public class OrderControllerTest {
             .address("Jalan Teoh Kim Swee, 4")
             .comment("no comments")
             .email("sugarisboy@outlook.com")
-            .phone("79201213333")
+            .phone("7920121333" + ThreadLocalRandom.current().nextInt(2))
             .shopId(shopId)
             .products(products)
             .build();
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void orderGetPageTest() {
+        OrderCreateDTO dto = createDTO();
+
+        mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO())
+            ));
+
+        mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO())
+            ));
+
+        mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO())
+            ));
+
+        mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO())
+            ));
+
+        mockMvc.perform(post("/order/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(dto)
+            ));
+
+        OrderPageRequestDTO requestDTO = OrderPageRequestDTO.builder()
+            .shopId(dto.getShopId())
+            .build();
+
+        MockHttpServletResponse response = mockMvc.perform(get("/order/page")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+
+        OrderPageDTO pageDTO = objectMapper
+            .readValue(response.getContentAsString(), OrderPageDTO.class);
+
+        assertEquals(1, pageDTO.getOrders().size());
     }
 
     @Test
@@ -284,7 +338,7 @@ public class OrderControllerTest {
         Long orderId = item.getId();
 
         MockHttpServletResponse responseById = mockMvc
-            .perform(get("/order/" + orderId)
+            .perform(get("/order/get/" + orderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
             )
