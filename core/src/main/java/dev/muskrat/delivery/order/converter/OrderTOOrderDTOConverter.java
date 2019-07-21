@@ -28,7 +28,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
                 .comments(order.getComments())
                 .email(order.getEmail())
                 .id(order.getId())
-                .shop(order.getShop().getId())
+                .shopId(order.getShop().getId())
                 .name(order.getName())
                 .phone(order.getPhone())
                 .products(collect)
