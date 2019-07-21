@@ -1,6 +1,8 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.order.dto.OrderCreateDTO;
@@ -13,6 +15,7 @@ import dev.muskrat.delivery.shop.dto.ShopCreateDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateResponseDTO;
 import dev.muskrat.delivery.order.service.OrderService;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -46,6 +50,26 @@ public class OrderControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private CitiesRepository citiesRepository;
+
+
+    private List<City> cities;
+
+    @Before
+    @SneakyThrows
+    public void before() {
+        cities = new ArrayList<>();
+        City city1 = new City();
+        city1.setName("city1");
+        cities.add(city1);
+        citiesRepository.save(city1);
+        City city2 = new City();
+        city1.setName("city2");
+        cities.add(city2);
+        citiesRepository.save(city2);
+    }
 
     @SneakyThrows
     private void shopRegionSet(ShopCreateResponseDTO item) {
@@ -94,6 +118,7 @@ public class OrderControllerTest {
     private ShopCreateResponseDTO createTestableShop() {
         ShopCreateDTO createDTO = ShopCreateDTO.builder()
             .name("shop" + ThreadLocalRandom.current().nextInt())
+            .cityId(cities.get(0).getId())
             .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
@@ -246,7 +271,7 @@ public class OrderControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void OrderCreateGetTest() {
+    public void orderCreateGetTest() {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
@@ -284,7 +309,7 @@ public class OrderControllerTest {
         assertEquals(responseList.get(0).getEmail(), "sugarisboy@outlook.com");
 
         MockHttpServletResponse responseByShop = mockMvc
-            .perform(get("/order/shop/" + responseDTO.getShop())
+            .perform(get("/order/shop/" + responseDTO.getShopId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
             )
@@ -296,6 +321,6 @@ public class OrderControllerTest {
                 responseByShop.getContentAsString(),
                 objectMapper.getTypeFactory().constructCollectionType(List.class, OrderDTO.class)
             );
-        assertEquals(responseList.get(0).getShop(), responseDTO.getShop());
+        assertEquals(responseList.get(0).getShopId(), responseDTO.getShopId());
     }
 }

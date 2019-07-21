@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.shop.dto;
+package dev.muskrat.delivery.cities.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopDTO {
+public class CityDTO {
 
     private Long id;
     private String name;
-    private String logo;
-    private String description;
-    private Double minOrderPrice;
-    private Double freeOrderPrice;
-    private Long cityId;
 }

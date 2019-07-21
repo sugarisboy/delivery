@@ -24,4 +24,7 @@ public interface ShopService {
     void delete(Long id);
 
     ShopPageDTO findAll(Pageable page);
+
+    ShopPageDTO findAll(Pageable page, Long cityId);
+
 }

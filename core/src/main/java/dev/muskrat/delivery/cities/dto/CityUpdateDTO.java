@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.shop.dto;
+package dev.muskrat.delivery.cities.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,24 +13,14 @@ import javax.validation.constraints.Size;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopUpdateDTO {
+public class CityUpdateDTO {
 
     @NotNull
     @Positive
     private Long id;
 
-    @Size(min = 1, max = 64)
+    @NotNull
+    @Size(min = 3, max = 64, message = "very short or long shop name")
+    // remove not null when add new editable field
     private String name;
-
-    private Long cityId;
-
-    private String logo;
-
-    private String description;
-
-    @Positive
-    private Double minOrderPrice;
-
-    @Positive
-    private Double freeOrderPrice;
 }
