@@ -195,12 +195,14 @@ public class ShopControllerTest {
 
         Long updatedProductId = productUpdateDTO.getId();
 
-        ShopScheduleDTO updatedShopDTO = shopService
-            .findScheduleById(updatedProductId).orElseThrow();
+        ShopDTO updatedShopDTO = shopService
+            .findById(updatedProductId).orElseThrow();
+
+        ShopScheduleDTO schedule = updatedShopDTO.getSchedule();
 
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
-        assertEquals(updateDTO.getOpenTimeList(), updatedShopDTO.getOpen());
-        assertEquals(updateDTO.getCloseTimeList(), updatedShopDTO.getClose());
+        assertEquals(updateDTO.getOpenTimeList(), schedule.getOpen());
+        assertEquals(updateDTO.getCloseTimeList(), schedule.getClose());
     }
 
     @Test
