@@ -52,9 +52,6 @@ public class OrderControllerTest {
     @Autowired
     private CitiesRepository citiesRepository;
 
-    @Autowired
-    private OrderRepository orderRepository;
-
     private List<City> cities;
 
     @Before
@@ -69,93 +66,6 @@ public class OrderControllerTest {
         city1.setName("city2");
         cities.add(city2);
         citiesRepository.save(city2);
-    }
-
-    @SneakyThrows
-    private void shopRegionSet(ShopCreateResponseDTO item) {
-        Long itemId = item.getId();
-
-        RegionUpdateDTO regionUpdateDTO = RegionUpdateDTO.builder()
-            .shopId(itemId)
-            .points(Arrays.asList(
-                4.5272D, 101.1638D, 100D,
-                4.6335D, 101.1250D, 100D,
-                4.5452D, 101.0834D, 100D,
-                4.5272D, 101.1638D, 100D
-            )).build();
-
-        mockMvc.perform(patch("/map/regionupdate")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(regionUpdateDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-    }
-
-    @SneakyThrows
-    private ProductCreateResponseDTO createTestableProduct(String title, Long shopId) {
-        ProductCreateDTO productCreateDTO = ProductCreateDTO.builder()
-            .title(title)
-            .category(1L)
-            .price(20D)
-            .shopId(shopId)
-            .build();
-
-        String contentAsString = mockMvc.perform(post("/product/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(productCreateDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        return objectMapper
-            .readValue(contentAsString, ProductCreateResponseDTO.class);
-    }
-
-    @SneakyThrows
-    private ShopCreateResponseDTO createTestableShop() {
-        ShopCreateDTO createDTO = ShopCreateDTO.builder()
-            .name("shop" + ThreadLocalRandom.current().nextInt())
-            .cityId(cities.get(0).getId())
-            .build();
-
-        String contentAsString = mockMvc.perform(post("/shop/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        return objectMapper
-            .readValue(contentAsString, ShopCreateResponseDTO.class);
-    }
-
-    @SneakyThrows
-    private OrderCreateDTO createDTO() {
-        ShopCreateResponseDTO testableShop = createTestableShop();
-        shopRegionSet(testableShop);
-        Long shopId = testableShop.getId();
-
-        ProductCreateResponseDTO first = createTestableProduct("first", shopId);
-        ProductCreateResponseDTO second = createTestableProduct("second", shopId);
-
-        List<OrderProductDTO> products = Arrays.asList(
-            OrderProductDTO.builder().productId(first.getId()).count(1).build(),
-            OrderProductDTO.builder().productId(second.getId()).count(2).build()
-        );
-
-        return OrderCreateDTO.builder()
-            .name("Ivan Ivanov")
-            .address("Jalan Teoh Kim Swee, 4")
-            .comment("no comments")
-            .email("sugarisboy@outlook.com")
-            .phone("7920121333" + ThreadLocalRandom.current().nextInt(2))
-            .shopId(shopId)
-            .products(products)
-            .build();
     }
 
     @Test
@@ -308,7 +218,7 @@ public class OrderControllerTest {
             .status(10)
             .build();
 
-        response = mockMvc.perform(patch("/order/update/status")
+        response = mockMvc.perform(patch("/order/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(updateDTO))
@@ -338,7 +248,7 @@ public class OrderControllerTest {
         Long orderId = item.getId();
 
         MockHttpServletResponse responseById = mockMvc
-            .perform(get("/order/get/" + orderId)
+            .perform(get("/order/" + orderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
             )
@@ -347,34 +257,92 @@ public class OrderControllerTest {
         OrderDTO responseDTO = objectMapper
             .readValue(responseById.getContentAsString(), OrderDTO.class);
         assertEquals(responseDTO.getId(), orderId);
+    }
 
-        MockHttpServletResponse responseByEmail = mockMvc
-            .perform(get("/order/email/" + "sugarisboy@outlook.com")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-            )
+    @SneakyThrows
+    private void shopRegionSet(ShopCreateResponseDTO item) {
+        Long itemId = item.getId();
+
+        RegionUpdateDTO regionUpdateDTO = RegionUpdateDTO.builder()
+            .shopId(itemId)
+            .points(Arrays.asList(
+                4.5272D, 101.1638D, 100D,
+                4.6335D, 101.1250D, 100D,
+                4.5452D, 101.0834D, 100D,
+                4.5272D, 101.1638D, 100D
+            )).build();
+
+        mockMvc.perform(patch("/map/regionupdate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(regionUpdateDTO))
+        )
             .andExpect(status().isOk())
-            .andReturn().getResponse();
-        List<OrderDTO> responseList = objectMapper
-            .readValue(
-                responseByEmail.getContentAsString(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, OrderDTO.class)
-            );
-        assertEquals(responseList.get(0).getEmail(), "sugarisboy@outlook.com");
+            .andReturn().getResponse().getContentAsString();
+    }
 
-        MockHttpServletResponse responseByShop = mockMvc
-            .perform(get("/order/shop/" + responseDTO.getShopId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-            )
+    @SneakyThrows
+    private ProductCreateResponseDTO createTestableProduct(String title, Long shopId) {
+        ProductCreateDTO productCreateDTO = ProductCreateDTO.builder()
+            .title(title)
+            .category(1L)
+            .price(20D)
+            .shopId(shopId)
+            .build();
+
+        String contentAsString = mockMvc.perform(post("/product/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(productCreateDTO))
+        )
             .andExpect(status().isOk())
-            .andReturn().getResponse();
+            .andReturn().getResponse().getContentAsString();
 
-        responseList = objectMapper
-            .readValue(
-                responseByShop.getContentAsString(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, OrderDTO.class)
-            );
-        assertEquals(responseList.get(0).getShopId(), responseDTO.getShopId());
+        return objectMapper
+            .readValue(contentAsString, ProductCreateResponseDTO.class);
+    }
+
+    @SneakyThrows
+    private ShopCreateResponseDTO createTestableShop() {
+        ShopCreateDTO createDTO = ShopCreateDTO.builder()
+            .name("shop" + ThreadLocalRandom.current().nextInt())
+            .cityId(cities.get(0).getId())
+            .build();
+
+        String contentAsString = mockMvc.perform(post("/shop/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        return objectMapper
+            .readValue(contentAsString, ShopCreateResponseDTO.class);
+    }
+
+    @SneakyThrows
+    private OrderCreateDTO createDTO() {
+        ShopCreateResponseDTO testableShop = createTestableShop();
+        shopRegionSet(testableShop);
+        Long shopId = testableShop.getId();
+
+        ProductCreateResponseDTO first = createTestableProduct("first", shopId);
+        ProductCreateResponseDTO second = createTestableProduct("second", shopId);
+
+        List<OrderProductDTO> products = Arrays.asList(
+            OrderProductDTO.builder().productId(first.getId()).count(1).build(),
+            OrderProductDTO.builder().productId(second.getId()).count(2).build()
+        );
+
+        return OrderCreateDTO.builder()
+            .name("Ivan Ivanov")
+            .address("Jalan Teoh Kim Swee, 4")
+            .comment("no comments")
+            .email("sugarisboy@outlook.com")
+            .phone("7920121333" + ThreadLocalRandom.current().nextInt(2))
+            .shopId(shopId)
+            .products(products)
+            .build();
     }
 }

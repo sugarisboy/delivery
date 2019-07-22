@@ -17,8 +17,6 @@ public interface ShopService {
 
     Optional<ShopDTO> findById(Long id);
 
-    Optional<ShopScheduleDTO> findScheduleById(Long id);
-
     List<ShopDTO> findAll();
 
     void delete(Long id);

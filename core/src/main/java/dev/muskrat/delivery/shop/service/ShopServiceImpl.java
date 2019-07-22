@@ -2,11 +2,11 @@ package dev.muskrat.delivery.shop.service;
 
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.exception.EntityExistException;
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
-import dev.muskrat.delivery.components.exception.EntityExistException;
-import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -15,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -162,30 +160,8 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Optional<ShopDTO> findById(Long id) {
         return shopRepository
-                .findById(id)
-                .map(shopToShopDTOConverter::convert);
-    }
-
-    @Override
-    public Optional<ShopScheduleDTO> findScheduleById(Long id) {
-        Optional<Shop> byId = shopRepository
-                .findById(id);
-        if (byId.isPresent()) {
-            Shop shop = byId.get();
-
-            Hibernate.initialize(shop.getOpen());
-            List<LocalTime> open = shop.getOpen();
-            Hibernate.initialize(shop.getClose());
-            List<LocalTime> close = shop.getClose();
-
-            return Optional.of(ShopScheduleDTO.builder()
-                    .id(id)
-                    .open(open)
-                    .close(close)
-                    .build()
-            );
-        }
-        throw new EntityNotFoundException("Shop with id " + id + "don't found");
+            .findById(id)
+            .map(shopToShopDTOConverter::convert);
     }
 
     @Override

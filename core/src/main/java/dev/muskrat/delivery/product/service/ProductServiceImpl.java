@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.product.service;
 
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.product.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
@@ -8,9 +9,6 @@ import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
-import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.shop.dto.ShopDTO;
-import dev.muskrat.delivery.shop.dto.ShopPageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

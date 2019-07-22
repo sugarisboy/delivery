@@ -47,13 +47,6 @@ public class ShopController {
         );
     }
 
-    @GetMapping("/schedule/{id}")
-    public ShopScheduleDTO findScheduleById(@NotNull @PathVariable Long id) {
-        return shopService.findScheduleById(id).orElseThrow(() ->
-            new EntityNotFoundException("Shop schedule not found")
-        );
-    }
-
     @GetMapping("/page")
     public ShopPageDTO page(
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page

@@ -1,11 +1,11 @@
 package dev.muskrat.delivery.product.dao;
 
 import dev.muskrat.delivery.shop.dao.Shop;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 
 @Entity
@@ -43,7 +43,8 @@ public class Product {
     @ManyToOne(targetEntity = Category.class)
     private Category category;
 
-    @ManyToOne(targetEntity = Shop.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_id")
     private Shop shop;
 
     @Column
