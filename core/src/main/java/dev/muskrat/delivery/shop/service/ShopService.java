@@ -17,12 +17,8 @@ public interface ShopService {
 
     Optional<ShopDTO> findById(Long id);
 
-    List<ShopDTO> findAll();
+    ShopPageDTO findAll(ShopPageRequestDTO requestDTO, Pageable page);
 
     void delete(Long id);
-
-    ShopPageDTO findAll(Pageable page);
-
-    ShopPageDTO findAll(Pageable page, Long cityId);
 
 }

@@ -115,47 +115,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Optional<List<OrderDTO>> findByEmail(String email) {
-        Optional<List<Order>> byEmail = orderRepository.findByEmail(email);
-        if (byEmail.isEmpty())
-            throw new EntityNotFoundException("Shop not found");
-
-        List<Order> orders = byEmail.get();
-        List<OrderDTO> collect = orders.stream()
-            .map(orderTOOrderDTOConverter::convert)
-            .collect(Collectors.toList());
-
-        return Optional.of(collect);
-    }
-
-    @Override
-    public Optional<List<OrderDTO>> findOrdersByShop(Long shopId) {
-        Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("Shop not found");
-
-        Shop shop = byId.get();
-        Optional<List<Order>> byShop = orderRepository.findByShop(shop);
-        if (byShop.isEmpty())
-            return Optional.empty();
-
-        List<OrderDTO> collect = byShop.get().stream()
-            .map(orderTOOrderDTOConverter::convert)
-            .collect(Collectors.toList());
-
-        return Optional.of(collect);
-    }
-
-    @Override
     public OrderPageDTO findAll(OrderPageRequestDTO requestDTO, Pageable pageable) {
         Shop shop = null;
         City city = null;
         String phone = requestDTO.getPhone();
         String email = requestDTO.getEmail();
-        int status = -1;
+        int status = 100;
 
         if (requestDTO.getActive() != null) {
-            status = requestDTO.getActive() ? ORDERS_NOT_ACTIVE_BEGIN_WITH : -1;
+            status = requestDTO.getActive() ? ORDERS_NOT_ACTIVE_BEGIN_WITH : status;
         }
 
         if (requestDTO.getCityId() != null) {

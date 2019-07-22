@@ -1,9 +1,11 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
+import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.order.service.OrderService;
@@ -50,65 +52,23 @@ public class OrderControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private CitiesRepository citiesRepository;
-
-    private List<City> cities;
-
-    @Before
-    @SneakyThrows
-    public void beforeCities() {
-        cities = new ArrayList<>();
-        City city1 = new City();
-        city1.setName("city1");
-        cities.add(city1);
-        citiesRepository.save(city1);
-        City city2 = new City();
-        city1.setName("city2");
-        cities.add(city2);
-        citiesRepository.save(city2);
-    }
+    private DemoData demoData;
 
     @Test
     @SneakyThrows
     @Transactional
     public void orderGetPageTest() {
-        OrderCreateDTO dto = createDTO();
+        City city = demoData.cities.get(0);
+        Long cityId = city.getId();
 
-        mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO())
-            ));
-
-        mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO())
-            ));
-
-        mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO())
-            ));
-
-        mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO())
-            ));
-
-        mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(dto)
-            ));
+        String email = demoData.orders.get(0).getEmail();
 
         OrderPageRequestDTO requestDTO = OrderPageRequestDTO.builder()
-            .shopId(dto.getShopId())
+            .cityId(cityId)
+            .email(email)
             .build();
 
-        MockHttpServletResponse response = mockMvc.perform(get("/order/page")
+        MockHttpServletResponse response = mockMvc.perform(get("/order/page?size=1000")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDTO))
@@ -119,7 +79,7 @@ public class OrderControllerTest {
         OrderPageDTO pageDTO = objectMapper
             .readValue(response.getContentAsString(), OrderPageDTO.class);
 
-        assertEquals(1, pageDTO.getOrders().size());
+        assertEquals(6, pageDTO.getOrders().size());
     }
 
     @Test
@@ -148,6 +108,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void orderCreateWithBadEmailTest() {
         OrderCreateDTO dto = createDTO();
         dto.setEmail("notemail");
@@ -168,6 +129,7 @@ public class OrderControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void createWithoutDataTest() {
         String[] badFields = {"products", "shopId", "email", "phone", "name", "address"};
 
@@ -235,17 +197,9 @@ public class OrderControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void orderCreateGetTest() {
-        MockHttpServletResponse response = mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO()))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse();
-        ShopCreateResponseDTO item = objectMapper
-            .readValue(response.getContentAsString(), ShopCreateResponseDTO.class);
-        Long orderId = item.getId();
+    public void orderGetTest() {
+        Order order = demoData.orders.get(0);
+        Long orderId = order.getId();
 
         MockHttpServletResponse responseById = mockMvc
             .perform(get("/order/" + orderId)
@@ -285,7 +239,7 @@ public class OrderControllerTest {
     private ProductCreateResponseDTO createTestableProduct(String title, Long shopId) {
         ProductCreateDTO productCreateDTO = ProductCreateDTO.builder()
             .title(title)
-            .category(1L)
+            .category(demoData.categories.get(0).getId())
             .price(20D)
             .shopId(shopId)
             .build();
@@ -306,7 +260,7 @@ public class OrderControllerTest {
     private ShopCreateResponseDTO createTestableShop() {
         ShopCreateDTO createDTO = ShopCreateDTO.builder()
             .name("shop" + ThreadLocalRandom.current().nextInt())
-            .cityId(cities.get(0).getId())
+            .cityId(demoData.cities.get(0).getId())
             .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")

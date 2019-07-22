@@ -47,18 +47,32 @@ public class DemoData {
 
     @EventListener
     public void appReady(ApplicationReadyEvent event) {
+
         generatePartner();
+        update();
+
         generateCategory();
+        update();
+
         generateCities();
+        update();
+
         generateRegionDelivery();
+        update();
+
         generateShops();
+        update();
+
         generateProducts();
+        update();
+
         generateOrder();
+        update();
     }
 
     private void generatePartner() {
         partner = new Partner();
-        partner.setName("test");
+        partner.setName("name");
         partner.setEmail("test@test.te");
         partner.setPhone("000000");
         partner.setPassword("uududff");
@@ -162,7 +176,7 @@ public class DemoData {
                     product.setValue(i * 1D);
                     product.setPrice(i * 10D);
                     product.setCategory(category);
-                    shop.getProducts().add(product);
+                    product.setShop(shop);
 
                     products.add(product);
                 }
@@ -207,5 +221,15 @@ public class DemoData {
             }
         }
         orderRepository.saveAll(orders);
+    }
+
+    public void update() {
+        shops = shopRepository.findAll();
+        orders = orderRepository.findAll();
+        cities = citiesRepository.findAll();
+        products = productRepository.findAll();
+        categories = categoryRepository.findAll();
+
+        partner = partnerRepository.findById(partner.getId()).get();
     }
 }
