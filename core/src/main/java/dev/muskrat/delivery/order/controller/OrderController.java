@@ -1,18 +1,16 @@
 package dev.muskrat.delivery.order.controller;
 
-import dev.muskrat.delivery.order.dto.OrderCreateDTO;
-import dev.muskrat.delivery.order.dto.OrderDTO;
-import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class OrderController {
         return orderService.create(orderDTO);
     }
 
-    @PatchMapping("/update/status")
+    @PatchMapping("/update")
     public OrderDTO orderStatusUpdate(
         @Valid @RequestBody OrderUpdateDTO orderDTO
     ) {
@@ -44,20 +42,11 @@ public class OrderController {
         );
     }
 
-    @GetMapping("/email/{email:.+}")
-    public List<OrderDTO> findByEmail(
-        @Email @PathVariable String email
+    @GetMapping("/page")
+    public OrderPageDTO page(
+        @Valid @RequestBody OrderPageRequestDTO orderPageRequestDTO,
+        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return orderService.findByEmail(email).orElseThrow(() ->
-            new EntityNotFoundException("Order not found")
-        );
-    }
-
-    @GetMapping("/shop/{shopId}")
-    public List<OrderDTO> findOrdersByShop(
-        @NotNull @PathVariable Long shopId
-    ) {
-        return orderService.findOrdersByShop(shopId)
-            .orElse(new ArrayList<>());
+        return orderService.findAll(orderPageRequestDTO, pageable);
     }
 }

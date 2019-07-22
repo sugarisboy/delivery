@@ -12,7 +12,17 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: password
-  jpa.database-platform: org.hibernate.dialect.H2Dialect
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+    hibernate.ddl-auto: create
+    generate-ddl: true
+
+    properties:
+      hibernate:
+#        show_sql: true
+        user_sql_comments: true
+        format_sql: true
   resources:
     chain.strategy.content:
       enabled: true
