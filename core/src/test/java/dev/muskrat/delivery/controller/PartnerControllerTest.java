@@ -39,8 +39,8 @@ public class PartnerControllerTest {
 
     private PartnerRegisterDTO registerDTO() {
         return PartnerRegisterDTO.builder()
-            .name("test")
-            .email("test@test.te")
+            .name("Alexey Orlov")
+            .email("mail@test.te")
             .password("123")
             .passwordRepeat("123")
             .phone("123")
@@ -49,6 +49,7 @@ public class PartnerControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void partnerRegistrationTest() {
         String contentAsString = mockMvc.perform(post("/partner/register")
             .contentType(MediaType.APPLICATION_JSON)
@@ -67,7 +68,7 @@ public class PartnerControllerTest {
             .findById(registeredPartnerId).orElseThrow();
 
         assertEquals(partnerDTO.getId(), registeredPartnerId);
-        assertEquals(partnerDTO.getEmail(), "test@test.te");
+        assertEquals(partnerDTO.getEmail(), "mail@test.te");
     }
 
     /*@Test

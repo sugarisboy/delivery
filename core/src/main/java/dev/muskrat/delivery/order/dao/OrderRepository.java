@@ -8,14 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface OrderRepository extends JpaRepository<Order, Long> {
-
-    Optional<List<Order>> findByShop(Shop shop);
-
-    Optional<List<Order>> findByEmail(String email);
 
     @Query(
         "SELECT o FROM Order o WHERE" +
@@ -23,7 +16,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "(:email is null or o.email = :email) and" +
             "(:city is null or o.city = :city) and" +
             "(:shop is null or o.shop = :shop) and" +
-            "(:status is null or o.status >= :status)"
+            "(:status is null or o.status < :status)"
     )
     Page<Order> findWithFilter(
         @Param("phone") String phone,

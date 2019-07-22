@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.cities.dto.CityCreateDTO;
@@ -55,22 +56,8 @@ public class ShopControllerTest {
     @Autowired
     private CitiesRepository citiesRepository;
 
-
-    private List<City> cities;
-
-    @Before
-    @SneakyThrows
-    public void before() {
-        cities = new ArrayList<>();
-        City city1 = new City();
-        city1.setName("city1");
-        cities.add(city1);
-        citiesRepository.save(city1);
-        City city2 = new City();
-        city1.setName("city2");
-        cities.add(city2);
-        citiesRepository.save(city2);
-    }
+    @Autowired
+    private DemoData demoData;
 
     @SneakyThrows
     private ShopCreateResponseDTO createTestItem(String shopName, City city) {
@@ -98,7 +85,7 @@ public class ShopControllerTest {
     @Transactional
     public void ShopCreateTest() {
         String shopName = "test" + ThreadLocalRandom.current().nextInt();
-        ShopCreateResponseDTO item = createTestItem(shopName, cities.get(0));
+        ShopCreateResponseDTO item = createTestItem(shopName, demoData.cities.get(0));
 
         Long createdShopId = item.getId();
 
@@ -112,10 +99,10 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void shopUpdateDTO() {
-        Long newCityId = cities.get(1).getId();
+    public void shopUpdateTest() {
+        Long newCityId = demoData.cities.get(1).getId();
 
-        ShopCreateResponseDTO item = createTestItem("test", cities.get(0));
+        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
 
         Long createdShopId = item.getId();
 
@@ -155,8 +142,9 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
-    public void shopScheduleUpdateDTO() {
-        ShopCreateResponseDTO item = createTestItem("test", cities.get(0));
+    @Transactional
+    public void shopScheduleUpdateTest() {
+        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
 
         Long createdShopId = item.getId();
 
@@ -207,8 +195,9 @@ public class ShopControllerTest {
 
     @Test
     @SneakyThrows
+    @Transactional
     public void shopDeleteTest() {
-        ShopCreateResponseDTO item = createTestItem("test", cities.get(0));
+        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
 
         Long itemId = item.getId();
 
@@ -226,8 +215,8 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void regionUpdateDTO() {
-        ShopCreateResponseDTO item = createTestItem("test", cities.get(0));
+    public void regionUpdateTest() {
+        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
 
         Long itemId = item.getId();
 
@@ -263,53 +252,16 @@ public class ShopControllerTest {
     @SneakyThrows
     @Transactional
     public void findAllByPage() {
-        Random random = new Random();
-        long i = random.nextLong();
+        Long cityId = demoData.cities.get(0).getId();
 
-        createTestItem("shop" + i + 0, cities.get(0));
-        createTestItem("shop" + i + 1, cities.get(0));
-        createTestItem("shop" + i + 2, cities.get(1));
-        createTestItem("shop" + i + 3, cities.get(0));
-        createTestItem("shop" + i + 4, cities.get(1));
-        createTestItem("shop" + i + 5, cities.get(0));
-        createTestItem("shop" + i + 6, cities.get(1));
-        createTestItem("shop" + i + 7, cities.get(1));
-        createTestItem("shop" + i + 8, cities.get(0));
+        ShopPageRequestDTO requestDTO = ShopPageRequestDTO.builder()
+            .cityId(cityId)
+            .build();
 
-        String firstContentAsString = mockMvc.perform(get("/shop/page?page=0")
+        String thirdContent = mockMvc.perform(get("/shop/page?size=100")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        ShopPageDTO firstPage = objectMapper
-            .readValue(firstContentAsString, ShopPageDTO.class);
-
-        String secondContentAsString = mockMvc.perform(get("/shop/page?page=1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        ShopPageDTO secondPage = objectMapper
-            .readValue(secondContentAsString, ShopPageDTO.class);
-
-        assertNotNull(secondPage);
-
-        List<ShopDTO> shops = secondPage.getShops();
-        assertTrue(shops.get(0).getName().endsWith("5"));
-        assertTrue(shops.get(1).getName().endsWith("4"));
-        assertTrue(shops.get(2).getName().endsWith("3"));
-
-        assertEquals(secondPage.getCurrentPage().intValue(), 1);
-
-        Long cityId = cities.get(1).getId();
-
-        String thirdContent = mockMvc.perform(get("/shop/page/" + cityId + "?size=100")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDTO))
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
@@ -318,6 +270,6 @@ public class ShopControllerTest {
             .readValue(thirdContent, ShopPageDTO.class);
         List<ShopDTO> shops1 = pageByCity.getShops();
 
-        assertEquals(shops1.size(), 4);
+        assertEquals(shops1.size(), 3);
     }
 }
