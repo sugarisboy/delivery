@@ -34,22 +34,27 @@ public class ProductController {
         return productService.update(productDTO);
     }
 
-    @GetMapping("/get/{id}")
-    public ProductDTO findById(@NotNull @PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ProductDTO findById(
+        @NotNull @PathVariable Long id
+    ) {
         return productService.findById(id).orElseThrow(() ->
             new EntityNotFoundException("Product not found")
         );
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@NotNull @PathVariable Long id) {
-        productService.delete(id);
-    }
-
     @GetMapping("/page")
     public ProductPageDTO page(
+        @Valid @RequestBody ProductPageRequestDTO requestDTO,
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
     ) {
-        return productService.findAll(page);
+        return productService.findAll(requestDTO, page);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(
+        @NotNull @PathVariable Long id
+    ) {
+        productService.delete(id);
     }
 }

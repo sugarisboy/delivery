@@ -1,13 +1,10 @@
 package dev.muskrat.delivery.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.cities.dto.*;
-import dev.muskrat.delivery.cities.service.CitiesService;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.order.dto.OrderDTO;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,42 +102,7 @@ public class CitiesControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void getListTest() {
-        CityCreateResponseDTO city1 = createCity("city1");
-        CityCreateResponseDTO city2 = createCity("city2");
-        CityCreateResponseDTO city3 = createCity("city3");
-
-        String contentAsString = mockMvc.perform(get("/cities/")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        List<CityDTO> cities = objectMapper
-            .readValue(
-                contentAsString,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, CityDTO.class)
-            );
-
-        assertTrue(cities.size() == 3);
-
-        Long id = city2.getId();
-        contentAsString = mockMvc.perform(get("/cities/" + id)
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        CityDTO cityDTO = objectMapper.readValue(contentAsString, CityDTO.class);
-
-        assertEquals("city2", cityDTO.getName());
-    }
-
-    @Test
-    @SneakyThrows
-    public void deleteTest() {
+    public void deleteCityTest() {
         CityCreateResponseDTO city = createCity("city");
         Long id = city.getId();
 
@@ -152,7 +114,6 @@ public class CitiesControllerTest {
             .andReturn().getResponse().getContentAsString();
 
         Optional<City> byId = citiesRepository.findById(id);
-
         assertTrue(byId.isEmpty());
     }
 

@@ -1,8 +1,7 @@
 package dev.muskrat.delivery.order.service;
 
-import dev.muskrat.delivery.order.dto.OrderCreateDTO;
-import dev.muskrat.delivery.order.dto.OrderDTO;
-import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
+import dev.muskrat.delivery.order.dto.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +27,5 @@ public interface OrderService {
 
     Optional<OrderDTO> findById(Long id);
 
-    Optional<List<OrderDTO>> findByEmail(String email);
-
-    Optional<List<OrderDTO>> findOrdersByShop(Long shopId);
+    OrderPageDTO findAll(OrderPageRequestDTO orderPageRequestDTO, Pageable pageable);
 }

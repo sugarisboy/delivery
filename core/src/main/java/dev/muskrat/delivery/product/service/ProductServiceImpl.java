@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.product.service;
 
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.product.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
@@ -8,9 +9,6 @@ import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
-import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.shop.dto.ShopDTO;
-import dev.muskrat.delivery.shop.dto.ShopPageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +21,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -56,18 +53,6 @@ public class ProductServiceImpl implements ProductService {
         return ProductCreateResponseDTO.builder()
             .id(productWithId.getId())
             .build();
-    }
-
-    @Override
-    public void delete(Long id) {
-        Optional<Product> byId = productRepository.findById(id);
-
-        byId.ifPresentOrElse(p -> {
-            p.setDeleted(true);
-            productRepository.save(p);
-        }, () -> {
-            throw new EntityNotFoundException("Product with id " + id + " not found");
-        });
     }
 
     @Override
@@ -109,12 +94,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<ProductDTO> findById(Long id) {
-        Optional<Product> product = productRepository.findById(id);
-        return product.map(productToProductDTOConverter::convert);
-    }
-
-    @Override
     public List<ProductDTO> findAll() {
         return productRepository.findAll()
             .stream()
@@ -123,8 +102,38 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductPageDTO findAll(Pageable pageable) {
-        Page<Product> page = productRepository.findAll(pageable);
+    public ProductPageDTO findAll(ProductPageRequestDTO requestDTO, Pageable pageable) {
+
+        // todo: hibernate search for title
+        String title = requestDTO.getTitle();
+        double minPrice = Double.MIN_VALUE;
+        double maxPrice = Double.MAX_VALUE;
+        Shop shop = null;
+        Category category = null;
+
+        if (requestDTO.getMinPrice() != null)
+            minPrice = requestDTO.getMinPrice();
+
+        if (requestDTO.getMaxPrice() != null)
+            maxPrice = requestDTO.getMaxPrice();
+
+        if (requestDTO.getShopId() != null) {
+            Long shopId = requestDTO.getShopId();
+            Optional<Shop> byId = shopRepository.findById(shopId);
+            if (byId.isEmpty())
+                throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+            shop = byId.get();
+        }
+
+        if (requestDTO.getCategoryId() != null) {
+            Long categoryId = requestDTO.getCategoryId();
+            Optional<Category> byId = categoryRepository.findById(categoryId);
+            if (byId.isEmpty())
+                throw new EntityNotFoundException("Category with id " + categoryId + " not found");
+            category = byId.get();
+        }
+
+        Page<Product> page = productRepository.findWithFilter(title, shop, category, minPrice, maxPrice, pageable);
 
         List<Product> content = page.getContent();
         List<ProductDTO> collect = content.stream()
@@ -136,5 +145,24 @@ public class ProductServiceImpl implements ProductService {
             .currentPage(pageable.getPageNumber())
             .lastPage(page.getTotalPages())
             .build();
+    }
+
+    @Override
+    public Optional<ProductDTO> findById(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        return product.map(productToProductDTOConverter::convert);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Optional<Product> byId = productRepository.findById(id);
+
+        byId.ifPresentOrElse(p -> {
+            p.setDeleted(true);
+            productRepository.save(p);
+            System.out.println();
+        }, () -> {
+            throw new EntityNotFoundException("Product with id " + id + " not found");
+        });
     }
 }

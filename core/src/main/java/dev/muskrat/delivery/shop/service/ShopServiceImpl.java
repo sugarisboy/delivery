@@ -2,22 +2,18 @@ package dev.muskrat.delivery.shop.service;
 
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.exception.EntityExistException;
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
-import dev.muskrat.delivery.components.exception.EntityExistException;
-import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,29 +64,30 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    public ShopPageDTO findAll(Pageable pageable) {
-        Page<Shop> page = shopRepository.findAll(pageable);
+    public ShopPageDTO findAll(ShopPageRequestDTO requestDTO, Pageable pageable) {
 
-        List<Shop> content = page.getContent();
-        List<ShopDTO> collect = content.stream()
-            .map(shopToShopDTOConverter::convert)
-            .collect(Collectors.toList());
+        String name = requestDTO.getName();
+        City city = null;
+        Double maxMinOrderPrice = Double.MAX_VALUE;
+        Double maxFreeOrderPrice = Double.MAX_VALUE;
 
-        return ShopPageDTO.builder()
-            .shops(collect)
-            .currentPage(pageable.getPageNumber())
-            .lastPage(page.getTotalPages())
-            .build();
-    }
+        if (requestDTO.getCityId() != null) {
+            Long cityId = requestDTO.getCityId();
+            Optional<City> byId = citiesRepository.findById(cityId);
+            if (byId.isEmpty())
+                throw new EntityNotFoundException("City with " + cityId + " not found");
+            city = byId.get();
+        }
 
-    @Override
-    public ShopPageDTO findAll(Pageable pageable, Long cityId) {
-        Optional<City> byId = citiesRepository.findById(cityId);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("City with id " + cityId + "not found");
-        City city = byId.get();
+        if (requestDTO.getMaxMinOrderPrice() != null) {
+            maxMinOrderPrice = requestDTO.getMaxMinOrderPrice();
+        }
 
-        Page<Shop> page = shopRepository.findAllByCity(city, pageable);
+        if (requestDTO.getMaxFreeOrderPrice() != null) {
+            maxFreeOrderPrice = requestDTO.getMaxFreeOrderPrice();
+        }
+
+        Page<Shop> page = shopRepository.findWithFilter(name, city, maxMinOrderPrice, maxFreeOrderPrice, pageable);
 
         List<Shop> content = page.getContent();
         List<ShopDTO> collect = content.stream()
@@ -162,37 +159,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Optional<ShopDTO> findById(Long id) {
         return shopRepository
-                .findById(id)
-                .map(shopToShopDTOConverter::convert);
-    }
-
-    @Override
-    public Optional<ShopScheduleDTO> findScheduleById(Long id) {
-        Optional<Shop> byId = shopRepository
-                .findById(id);
-        if (byId.isPresent()) {
-            Shop shop = byId.get();
-
-            Hibernate.initialize(shop.getOpen());
-            List<LocalTime> open = shop.getOpen();
-            Hibernate.initialize(shop.getClose());
-            List<LocalTime> close = shop.getClose();
-
-            return Optional.of(ShopScheduleDTO.builder()
-                    .id(id)
-                    .open(open)
-                    .close(close)
-                    .build()
-            );
-        }
-        throw new EntityNotFoundException("Shop with id " + id + "don't found");
-    }
-
-    @Override
-    public List<ShopDTO> findAll() {
-        return shopRepository.findAll()
-            .stream()
-            .map(shopToShopDTOConverter::convert)
-            .collect(Collectors.toList());
+            .findById(id)
+            .map(shopToShopDTOConverter::convert);
     }
 }
