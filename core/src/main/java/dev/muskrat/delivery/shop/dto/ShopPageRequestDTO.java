@@ -9,14 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopDTO {
+public class ShopPageRequestDTO {
 
-    private Long id;
     private Long cityId;
     private String name;
-    private String logo;
-    private String description;
-    private Double minOrderPrice;
-    private Double freeOrderPrice;
-    private ShopScheduleDTO schedule;
+    private Double maxMinOrderPrice;
+    private Double maxFreeOrderPrice;
 }

@@ -32,7 +32,6 @@ public class Partner {
     @Column
     private Boolean banned;
 
-    @Column
     @OneToMany(targetEntity = Shop.class)
     private List<Shop> shops;
 }

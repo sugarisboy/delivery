@@ -1,23 +1,24 @@
 package dev.muskrat.delivery.order.service;
 
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.order.converter.OrderCreateDTOTOOrderConverter;
-import dev.muskrat.delivery.order.converter.OrderTOOrderDTOConverter;
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
+import dev.muskrat.delivery.map.service.MappingService;
+import dev.muskrat.delivery.order.converter.OrderCreateDTOTOOrderConverter;
+import dev.muskrat.delivery.order.converter.OrderTOOrderDTOConverter;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.product.dao.Product;
 import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
-import dev.muskrat.delivery.order.dto.OrderCreateDTO;
-import dev.muskrat.delivery.order.dto.OrderDTO;
-import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
-import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.map.service.MappingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,9 +31,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
+    private final static Integer ORDERS_NOT_ACTIVE_BEGIN_WITH = 10;
+
     private final MappingService mappingService;
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
+    private final CitiesRepository citiesRepository;
     private final ProductRepository productRepository;
     private final OrderCreateDTOTOOrderConverter orderCreateDTOTOOrderConverter;
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
@@ -99,9 +103,9 @@ public class OrderServiceImpl implements OrderService {
         //TODO: trigger event
 
         return OrderDTO.builder()
-                .id(order.getId())
-                .status(order.getStatus())
-                .build();
+            .id(order.getId())
+            .status(order.getStatus())
+            .build();
     }
 
     @Override
@@ -111,34 +115,46 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Optional<List<OrderDTO>> findByEmail(String email) {
-        Optional<List<Order>> byEmail = orderRepository.findByEmail(email);
-        if (byEmail.isEmpty())
-            throw new EntityNotFoundException("Shop not found");
+    public OrderPageDTO findAll(OrderPageRequestDTO requestDTO, Pageable pageable) {
+        Shop shop = null;
+        City city = null;
+        String phone = requestDTO.getPhone();
+        String email = requestDTO.getEmail();
+        int status = 100;
 
-        List<Order> orders = byEmail.get();
-        List<OrderDTO> collect = orders.stream()
+        if (requestDTO.getActive() != null) {
+            status = requestDTO.getActive() ? ORDERS_NOT_ACTIVE_BEGIN_WITH : status;
+        }
+
+        if (requestDTO.getCityId() != null) {
+            Long cityId = requestDTO.getCityId();
+            Optional<City> byId = citiesRepository.findById(cityId);
+            if (byId.isEmpty())
+                throw new EntityNotFoundException("City with id " + cityId + " not found");
+            city = byId.get();
+        }
+
+        if (requestDTO.getShopId() != null) {
+            Long shopId = requestDTO.getShopId();
+            Optional<Shop> byId = shopRepository.findById(shopId);
+            if (byId.isEmpty())
+                throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+            shop = byId.get();
+        }
+
+        Page<Order> page = orderRepository.findWithFilter(
+            phone, email, city, shop, status, pageable
+        );
+
+        List<Order> content = page.getContent();
+        List<OrderDTO> collect = content.stream()
             .map(orderTOOrderDTOConverter::convert)
             .collect(Collectors.toList());
 
-        return Optional.of(collect);
-    }
-
-    @Override
-    public Optional<List<OrderDTO>> findOrdersByShop(Long shopId) {
-        Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("Shop not found");
-
-        Shop shop = byId.get();
-        Optional<List<Order>> byShop = orderRepository.findByShop(shop);
-        if (byShop.isEmpty())
-            return Optional.empty();
-
-        List<OrderDTO> collect = byShop.get().stream()
-            .map(orderTOOrderDTOConverter::convert)
-            .collect(Collectors.toList());
-
-        return Optional.of(collect);
+        return OrderPageDTO.builder()
+            .orders(collect)
+            .currentPage(pageable.getPageNumber())
+            .lastPage(page.getTotalPages())
+            .build();
     }
 }
