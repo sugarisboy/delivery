@@ -32,9 +32,6 @@ public class Product {
     private String description;
     
     @Column
-    private String imageUrl;
-    
-    @Column
     private Boolean available;
     
     @Column

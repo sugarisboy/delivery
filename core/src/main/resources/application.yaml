@@ -1,3 +1,8 @@
+application:
+  file:
+    storage:
+      upload-dir:
+        product: "/shop/{shop}/product/"
 geocode:
   app.id: 'PwhAzeVFHuSMGdcjtFvQ'
   app.code: 'yE6QWws10hfiJKPyLE-hIQ'
