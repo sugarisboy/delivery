@@ -14,5 +14,5 @@ public class RegionPoint {
 
     private Double x;
     private Double y;
-    private Double z;
+    private Double z = 100D;
 }

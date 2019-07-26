@@ -4,15 +4,18 @@ import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
+@Table(name = "shops")
 @Where(clause = "deleted = 0")
 public class Shop {
 
@@ -29,8 +32,8 @@ public class Shop {
     @ManyToOne(targetEntity = City.class)
     private City city;
 
-    @OneToMany(targetEntity = Product.class)
-    private List<Product> products;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "shop")
+    private List<Product> products = new ArrayList<>();
 
     @Column
     private String logo;
