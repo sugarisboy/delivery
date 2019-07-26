@@ -1,5 +1,8 @@
 package dev.muskrat.delivery.product.service;
 
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
+import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.product.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
@@ -8,27 +11,27 @@ import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
-import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.shop.dto.ShopDTO;
-import dev.muskrat.delivery.shop.dto.ShopPageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ShopRepository shopRepository;
+
+    private final FileStorageService fileStorageService;
+
     private final ProductToProductDTOConverter productToProductDTOConverter;
 
     public ProductCreateResponseDTO create(ProductCreateDTO productCreateDTO) {
@@ -137,4 +140,29 @@ public class ProductServiceImpl implements ProductService {
             .lastPage(page.getTotalPages())
             .build();
     }
+
+    @Override
+    public FileStorageUploadDTO updateImg(MultipartFile img, Long productId) {
+        Optional<Product> byId = productRepository.findById(productId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Product with id " + productId + " not found");
+        Product product = byId.get();
+
+        Shop shop = product.getShop();
+        if (shop == null)
+            throw new EntityNotFoundException("Product has not shop");
+        Long shopId = shop.getId();
+
+        String fileName = String.format("%d.jpg", productId);
+        Path filePath = fileStorageService.getPathForProduct();
+
+        fileStorageService.uploadFile(filePath, fileName, img);
+
+        String file = String.format("/img/shop/%d/product/%d.jpg", shopId, productId);
+
+        return FileStorageUploadDTO.builder()
+            .get(file)
+            .build();
+    }
+
 }

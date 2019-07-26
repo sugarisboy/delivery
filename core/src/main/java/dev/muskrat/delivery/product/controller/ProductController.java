@@ -1,14 +1,15 @@
 package dev.muskrat.delivery.product.controller;
 
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.product.service.ProductService;
-import dev.muskrat.delivery.shop.dto.ShopPageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
