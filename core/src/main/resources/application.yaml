@@ -1,3 +1,9 @@
+application:
+  storage:
+    upload:
+      main: 'C:\Users\sugar\Desktop\Muskrat\Qwik\Backend\img\'
+      shop: 'shop\'
+      product: 'product\'
 geocode:
   app.id: 'PwhAzeVFHuSMGdcjtFvQ'
   app.code: 'yE6QWws10hfiJKPyLE-hIQ'
@@ -14,15 +20,23 @@ spring:
     password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-
     hibernate.ddl-auto: create
     generate-ddl: true
-
     properties:
       hibernate:
 #        show_sql: true
         user_sql_comments: true
         format_sql: true
+  servlet:
+    multipart:
+      # Enable multipart uploads
+      enabled: true
+      # Threshold after which files are written to disk.
+      file-size-threshold: 2KB
+      # Max file size.
+      max-file-size: 200MB
+      # Max Request Size
+      max-request-size: 215MB
   resources:
     chain.strategy.content:
       enabled: true

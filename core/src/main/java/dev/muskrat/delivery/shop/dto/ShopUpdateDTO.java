@@ -24,8 +24,6 @@ public class ShopUpdateDTO {
 
     private Long cityId;
 
-    private String logo;
-
     private String description;
 
     @Positive

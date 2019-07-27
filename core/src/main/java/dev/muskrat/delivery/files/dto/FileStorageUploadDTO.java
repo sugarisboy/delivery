@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.product.dto;
+package dev.muskrat.delivery.files.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductUpdateResponseDTO {
+public class FileStorageUploadDTO {
 
-    private Long id;
-
-    private String img;
+    private String fileName;
 }

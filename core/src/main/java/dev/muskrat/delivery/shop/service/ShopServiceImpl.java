@@ -4,6 +4,10 @@ import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.files.components.FileFormat;
+import dev.muskrat.delivery.files.components.FileFormats;
+import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
+import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
@@ -12,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -23,8 +28,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class ShopServiceImpl implements ShopService {
 
+    private final FileFormats fileFormats;
     private final ShopRepository shopRepository;
     private final CitiesRepository citiesRepository;
+    private final FileStorageService fileStorageService;
     private final ShopToShopDTOConverter shopToShopDTOConverter;
 
     @Override
@@ -116,8 +123,6 @@ public class ShopServiceImpl implements ShopService {
             shop.setDescription(shopUpdateDTO.getDescription());
         if (shopUpdateDTO.getFreeOrderPrice() != null)
             shop.setFreeOrderPrice(shopUpdateDTO.getFreeOrderPrice());
-        if (shopUpdateDTO.getLogo() != null)
-            shop.setLogo(shopUpdateDTO.getLogo());
         if (shopUpdateDTO.getMinOrderPrice() != null)
             shop.setMinOrderPrice(shopUpdateDTO.getMinOrderPrice());
         if (shopUpdateDTO.getCityId() != null) {
@@ -161,5 +166,13 @@ public class ShopServiceImpl implements ShopService {
         return shopRepository
             .findById(id)
             .map(shopToShopDTOConverter::convert);
+    }
+
+    @Override
+    public FileStorageUploadDTO updateImg(MultipartFile img, Long shopId) {
+        String fileName = String.format("%d.jpg", shopId);
+        FileFormat type = fileFormats.getShop();
+
+        return fileStorageService.uploadFile(type, fileName, img);
     }
 }

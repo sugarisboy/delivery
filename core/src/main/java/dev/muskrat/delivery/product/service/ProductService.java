@@ -1,7 +1,9 @@
 package dev.muskrat.delivery.product.service;
 
+import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.product.dto.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +11,8 @@ import java.util.Optional;
 public interface ProductService {
 
     ProductCreateResponseDTO create(ProductCreateDTO productCreateDTO);
+
+    void delete(Long id);
 
     ProductUpdateResponseDTO update(ProductUpdateDTO productDTO);
 
@@ -18,5 +22,5 @@ public interface ProductService {
 
     List<ProductDTO> findAll();
 
-    void delete(Long id);
+    FileStorageUploadDTO updateImg(MultipartFile img, Long productId);
 }

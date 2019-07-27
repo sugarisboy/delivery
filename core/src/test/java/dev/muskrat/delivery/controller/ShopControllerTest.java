@@ -2,19 +2,15 @@ package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
-import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.cities.dto.CityCreateDTO;
-import dev.muskrat.delivery.cities.dto.CityCreateResponseDTO;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
-import dev.muskrat.delivery.shop.dao.Shop;
-import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
-import dev.muskrat.delivery.shop.service.ShopService;
+import dev.muskrat.delivery.shop.dao.Shop;
+import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.shop.dto.*;
+import dev.muskrat.delivery.shop.service.ShopService;
 import lombok.SneakyThrows;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +22,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,9 +48,6 @@ public class ShopControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private CitiesRepository citiesRepository;
 
     @Autowired
     private DemoData demoData;
@@ -111,7 +104,6 @@ public class ShopControllerTest {
             .description("description")
             .freeOrderPrice(10D)
             .minOrderPrice(5D)
-            .logo("logo")
             .name("new name")
             .cityId(newCityId)
             .build();
@@ -136,7 +128,6 @@ public class ShopControllerTest {
         assertEquals(updateDTO.getDescription(), updatedShopDTO.getDescription());
         assertEquals(updateDTO.getFreeOrderPrice(), updatedShopDTO.getFreeOrderPrice());
         assertEquals(updateDTO.getMinOrderPrice(), updatedShopDTO.getMinOrderPrice());
-        assertEquals(updateDTO.getLogo(), updatedShopDTO.getLogo());
         assertEquals(updateDTO.getName(), "new name");
     }
 
