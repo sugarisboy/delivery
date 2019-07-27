@@ -1,6 +1,10 @@
 package dev.muskrat.delivery.product.service;
 
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.files.components.FileFormat;
+import dev.muskrat.delivery.files.components.FileFormats;
+import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
+import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.product.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
@@ -13,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +30,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ShopRepository shopRepository;
+    private final FileStorageService fileStorageService;
+    private final FileFormats fileFormats;
     private final ProductToProductDTOConverter productToProductDTOConverter;
 
     public ProductCreateResponseDTO create(ProductCreateDTO productCreateDTO) {
@@ -53,6 +59,18 @@ public class ProductServiceImpl implements ProductService {
         return ProductCreateResponseDTO.builder()
             .id(productWithId.getId())
             .build();
+    }
+
+    @Override
+    public void delete(Long id) {
+        Optional<Product> byId = productRepository.findById(id);
+
+        byId.ifPresentOrElse(p -> {
+            p.setDeleted(true);
+            productRepository.save(p);
+        }, () -> {
+            throw new EntityNotFoundException("Product with id " + id + " not found");
+        });
     }
 
     @Override
@@ -91,6 +109,12 @@ public class ProductServiceImpl implements ProductService {
         return ProductUpdateResponseDTO.builder()
             .id(product.getId())
             .build();
+    }
+
+    @Override
+    public Optional<ProductDTO> findById(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        return product.map(productToProductDTOConverter::convert);
     }
 
     @Override
@@ -148,21 +172,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<ProductDTO> findById(Long id) {
-        Optional<Product> product = productRepository.findById(id);
-        return product.map(productToProductDTOConverter::convert);
-    }
+    public FileStorageUploadDTO updateImg(MultipartFile img, Long productId) {
+        String fileName = String.format("%d.jpg", productId);
+        FileFormat type = fileFormats.getProduct();
 
-    @Override
-    public void delete(Long id) {
-        Optional<Product> byId = productRepository.findById(id);
-
-        byId.ifPresentOrElse(p -> {
-            p.setDeleted(true);
-            productRepository.save(p);
-            System.out.println();
-        }, () -> {
-            throw new EntityNotFoundException("Product with id " + id + " not found");
-        });
+        return fileStorageService.uploadFile(type, fileName, img);
     }
 }

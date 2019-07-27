@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.Product;
-import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.product.service.ProductService;
 import dev.muskrat.delivery.shop.dao.Shop;

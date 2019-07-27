@@ -1,7 +1,6 @@
 package dev.muskrat.delivery.product.dao;
 
 import dev.muskrat.delivery.shop.dao.Shop;
-import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 
@@ -30,9 +29,6 @@ public class Product {
     
     @Column
     private String description;
-    
-    @Column
-    private String imageUrl;
     
     @Column
     private Boolean available;

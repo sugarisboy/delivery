@@ -14,7 +14,6 @@ public class ShopDTO {
     private Long id;
     private Long cityId;
     private String name;
-    private String logo;
     private String description;
     private Double minOrderPrice;
     private Double freeOrderPrice;

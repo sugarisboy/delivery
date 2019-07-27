@@ -1,7 +1,6 @@
 package dev.muskrat.delivery.shop.dao;
 
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.product.dao.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

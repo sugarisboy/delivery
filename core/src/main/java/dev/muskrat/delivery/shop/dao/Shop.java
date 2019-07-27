@@ -4,7 +4,6 @@ import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
-import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 
@@ -34,9 +33,6 @@ public class Shop {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "shop")
     private List<Product> products = new ArrayList<>();
-
-    @Column
-    private String logo;
 
     @Column
     private String description;
