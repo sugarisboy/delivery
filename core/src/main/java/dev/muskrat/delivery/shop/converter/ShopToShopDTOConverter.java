@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
@@ -33,7 +32,6 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
             .name(shop.getName())
             .description(shop.getDescription())
             .freeOrderPrice(shop.getFreeOrderPrice())
-            .logo(shop.getLogo())
             .cityId(shop.getCity().getId())
             .minOrderPrice(shop.getMinOrderPrice())
             .schedule(scheduleDTO)

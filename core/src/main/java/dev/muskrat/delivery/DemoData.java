@@ -172,7 +172,6 @@ public class DemoData {
                     product.setAvailable(true);
                     product.setDescription("description");
                     product.setTitle(shop.getName() + "-prod-" + i);
-                    product.setImageUrl("url");
                     product.setValue(i * 1D);
                     product.setPrice(i * 10D);
                     product.setCategory(category);

@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FileStorageUploadDTO {
 
-    private String get;
+    private String fileName;
 }
