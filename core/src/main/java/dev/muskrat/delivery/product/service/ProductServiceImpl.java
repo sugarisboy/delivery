@@ -129,32 +129,37 @@ public class ProductServiceImpl implements ProductService {
     public ProductPageDTO findAll(ProductPageRequestDTO requestDTO, Pageable pageable) {
 
         // todo: hibernate search for title
-        String title = requestDTO.getTitle();
+        String title = null;
         double minPrice = Double.MIN_VALUE;
         double maxPrice = Double.MAX_VALUE;
         Shop shop = null;
         Category category = null;
 
-        if (requestDTO.getMinPrice() != null)
-            minPrice = requestDTO.getMinPrice();
+        if (requestDTO != null) {
+            if (requestDTO.getTitle() != null)
+                title = requestDTO.getTitle();
 
-        if (requestDTO.getMaxPrice() != null)
-            maxPrice = requestDTO.getMaxPrice();
+            if (requestDTO.getMinPrice() != null)
+                minPrice = requestDTO.getMinPrice();
 
-        if (requestDTO.getShopId() != null) {
-            Long shopId = requestDTO.getShopId();
-            Optional<Shop> byId = shopRepository.findById(shopId);
-            if (byId.isEmpty())
-                throw new EntityNotFoundException("Shop with id " + shopId + " not found");
-            shop = byId.get();
-        }
+            if (requestDTO.getMaxPrice() != null)
+                maxPrice = requestDTO.getMaxPrice();
 
-        if (requestDTO.getCategoryId() != null) {
-            Long categoryId = requestDTO.getCategoryId();
-            Optional<Category> byId = categoryRepository.findById(categoryId);
-            if (byId.isEmpty())
-                throw new EntityNotFoundException("Category with id " + categoryId + " not found");
-            category = byId.get();
+            if (requestDTO.getShopId() != null) {
+                Long shopId = requestDTO.getShopId();
+                Optional<Shop> byId = shopRepository.findById(shopId);
+                if (byId.isEmpty())
+                    throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+                shop = byId.get();
+            }
+
+            if (requestDTO.getCategoryId() != null) {
+                Long categoryId = requestDTO.getCategoryId();
+                Optional<Category> byId = categoryRepository.findById(categoryId);
+                if (byId.isEmpty())
+                    throw new EntityNotFoundException("Category with id " + categoryId + " not found");
+                category = byId.get();
+            }
         }
 
         Page<Product> page = productRepository.findWithFilter(title, shop, category, minPrice, maxPrice, pageable);

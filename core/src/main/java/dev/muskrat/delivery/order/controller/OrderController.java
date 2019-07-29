@@ -44,7 +44,7 @@ public class OrderController {
 
     @GetMapping("/page")
     public OrderPageDTO page(
-        @Valid @RequestBody OrderPageRequestDTO orderPageRequestDTO,
+        @Valid @RequestBody(required = false) OrderPageRequestDTO orderPageRequestDTO,
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return orderService.findAll(orderPageRequestDTO, pageable);
