@@ -9,6 +9,8 @@ repositories {
 }
 
 dependencies {
+    api group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+    api group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
@@ -14,10 +16,16 @@ import javax.validation.constraints.Email;
 public class OrderPageRequestDTO {
 
     private Boolean active;
+
+    @Positive
     private Long shopId;
+
+    @Positive
     private Long cityId;
 
     @Email
     private String email;
+
+    @Size(min=6, max=11)
     private String phone;
 }
