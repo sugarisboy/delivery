@@ -73,25 +73,31 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public ShopPageDTO findAll(ShopPageRequestDTO requestDTO, Pageable pageable) {
 
-        String name = requestDTO.getName();
+        String name = null;
         City city = null;
         Double maxMinOrderPrice = Double.MAX_VALUE;
         Double maxFreeOrderPrice = Double.MAX_VALUE;
 
-        if (requestDTO.getCityId() != null) {
-            Long cityId = requestDTO.getCityId();
-            Optional<City> byId = citiesRepository.findById(cityId);
-            if (byId.isEmpty())
-                throw new EntityNotFoundException("City with " + cityId + " not found");
-            city = byId.get();
-        }
+        if (requestDTO != null) {
+            if (requestDTO.getName() != null) {
+                name = requestDTO.getName();
+            }
 
-        if (requestDTO.getMaxMinOrderPrice() != null) {
-            maxMinOrderPrice = requestDTO.getMaxMinOrderPrice();
-        }
+            if (requestDTO.getCityId() != null) {
+                Long cityId = requestDTO.getCityId();
+                Optional<City> byId = citiesRepository.findById(cityId);
+                if (byId.isEmpty())
+                    throw new EntityNotFoundException("City with " + cityId + " not found");
+                city = byId.get();
+            }
 
-        if (requestDTO.getMaxFreeOrderPrice() != null) {
-            maxFreeOrderPrice = requestDTO.getMaxFreeOrderPrice();
+            if (requestDTO.getMaxMinOrderPrice() != null) {
+                maxMinOrderPrice = requestDTO.getMaxMinOrderPrice();
+            }
+
+            if (requestDTO.getMaxFreeOrderPrice() != null) {
+                maxFreeOrderPrice = requestDTO.getMaxFreeOrderPrice();
+            }
         }
 
         Page<Shop> page = shopRepository.findWithFilter(name, city, maxMinOrderPrice, maxFreeOrderPrice, pageable);

@@ -118,28 +118,36 @@ public class OrderServiceImpl implements OrderService {
     public OrderPageDTO findAll(OrderPageRequestDTO requestDTO, Pageable pageable) {
         Shop shop = null;
         City city = null;
-        String phone = requestDTO.getPhone();
-        String email = requestDTO.getEmail();
-        int status = 100;
+        String phone = null;
+        String email = null;
+        int status = Integer.MAX_VALUE;
 
-        if (requestDTO.getActive() != null) {
-            status = requestDTO.getActive() ? ORDERS_NOT_ACTIVE_BEGIN_WITH : status;
-        }
+        if (requestDTO != null) {
+            if (requestDTO.getPhone() != null)
+                phone = requestDTO.getPhone();
 
-        if (requestDTO.getCityId() != null) {
-            Long cityId = requestDTO.getCityId();
-            Optional<City> byId = citiesRepository.findById(cityId);
-            if (byId.isEmpty())
-                throw new EntityNotFoundException("City with id " + cityId + " not found");
-            city = byId.get();
-        }
+            if (requestDTO.getEmail() != null)
+                email = requestDTO.getEmail();
 
-        if (requestDTO.getShopId() != null) {
-            Long shopId = requestDTO.getShopId();
-            Optional<Shop> byId = shopRepository.findById(shopId);
-            if (byId.isEmpty())
-                throw new EntityNotFoundException("Shop with id " + shopId + " not found");
-            shop = byId.get();
+            if (requestDTO.getActive() != null) {
+                status = requestDTO.getActive() ? ORDERS_NOT_ACTIVE_BEGIN_WITH : status;
+            }
+
+            if (requestDTO.getCityId() != null) {
+                Long cityId = requestDTO.getCityId();
+                Optional<City> byId = citiesRepository.findById(cityId);
+                if (byId.isEmpty())
+                    throw new EntityNotFoundException("City with id " + cityId + " not found");
+                city = byId.get();
+            }
+
+            if (requestDTO.getShopId() != null) {
+                Long shopId = requestDTO.getShopId();
+                Optional<Shop> byId = shopRepository.findById(shopId);
+                if (byId.isEmpty())
+                    throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+                shop = byId.get();
+            }
         }
 
         Page<Order> page = orderRepository.findWithFilter(
