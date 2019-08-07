@@ -3,8 +3,12 @@ package dev.muskrat.delivery.order.dao;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.dao.Shop;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -43,5 +47,6 @@ public class Order {
     @ManyToOne(targetEntity = Shop.class)
     private Shop shop;
 
-    // todo add time create order
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 }

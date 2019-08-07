@@ -23,7 +23,9 @@ public class PartnerController {
     }
 
     @GetMapping("/{id}")
-    public PartnerDTO findById(@Positive @PathVariable Long id) {
+    public PartnerDTO findById(
+        @Positive @PathVariable Long id
+    ) {
         return partnerService.findById(id).orElseThrow();
     }
 

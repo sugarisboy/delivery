@@ -19,19 +19,20 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
     @Override
     public OrderDTO convert(Order order) {
         List<OrderProductDTO> collect = order.getProducts().stream()
-                .map(orderProductTOOrderProductDTOConverter::convert)
-                .collect(Collectors.toList());
+            .map(orderProductTOOrderProductDTOConverter::convert)
+            .collect(Collectors.toList());
 
         return OrderDTO.builder()
-                .status(order.getStatus())
-                .address(order.getAddress())
-                .comments(order.getComments())
-                .email(order.getEmail())
-                .id(order.getId())
-                .shopId(order.getShop().getId())
-                .name(order.getName())
-                .phone(order.getPhone())
-                .products(collect)
-                .build();
+            .status(order.getStatus())
+            .address(order.getAddress())
+            .comments(order.getComments())
+            .email(order.getEmail())
+            .id(order.getId())
+            .shopId(order.getShop().getId())
+            .name(order.getName())
+            .phone(order.getPhone())
+            .products(collect)
+            .createdTime(order.getCreatedDate())
+            .build();
     }
 }
