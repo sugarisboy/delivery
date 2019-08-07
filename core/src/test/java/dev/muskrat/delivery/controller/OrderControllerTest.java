@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -198,6 +199,8 @@ public class OrderControllerTest {
     @SneakyThrows
     @Transactional
     public void orderGetTest() {
+        LocalDateTime startTime = LocalDateTime.now();
+
         Order order = demoData.orders.get(0);
         Long orderId = order.getId();
 
@@ -210,6 +213,15 @@ public class OrderControllerTest {
             .andReturn().getResponse();
         OrderDTO responseDTO = objectMapper
             .readValue(responseById.getContentAsString(), OrderDTO.class);
+
+        LocalDateTime createdTime = responseDTO.getCreatedTime();
+
+        System.out.println(startTime);
+        System.out.println(createdTime);
+        System.out.println(createdTime.isAfter(startTime));
+        System.out.println(createdTime.isBefore(startTime));
+
+        assertTrue(createdTime.isBefore(startTime));
         assertEquals(responseDTO.getId(), orderId);
     }
 
