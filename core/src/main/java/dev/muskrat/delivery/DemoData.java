@@ -1,5 +1,10 @@
 package dev.muskrat.delivery;
 
+import dev.muskrat.delivery.auth.models.Role;
+import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.auth.repository.UserRepository;
+import dev.muskrat.delivery.auth.service.UserService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
@@ -18,6 +23,9 @@ import dev.muskrat.delivery.shop.dao.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -29,12 +37,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemoData {
 
+    private final AuthenticationManager authenticationManager;
+
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final PartnerRepository partnerRepository;
     private final CitiesRepository citiesRepository;
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserService userService;
 
     public RegionDelivery regionDelivery;
     public Partner partner;
@@ -44,11 +58,16 @@ public class DemoData {
     public List<City> cities;
     public List<Shop> shops;
     public List<Order> orders;
+    public List<Role> roles;
+    public List<User> users;
 
     @EventListener
     public void appReady(ApplicationReadyEvent event) {
 
         generatePartner();
+        update();
+
+        generateUser();
         update();
 
         generateCategory();
@@ -68,6 +87,26 @@ public class DemoData {
 
         generateOrder();
         update();
+    }
+
+    private void generateUser() {
+
+        Arrays.asList("USER", "PARTNER", "ADMIN").forEach(
+            roleName -> {
+                Role role = new Role();
+                role.setName(roleName);
+                roleRepository.save(role);
+            }
+        );
+
+        update();
+
+        User user = new User();
+        user.setEmail("user@gmail.com");
+        user.setPassword("test");
+        user.setRoles(roles);
+
+        userService.register(user);
     }
 
     private void generatePartner() {
@@ -223,6 +262,8 @@ public class DemoData {
     }
 
     public void update() {
+        users = userRepository.findAll();
+        roles = roleRepository.findAll();
         shops = shopRepository.findAll();
         orders = orderRepository.findAll();
         cities = citiesRepository.findAll();

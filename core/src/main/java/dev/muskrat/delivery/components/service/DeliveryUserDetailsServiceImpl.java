@@ -1,3 +1,4 @@
+/*
 package dev.muskrat.delivery.components.service;
 
 import dev.muskrat.delivery.partner.dto.PartnerDTO;
@@ -36,3 +37,4 @@ public class DeliveryUserDetailsServiceImpl implements UserDetailsService {
     }
 
 }
+*/
