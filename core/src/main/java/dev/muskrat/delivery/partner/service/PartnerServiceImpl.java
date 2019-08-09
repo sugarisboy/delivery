@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.partner.service;
 
+import dev.muskrat.delivery.auth.security.jwt.JwtPasswordEncoder;
 import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.order.dao.Order;
@@ -8,6 +9,7 @@ import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,7 @@ public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerRepository partnerRepository;
     private final PartnerToPartnerDTOConverter partnerToPartnerDTOConverter;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public PartnerRegisterResponseDTO create(PartnerRegisterDTO partnerRegisterDTO) {
