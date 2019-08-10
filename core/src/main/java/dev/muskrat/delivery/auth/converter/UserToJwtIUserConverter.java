@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.auth.converter;
 
-import dev.muskrat.delivery.auth.models.Status;
-import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.dao.Status;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.converter.ObjectConverter;
 import org.springframework.security.core.GrantedAuthority;

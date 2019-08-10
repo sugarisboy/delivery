@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.auth.models;
+package dev.muskrat.delivery.auth.dao;
 
 public enum Status {
 

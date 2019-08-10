@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.auth.security;
 
 import dev.muskrat.delivery.auth.converter.UserToJwtIUserConverter;
-import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.auth.service.UserService;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;

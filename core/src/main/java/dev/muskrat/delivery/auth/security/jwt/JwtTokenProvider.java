@@ -1,7 +1,8 @@
 package dev.muskrat.delivery.auth.security.jwt;
 
-import dev.muskrat.delivery.auth.models.Role;
+import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
+import dev.muskrat.delivery.components.exception.JwtTokenExpiredException;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,14 +64,28 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public String resolveToken(String authorization) {
+        String bearerToken = authorization;
+        if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
+            return bearerToken.substring(7);
         }
         return null;
     }
 
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            Jws<Claims> claims;
+
+            try {
+                claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            } catch (ExpiredJwtException e) {
+                throw new JwtTokenExpiredException("Token is expired");
+            }
 
             if (claims.getBody().getExpiration().before(new Date())) {
                 return false;

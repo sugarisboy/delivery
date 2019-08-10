@@ -1,7 +1,6 @@
 package dev.muskrat.delivery.auth.repository;
 
-import dev.muskrat.delivery.auth.models.Role;
-import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.dao.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

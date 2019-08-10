@@ -1,11 +1,10 @@
 package dev.muskrat.delivery.auth.service;
 
-import dev.muskrat.delivery.auth.models.Role;
-import dev.muskrat.delivery.auth.models.Status;
-import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.auth.dao.Status;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.repository.UserRepository;
-import dev.muskrat.delivery.auth.security.jwt.JwtPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
