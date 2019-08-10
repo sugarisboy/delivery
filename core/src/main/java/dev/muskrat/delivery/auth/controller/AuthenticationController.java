@@ -1,8 +1,7 @@
 package dev.muskrat.delivery.auth.controller;
 
 import dev.muskrat.delivery.auth.dto.AuthRequestDTO;
-import dev.muskrat.delivery.auth.models.User;
-import dev.muskrat.delivery.auth.security.jwt.JwtPasswordEncoder;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity login(
-        @RequestBody AuthRequestDTO authRequestDTO
+        @Valid @RequestBody AuthRequestDTO authRequestDTO
     ) {
         try {
             String username = authRequestDTO.getUsername();

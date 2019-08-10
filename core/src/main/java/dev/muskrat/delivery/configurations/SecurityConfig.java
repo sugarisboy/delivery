@@ -2,6 +2,7 @@ package dev.muskrat.delivery.configurations;
 
 import dev.muskrat.delivery.auth.security.JwtUserDetailsService;
 import dev.muskrat.delivery.auth.security.jwt.JwtConfigurer;
+import dev.muskrat.delivery.auth.security.jwt.JwtTokenFilter;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration

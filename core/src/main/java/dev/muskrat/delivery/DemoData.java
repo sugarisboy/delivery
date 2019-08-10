@@ -1,7 +1,7 @@
 package dev.muskrat.delivery;
 
-import dev.muskrat.delivery.auth.models.Role;
-import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.service.UserService;
@@ -24,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;

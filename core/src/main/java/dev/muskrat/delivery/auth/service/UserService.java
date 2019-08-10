@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.auth.service;
 
-import dev.muskrat.delivery.auth.models.User;
+import dev.muskrat.delivery.auth.dao.User;
 
 import java.util.List;
 
