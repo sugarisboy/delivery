@@ -33,7 +33,8 @@ spring:
     generate-ddl: true
     properties:
       hibernate:
-#        show_sql: true
+        #enable_lazy_load_no_trans: true
+        #        show_sql: true
         user_sql_comments: true
         format_sql: true
   servlet:

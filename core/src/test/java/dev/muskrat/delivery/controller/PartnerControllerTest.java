@@ -79,7 +79,7 @@ public class PartnerControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerDTO()))
         )
-                .andExpect(status().isOk())
+                .andExpect(orderStatus().isOk())
                 .andReturn().getRequest().getContentAsString();
 
         PartnerRegisterResponseDTO partnerRegisterResponseDTO = objectMapper
@@ -91,7 +91,7 @@ public class PartnerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
-                .andExpect(status().isOk())
+                .andExpect(orderStatus().isOk())
                 .andReturn().getResponse().getContentAsString();
 
         Optional<PartnerDTO> byId = partnerService.findById(itemId);

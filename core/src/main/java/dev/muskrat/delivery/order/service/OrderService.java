@@ -12,8 +12,8 @@ public interface OrderService {
     OrderDTO create(OrderCreateDTO orderDTO);
 
     /**
-     * @param orderDTO contains data: id and status
-     * @return OrderDTO with id and new status
+     * @param orderDTO contains data: id and orderStatus
+     * @return OrderDTO with id and new orderStatus
      * <p>
      * 0 - Processing
      * 1 - Assembly

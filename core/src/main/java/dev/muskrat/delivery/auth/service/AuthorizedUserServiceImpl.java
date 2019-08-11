@@ -1,27 +1,28 @@
 package dev.muskrat.delivery.auth.service;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.Status;
-import dev.muskrat.delivery.auth.dao.User;
+import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class AuthorizedUserServiceImpl implements AuthorizedUserService {
 
-    private final UserRepository userRepository;
+    private final AuthorizedUserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public User register(User user) {
+    public AuthorizedUser register(AuthorizedUser user) {
         Role roleUser = roleRepository.findByName("ROLE_USER");
         List<Role> userRoles = new ArrayList<>();
         userRoles.add(roleUser);
@@ -31,24 +32,30 @@ public class UserServiceImpl implements UserService {
         user.setStatus(Status.ACTIVE);
         user.setUsername(user.getEmail());
 
-        User savedUser = userRepository.save(user);
+        AuthorizedUser savedUser = userRepository.save(user);
 
         return savedUser;
     }
 
     @Override
-    public List<User> findAll() {
+    public List<AuthorizedUser> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public User findByEmail(String email) {
+    public Optional<AuthorizedUser> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     @Override
-    public User findById(Long id) {
+    public AuthorizedUser findById(Long id) {
         return userRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void updateRefresh(AuthorizedUser user, String refresh) {
+        user.setRefresh(refresh);
+        userRepository.save(user);
     }
 
     @Override

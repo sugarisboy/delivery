@@ -1,16 +1,12 @@
 package dev.muskrat.delivery.partner.service;
 
-import dev.muskrat.delivery.auth.security.jwt.JwtPasswordEncoder;
-import dev.muskrat.delivery.components.exception.EntityExistException;
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.converter.PartnerToPartnerDTOConverter;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,37 +19,17 @@ public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerRepository partnerRepository;
     private final PartnerToPartnerDTOConverter partnerToPartnerDTOConverter;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public PartnerRegisterResponseDTO create(PartnerRegisterDTO partnerRegisterDTO) {
-        Optional<Partner> sameEmailPartner = partnerRepository
-            .findByEmail(partnerRegisterDTO.getEmail());
-
-        if (sameEmailPartner.isPresent()) {
-            throw new EntityExistException("This email is already taken.");
-        }
-
-        if (!partnerRegisterDTO.getPassword()
-            .equals(partnerRegisterDTO.getPasswordRepeat())) {
-            throw new RuntimeException("Passwords aren't equal");
-        }
-
-        Partner partner = new Partner();
-        partner.setEmail(partnerRegisterDTO.getEmail());
-        partner.setName(partnerRegisterDTO.getName());
-
-        String encodedPassword = passwordEncoder.encode(partnerRegisterDTO.getPassword());
-        partner.setPassword(encodedPassword);
-        partner.setPhone(partnerRegisterDTO.getPhone());
-        Partner saved = partnerRepository.save(partner);
-
-        PartnerRegisterResponseDTO partnerRegisterResponseDTO = new PartnerRegisterResponseDTO();
-        partnerRegisterResponseDTO.setId(saved.getId());
-        return partnerRegisterResponseDTO;
+    public PartnerRegisterResponseDTO create(AuthorizedUser executor, PartnerRegisterDTO partnerRegisterDTO) {
+        Partner saved = partnerRepository.save(new Partner());
+        executor.setPartner(saved);
+        return PartnerRegisterResponseDTO.builder()
+            .id(executor.getId())
+            .build();
     }
 
-    @Override
+    /*@Override
     public PartnerRegisterResponseDTO createByOrder(Order order) {
         PartnerRegisterDTO partnerRegisterDTO = PartnerRegisterDTO.builder()
             .email(order.getEmail())
@@ -64,7 +40,7 @@ public class PartnerServiceImpl implements PartnerService {
             .passwordRepeat("password")
             .build();
         return create(partnerRegisterDTO);
-    }
+    }*/
 
     @Override
     public PartnerUpdateResponseDTO update(PartnerUpdateDTO partnerDTO) {
@@ -74,13 +50,6 @@ public class PartnerServiceImpl implements PartnerService {
             throw new EntityNotFoundException("Partner with id " + id + " don't found");
 
         Partner partner = byId.get();
-        if (partnerDTO.getEmail() != null)
-            partner.setEmail(partnerDTO.getEmail());
-        if (partnerDTO.getName() != null)
-            partner.setName(partnerDTO.getName());
-        if (partnerDTO.getId() != null)
-            partner.setPhone(partnerDTO.getPhone());
-
         // TODO: function for change password
 
         partnerRepository.save(partner);
@@ -91,31 +60,10 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public void delete(Long id) {
-        Optional<Partner> partner = partnerRepository.findById(id);
-        partner.ifPresent(p -> {
-            p.setBanned(true);
-            partnerRepository.save(p);
-        });
-    }
-
-    @Override
-    public Optional<PartnerDTO> findById(long id) {
-        Optional<Partner> partner = partnerRepository.findById(id);
-        return partner.map(partnerToPartnerDTOConverter::convert);
-    }
-
-    @Override
     public List<PartnerDTO> findAll() {
         return partnerRepository.findAll()
             .stream()
             .map(partnerToPartnerDTOConverter::convert)
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<PartnerDTO> findByEmail(String email) {
-        return partnerRepository.findByEmail(email)
-            .map(partnerToPartnerDTOConverter::convert);
     }
 }

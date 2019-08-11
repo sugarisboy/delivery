@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderDTO.builder()
             .id(order.getId())
-            .status(order.getStatus())
+            .status(order.getOrderStatus())
             .build();
     }
 
@@ -97,14 +97,14 @@ public class OrderServiceImpl implements OrderService {
             throw new EntityNotFoundException("Order with id " + id + " not found");
 
         Order order = byId.get();
-        order.setStatus(orderDTO.getStatus());
+        order.setOrderStatus(orderDTO.getStatus());
         orderRepository.save(order);
 
         //TODO: trigger event
 
         return OrderDTO.builder()
             .id(order.getId())
-            .status(order.getStatus())
+            .status(order.getOrderStatus())
             .build();
     }
 

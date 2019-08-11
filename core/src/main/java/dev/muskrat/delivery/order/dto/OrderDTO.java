@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -26,7 +27,7 @@ public class OrderDTO {
     private String email;
     private Long shopId;
     private Integer status;
-    private LocalDateTime createdTime;
+    private Date createdTime;
 
     private String comments;
 }

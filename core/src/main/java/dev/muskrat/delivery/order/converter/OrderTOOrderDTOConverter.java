@@ -23,7 +23,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .collect(Collectors.toList());
 
         return OrderDTO.builder()
-            .status(order.getStatus())
+            .status(order.getOrderStatus())
             .address(order.getAddress())
             .comments(order.getComments())
             .email(order.getEmail())
@@ -32,7 +32,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .name(order.getName())
             .phone(order.getPhone())
             .products(collect)
-            .createdTime(order.getCreatedDate())
+            .createdTime(order.getCreated())
             .build();
     }
 }
