@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.shop.controller;
 
 import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.dto.*;
 import dev.muskrat.delivery.shop.service.ShopService;
@@ -36,7 +36,7 @@ public class ShopController {
         @Valid @RequestBody ShopUpdateDTO shopUpdateDTO,
         @RequestHeader(value = "Authorization") String authorization
     ) {
-        User convert = jwtAuthorizationToUserConverter.convert(authorization);
+        AuthorizedUser convert = jwtAuthorizationToUserConverter.convert(authorization);
         return shopService.update(shopUpdateDTO);
     }
 

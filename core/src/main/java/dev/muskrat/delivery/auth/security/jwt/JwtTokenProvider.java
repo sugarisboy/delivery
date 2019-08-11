@@ -1,6 +1,8 @@
 package dev.muskrat.delivery.auth.security.jwt;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.auth.service.AuthorizedUserService;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
 import dev.muskrat.delivery.components.exception.JwtTokenExpiredException;
 import io.jsonwebtoken.*;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
+    private final AuthorizedUserService userService;
 
     @Value("${application.jwt.token.secret}")
     private String secret;
@@ -36,20 +39,47 @@ public class JwtTokenProvider {
         secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String createToken(String username, List<Role> roles) {
+    public String refreshToken(AuthorizedUser user, String oldRefresh) {
+        String refresh = user.getRefresh();
+        if (refresh.equals(oldRefresh)) {
+            String token = createToken(user);
+            userService.updateRefresh(user, token);
+            return token;
+        } else {
+            throw new JwtAuthenticationException("Refresh token is not valid");
+        }
+    }
+
+    public String createToken(AuthorizedUser user) {
+
+        String username = user.getUsername();
 
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", getRoleNames(roles));
+        claims.put("roles", getRoleNames(user.getRoles()));
+        claims.put("refresh", createRefresh(user));
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + expiredTime);
 
-        return Jwts.builder()//
-            .setClaims(claims)//
-            .setIssuedAt(now)//
-            .setExpiration(validity)//
-            .signWith(SignatureAlgorithm.HS256, secret)//
+        return Jwts.builder()
+            .setClaims(claims)
+            .setIssuedAt(now)
+            .setExpiration(validity)
+            .signWith(SignatureAlgorithm.HS256, secret)
             .compact();
+    }
+
+    private String createRefresh(AuthorizedUser user) {
+        Claims claims = Jwts.claims().setSubject(user.getUsername());
+
+        String refresh = Jwts.builder()
+            .setClaims(claims)
+            .signWith(SignatureAlgorithm.HS256, secret)
+            .compact();
+
+        userService.updateRefresh(user, refresh);
+
+        return refresh;
     }
 
     public Authentication getAuthentication(String token) {
@@ -59,6 +89,10 @@ public class JwtTokenProvider {
 
     public String getUsername(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public String getRefresh(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("refresh", String.class);
     }
 
     public String resolveToken(HttpServletRequest req) {

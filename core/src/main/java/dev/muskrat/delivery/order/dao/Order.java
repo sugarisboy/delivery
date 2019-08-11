@@ -1,52 +1,51 @@
 package dev.muskrat.delivery.order.dao;
 
+import dev.muskrat.delivery.auth.dao.BaseEntity;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.dao.Shop;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
+    @Column(name = "products")
     @ElementCollection
     private List<OrderProduct> products;
 
-    @ManyToOne(targetEntity = City.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "order_city",
+        joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
+    )
     private City city;
 
-    @Column
+    @Column(name = "phone")
     private String phone;
 
-    @Column
+    @Column(name = "address")
     private String address;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
-    @Column
+    @Column(name = "email")
     private String email;
 
-    @Column
+    @Column(name = "comments")
     private String comments;
 
-    @Column
-    private Integer status = 0;
+    @Column(name = "order_status")
+    private Integer orderStatus = 0;
 
-    @ManyToOne(targetEntity = Shop.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "order_shop",
+        joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")}
+    )
     private Shop shop;
-
-    @CreationTimestamp
-    private LocalDateTime createdDate;
 }
