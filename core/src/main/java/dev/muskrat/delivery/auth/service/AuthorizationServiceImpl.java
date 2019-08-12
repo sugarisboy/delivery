@@ -2,10 +2,12 @@ package dev.muskrat.delivery.auth.service;
 
 import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
 import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dto.UserLoginDTO;
 import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterResponseDTO;
+import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +19,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private final RoleRepository roleRepository;
     private final AuthorizedUserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
