@@ -1,5 +1,10 @@
 package dev.muskrat.delivery;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.auth.service.AuthorizedUserService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
@@ -18,6 +23,7 @@ import dev.muskrat.delivery.shop.dao.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -29,12 +35,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemoData {
 
+    private final AuthenticationManager authenticationManager;
+
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final PartnerRepository partnerRepository;
     private final CitiesRepository citiesRepository;
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
+
+    private final AuthorizedUserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final AuthorizedUserService userService;
 
     public RegionDelivery regionDelivery;
     public Partner partner;
@@ -44,11 +56,16 @@ public class DemoData {
     public List<City> cities;
     public List<Shop> shops;
     public List<Order> orders;
+    public List<Role> roles;
+    public List<AuthorizedUser> users;
 
     @EventListener
     public void appReady(ApplicationReadyEvent event) {
 
         generatePartner();
+        update();
+
+        generateUser();
         update();
 
         generateCategory();
@@ -70,13 +87,38 @@ public class DemoData {
         update();
     }
 
+    private void generateUser() {
+
+        Arrays.stream(Role.Name.values())
+            .map(Role.Name::getName)
+            .forEach(
+                roleName -> {
+                    Role role = new Role();
+                    role.setName(roleName);
+                    roleRepository.save(role);
+                }
+        );
+
+        update();
+
+        AuthorizedUser user = new AuthorizedUser();
+        user.setEmail("user@gmail.com");
+        user.setPassword("test");
+        user.setRoles(Arrays.asList(roles.get(0)));
+
+        userService.register(user);
+
+        user = new AuthorizedUser();
+        user.setEmail("part@gmail.com");
+        user.setPassword("test");
+        user.setRoles(Arrays.asList(roles.get(0), roles.get(1)));
+        user.setPartner(partner);
+
+        userService.register(user);
+    }
+
     private void generatePartner() {
         partner = new Partner();
-        partner.setName("name");
-        partner.setEmail("test@test.te");
-        partner.setPhone("000000");
-        partner.setPassword("uududff");
-        partner.setBanned(false);
         partner.setShops(null);
         partnerRepository.save(partner);
     }
@@ -210,9 +252,9 @@ public class DemoData {
                     order.setName(shop.getName() + "-order-" + i);
 
                     if (i == 1) {
-                        order.setStatus(1);
+                        order.setOrderStatus(1);
                     } else if (i == 2) {
-                        order.setStatus(10);
+                        order.setOrderStatus(10);
                     }
 
                     orders.add(order);
@@ -223,6 +265,8 @@ public class DemoData {
     }
 
     public void update() {
+        users = userRepository.findAll();
+        roles = roleRepository.findAll();
         shops = shopRepository.findAll();
         orders = orderRepository.findAll();
         cities = citiesRepository.findAll();

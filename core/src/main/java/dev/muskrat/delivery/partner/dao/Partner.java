@@ -1,5 +1,7 @@
 package dev.muskrat.delivery.partner.dao;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.BaseEntity;
 import dev.muskrat.delivery.shop.dao.Shop;
 import lombok.Data;
 import org.hibernate.annotations.Where;
@@ -7,31 +9,22 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
 @Data
+@Entity
 @Table(name = "partners")
-@Where(clause = "banned = 0")
-public class Partner {
+public class Partner extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Column
-    private String name;
-
-    @Column
-    private String email;
-
-    @Column
-    private String phone;
-
-    @Column
-    private String password;
-
-    @Column
-    private Boolean banned;
-
-    @OneToMany(targetEntity = Shop.class)
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "partner_shop",
+        joinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")}
+    )
     private List<Shop> shops;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "authuser_partner",
+        joinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "authuser_id", referencedColumnName = "id")}
+    )
+    private AuthorizedUser user;
 }

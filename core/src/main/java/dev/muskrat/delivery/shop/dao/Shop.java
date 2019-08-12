@@ -22,37 +22,51 @@ public class Shop {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
-    @ManyToOne(targetEntity = Partner.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "partner_shop",
+        joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
+    )
     private Partner partner;
 
-    @ManyToOne(targetEntity = City.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "shop_city",
+        joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
+    )
     private City city;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "shop")
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "product_shop",
+        joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "id")}
+    )
     private List<Product> products = new ArrayList<>();
 
-    @Column
+    @Column(name = "description")
     private String description;
 
-    @Column
+    @Column(name = "min_order_price")
     private Double minOrderPrice;
 
-    @Column
+    @Column(name = "free_order_price")
     private Double freeOrderPrice;
 
     @ElementCollection
+    @Column(name = "open")
     private List<LocalTime> open;
 
     @ElementCollection
+    @Column(name = "close")
     private List<LocalTime> close;
 
-    @Column
     @Embedded
+    @Column(name = "region")
     private RegionDelivery region = RegionDelivery.getEmpty();
 
-    @Column
+    @Column(name = "deleted")
     private Boolean deleted = false;
 }

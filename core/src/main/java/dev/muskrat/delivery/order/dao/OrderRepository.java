@@ -16,14 +16,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "(:email is null or o.email = :email) and" +
             "(:city is null or o.city = :city) and" +
             "(:shop is null or o.shop = :shop) and" +
-            "(:status is null or o.status < :status)"
+            "(:orderStatus is null or o.orderStatus < :orderStatus)"
     )
     Page<Order> findWithFilter(
         @Param("phone") String phone,
         @Param("email") String email,
         @Param("city") City city,
         @Param("shop") Shop shop,
-        @Param("status") Integer status,
+        @Param("orderStatus") Integer status,
         Pageable pageable
     );
 }
