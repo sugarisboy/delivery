@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 @Entity
@@ -17,33 +18,40 @@ public class Product {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(name = "title")
     private String title;
 
-    @Column
+    @Column(name = "price")
     private Double price;
 
-    @Column
-    @Enumerated
+    @Column(name = "quantity")
+    @Enumerated(EnumType.STRING)
     private Quantities quantity;
     
-    @Column
+    @Column(name = "description")
     private String description;
     
-    @Column
+    @Column(name = "available")
     private Boolean available;
     
-    @Column
+    @Column(name = "value")
     private Double value;
 
-    @ManyToOne(targetEntity = Category.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "product_category",
+        joinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "category_id", referencedColumnName = "id")}
+    )
     private Category category;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shop_id")
+    @JoinTable(name = "product_shop",
+        joinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")}
+    )
     private Shop shop;
 
-    @Column
+    @Column(name = "deleted")
     private Boolean deleted = false;
 
 }

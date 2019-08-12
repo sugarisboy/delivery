@@ -1,10 +1,11 @@
+/*
 package dev.muskrat.delivery.components.service;
 
 import dev.muskrat.delivery.partner.dto.PartnerDTO;
 import dev.muskrat.delivery.partner.service.PartnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.AuthorizedUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,7 +27,7 @@ public class DeliveryUserDetailsServiceImpl implements UserDetailsService {
         if (optionalPartnerDTO.isPresent()) {
             PartnerDTO partnerDTO = optionalPartnerDTO.get();
 
-            return new User(
+            return new AuthorizedUser(
                 partnerDTO.getEmail(),
                 partnerDTO.getPassword(),
                 Set.of(new SimpleGrantedAuthority("partner"))
@@ -36,3 +37,4 @@ public class DeliveryUserDetailsServiceImpl implements UserDetailsService {
     }
 
 }
+*/

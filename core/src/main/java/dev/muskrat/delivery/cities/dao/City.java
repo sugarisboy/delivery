@@ -19,15 +19,25 @@ public class City {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
-    @OneToMany(targetEntity = Order.class)
-    private List<Order> products;
+    @Column(name = "orders")
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "order_city",
+        joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")}
+    )
+    private List<Order> orders;
 
-    @OneToMany(targetEntity = Shop.class)
+    @Column(name = "shops")
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "shop_city",
+        joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")}
+    )
     private List<Shop> shops;
 
-    @Column
+    @Column(name = "deleted")
     private Boolean deleted = false;
 }
