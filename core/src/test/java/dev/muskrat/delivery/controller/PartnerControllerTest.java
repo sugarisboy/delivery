@@ -1,3 +1,4 @@
+/*
 package dev.muskrat.delivery.controller;
 
 
@@ -28,7 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class PartnerControllerTest {
 
-    @Autowired
+   */
+/* @Autowired
     private MockMvc mockMvc;
 
     @Autowired
@@ -45,13 +47,15 @@ public class PartnerControllerTest {
             .passwordRepeat("123")
             .phone("123")
             .build();
-    }
+    }*//*
+
 
     @Test
     @SneakyThrows
     @Transactional
     public void partnerRegistrationTest() {
-        /*String contentAsString = mockMvc.perform(post("/partner/register")
+        */
+/*String contentAsString = mockMvc.perform(post("/partner/register")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(registerDTO()))
@@ -68,10 +72,12 @@ public class PartnerControllerTest {
             .findById(registeredPartnerId).orElseThrow();
 
         assertEquals(partnerDTO.getId(), registeredPartnerId);
-        assertEquals(partnerDTO.getEmail(), "mail@test.te");*/
+        assertEquals(partnerDTO.getEmail(), "mail@test.te");*//*
+
     }
 
-    /*@Test
+    */
+/*@Test
     @SneakyThrows
     public void partnerDeleteTest() {
         String contentAsString = mockMvc.perform(post("/partner/register")
@@ -96,5 +102,7 @@ public class PartnerControllerTest {
 
         Optional<PartnerDTO> byId = partnerService.findById(itemId);
         assertTrue(byId.isEmpty());
-    }*/
+    }*//*
+
 }
+*/
