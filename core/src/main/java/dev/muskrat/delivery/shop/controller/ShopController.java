@@ -33,10 +33,10 @@ public class ShopController {
     // todo: check work this
     // @PreAuthorize("hasAuthority('partner') or hasAuthority('admin')")
     public ShopUpdateResponseDTO update(
-        @Valid @RequestBody ShopUpdateDTO shopUpdateDTO,
-        @RequestHeader(value = "Authorization") String authorization
+        @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
+        //@RequestHeader(value = "Authorization") String authorization
     ) {
-        AuthorizedUser convert = jwtAuthorizationToUserConverter.convert(authorization);
+        //AuthorizedUser convert = jwtAuthorizationToUserConverter.convert(authorization);
         return shopService.update(shopUpdateDTO);
     }
 
