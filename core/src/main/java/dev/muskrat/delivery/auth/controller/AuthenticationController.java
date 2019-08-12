@@ -15,26 +15,26 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthorizationService authService;
+    private final AuthorizationService authorizationService;
 
     @PostMapping("/register")
     public UserRegisterResponseDTO register(
         @Valid @RequestBody UserRegisterDTO userRegisterDTO
     ) {
-        return authService.register(userRegisterDTO);
+        return authorizationService.register(userRegisterDTO);
     }
 
     @PostMapping("/login")
     public UserLoginResponseDTO login(
         @Valid @RequestBody UserLoginDTO userLoginDTO
     ) {
-        return authService.login(userLoginDTO);
+        return authorizationService.login(userLoginDTO);
     }
 
     @PostMapping("/refresh")
     public UserLoginResponseDTO refresh(
         @RequestHeader("Authorization") String authorization
     ) {
-        return authService.refresh(authorization);
+        return authorizationService.refresh(authorization);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,12 +24,14 @@ public class AuthorizedUserServiceImpl implements AuthorizedUserService {
 
     @Override
     public AuthorizedUser register(AuthorizedUser user) {
-        Role roleUser = roleRepository.findByName("ROLE_USER");
-        List<Role> userRoles = new ArrayList<>();
-        userRoles.add(roleUser);
 
+        Role role = roleRepository.findByName(Role.Name.USER.getName());
+
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(role);
+
+        user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(userRoles);
         user.setStatus(Status.ACTIVE);
         user.setUsername(user.getEmail());
 

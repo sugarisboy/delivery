@@ -1,9 +1,9 @@
 package dev.muskrat.delivery;
 
-import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.AuthorizedUser;
-import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.service.AuthorizedUserService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
@@ -89,12 +89,14 @@ public class DemoData {
 
     private void generateUser() {
 
-        Arrays.asList("USER", "PARTNER", "ADMIN").forEach(
-            roleName -> {
-                Role role = new Role();
-                role.setName(roleName);
-                roleRepository.save(role);
-            }
+        Arrays.stream(Role.Name.values())
+            .map(Role.Name::getName)
+            .forEach(
+                roleName -> {
+                    Role role = new Role();
+                    role.setName(roleName);
+                    roleRepository.save(role);
+                }
         );
 
         update();
