@@ -19,8 +19,6 @@ public class CityUpdateDTO {
     @Positive
     private Long id;
 
-    @NotNull
-    @Size(min = 3, max = 64, message = "very short or long shop name")
-    // remove not null when add new editable field
+    @Size(min = 3, max = 64, message = "Very short or long shop name")
     private String name;
 }

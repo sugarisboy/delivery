@@ -4,6 +4,7 @@ import dev.muskrat.delivery.cities.dto.*;
 import dev.muskrat.delivery.cities.service.CitiesService;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ public class CitiesController {
     private final CitiesService citiesService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public CityCreateResponseDTO create(
         @Valid @RequestBody CityCreateDTO cityCreateDTO
     ) {
@@ -25,6 +27,7 @@ public class CitiesController {
     }
 
     @PatchMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public CityUpdateResponseDTO update(
         @Valid @RequestBody CityUpdateDTO cityUpdateDTO
     ) {
@@ -32,6 +35,7 @@ public class CitiesController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(@NotNull @PathVariable Long id) {
         citiesService.delete(id);
     }

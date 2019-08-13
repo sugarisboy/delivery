@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.cities.dto.*;
@@ -38,94 +39,21 @@ public class CitiesControllerTest {
     @Autowired
     private CitiesRepository citiesRepository;
 
+    @Autowired
+    private DemoData demoData;
+
     @Test
     @SneakyThrows
     @Transactional
     public void createCityTest() {
-        String dataName = "city";
-
-        CityCreateResponseDTO cityCreateResponseDTO = createCity(dataName);
-
-        Long id = cityCreateResponseDTO.getId();
-        Optional<City> byId = citiesRepository.findById(id);
-        if (byId.isEmpty())
-            throw new Exception("City don't create in repository");
-
-        City city = byId.get();
-        String name = city.getName();
-
-        assertEquals(name, dataName);
-
         CityCreateDTO cityCreateDTO = CityCreateDTO.builder()
-            .name(dataName)
-            .build();
-
-        mockMvc.perform(post("/cities/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(cityCreateDTO))
-        )
-            .andExpect(status().isConflict());
-    }
-
-    @Test
-    @SneakyThrows
-    @Transactional
-    public void updateCityTest() {
-        CityCreateResponseDTO cityCreateResponseDTO = createCity("city");
-        Long id = cityCreateResponseDTO.getId();
-
-        CityUpdateDTO cityUpdateDTO = CityUpdateDTO.builder()
-            .id(id)
-            .name("new city")
-            .build();
-
-        String contentAsString = mockMvc.perform(patch("/cities/update")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(cityUpdateDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        CityUpdateResponseDTO cityUpdateResponseDTO = objectMapper
-            .readValue(contentAsString, CityUpdateResponseDTO.class);
-
-        Optional<City> byId = citiesRepository.findById(id);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("City with id " + id + " don't found");
-
-        City city = byId.get();
-        assertEquals(city.getName(), "new city");
-    }
-
-    @Test
-    @SneakyThrows
-    @Transactional
-    public void deleteCityTest() {
-        CityCreateResponseDTO city = createCity("city");
-        Long id = city.getId();
-
-        String contentAsString = mockMvc.perform(delete("/cities/" + id)
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        Optional<City> byId = citiesRepository.findById(id);
-        assertTrue(byId.isEmpty());
-    }
-
-    @SneakyThrows
-    public CityCreateResponseDTO createCity(String name) {
-        CityCreateDTO cityCreateDTO = CityCreateDTO.builder()
-            .name(name)
+            .name("Moscow")
             .build();
 
         String contentAsString = mockMvc.perform(post("/cities/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_ADMIN)
             .content(objectMapper.writeValueAsString(cityCreateDTO))
         )
             .andExpect(status().isOk())
@@ -134,6 +62,63 @@ public class CitiesControllerTest {
         CityCreateResponseDTO cityCreateResponseDTO = objectMapper
             .readValue(contentAsString, CityCreateResponseDTO.class);
 
-        return cityCreateResponseDTO;
+        Long createdCityId = cityCreateResponseDTO.getId();
+        Optional<City> byId = citiesRepository.findById(createdCityId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("City with id " + createdCityId + " not found");
+        City city = byId.get();
+
+        assertEquals("Moscow", city.getName());
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void updateCityTest() {
+        City demoCity = demoData.cities.get(0);
+        Long cityId = demoCity.getId();
+
+        CityUpdateDTO cityUpdateDTO = CityUpdateDTO.builder()
+            .id(cityId)
+            .name("Berlin")
+            .build();
+
+        String contentAsString = mockMvc.perform(patch("/cities/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .content(objectMapper.writeValueAsString(cityUpdateDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        CityUpdateResponseDTO cityUpdateResponseDTO = objectMapper
+            .readValue(contentAsString, CityUpdateResponseDTO.class);
+
+        Optional<City> byId = citiesRepository.findById(cityId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("City with id " + cityId + " not found");
+        City city = byId.get();
+
+        assertEquals(city.getName(), "Berlin");
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void deleteCityTest() {
+        City demoCity = demoData.cities.get(0);
+        Long cityId = demoCity.getId();
+
+        String contentAsString = mockMvc.perform(delete("/cities/" + cityId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_ADMIN)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        Optional<City> byId = citiesRepository.findById(cityId);
+        assertTrue(byId.isEmpty());
     }
 }

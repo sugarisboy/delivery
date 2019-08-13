@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,6 +28,7 @@ public class OrderController {
     }
 
     @PatchMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @orderServiceImpl.isOwner(authentication, #orderDTO.id))")
     public OrderDTO orderStatusUpdate(
         @Valid @RequestBody OrderUpdateDTO orderDTO
     ) {

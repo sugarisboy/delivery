@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.auth.dao;
 
+import dev.muskrat.delivery.components.dao.BaseEntity;
 import lombok.Data;
 import lombok.Getter;
 
@@ -16,7 +17,7 @@ public class Role extends BaseEntity {
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private List<AuthorizedUser> users;
 
-    public static enum Name {
+    public enum Name {
 
         USER("USER"),
         PARTNER("PARTNER"),
