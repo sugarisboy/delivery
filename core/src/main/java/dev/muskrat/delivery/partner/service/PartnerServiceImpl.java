@@ -1,30 +1,45 @@
 package dev.muskrat.delivery.partner.service;
 
 import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.partner.converter.PartnerToPartnerDTOConverter;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PartnerServiceImpl implements PartnerService {
 
+    private final RoleRepository roleRepository;
     private final PartnerRepository partnerRepository;
-    private final PartnerToPartnerDTOConverter partnerToPartnerDTOConverter;
+    private final AuthorizedUserRepository authorizedUserRepository;
 
     @Override
-    public PartnerRegisterResponseDTO create(AuthorizedUser executor, PartnerRegisterDTO partnerRegisterDTO) {
+    public PartnerRegisterResponseDTO create(AuthorizedUser executor) {
+        if (executor.getPartner() != null)
+            throw new RuntimeException("User already partner");
+
         Partner partner = new Partner();
+        partner.setUser(executor);
+        partnerRepository.save(partner);
+
+        Role rolePartner = roleRepository.findByName(Role.Name.PARTNER.getName()).get();
+        ArrayList<Role> roles = new ArrayList<>(executor.getRoles());
+        roles.add(rolePartner);
+        executor.setRoles(roles);
         executor.setPartner(partner);
-        Partner saved = partnerRepository.save(partner);
+
+        authorizedUserRepository.save(executor);
 
         return PartnerRegisterResponseDTO.builder()
             .id(executor.getId())
@@ -45,27 +60,16 @@ public class PartnerServiceImpl implements PartnerService {
     }*/
 
     @Override
-    public PartnerUpdateResponseDTO update(PartnerUpdateDTO partnerDTO) {
-        Long id = partnerDTO.getId();
-        Optional<Partner> byId = partnerRepository.findById(id);
+    public boolean isCurrentPartner(Authentication authentication, Long id) {
+        Optional<AuthorizedUser> byId = authorizedUserRepository.findById(id);
         if (byId.isEmpty())
-            throw new EntityNotFoundException("Partner with id " + id + " don't found");
+            throw new EntityNotFoundException("AuthorizedUser with id " + id + " not found");
+        AuthorizedUser authorizedUser = byId.get();
 
-        Partner partner = byId.get();
-        // TODO: function for change password
+        String authorizedUserEmail = authorizedUser.getEmail();
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        String jwtUserEmail = jwtUser.getEmail();
 
-        partnerRepository.save(partner);
-
-        return PartnerUpdateResponseDTO.builder()
-            .id(id)
-            .build();
-    }
-
-    @Override
-    public List<PartnerDTO> findAll() {
-        return partnerRepository.findAll()
-            .stream()
-            .map(partnerToPartnerDTOConverter::convert)
-            .collect(Collectors.toList());
+        return authorizedUserEmail.equalsIgnoreCase(jwtUserEmail);
     }
 }

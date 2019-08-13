@@ -3,6 +3,7 @@ package dev.muskrat.delivery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +26,6 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -53,56 +51,43 @@ public class ShopControllerTest {
     @Autowired
     private DemoData demoData;
 
-    /*@Before
-    public void setup() {
-        mockMvc = MockMvcBuilders
-            .webAppContextSetup(webApplicationContext)
-            .apply(springSecurity())
-            .build();
-    }*/
-
+    @Test
     @SneakyThrows
-    private ShopCreateResponseDTO createTestItem(String shopName, City city) {
-        Random random = new Random();
+    @Transactional
+    public void ShopCreateTest() {
+        City city = demoData.cities.get(0);
+        Long cityId = city.getId();
 
         ShopCreateDTO createDTO = ShopCreateDTO.builder()
-            .name(shopName)
-            .cityId(city.getId())
+            .name("shop")
+            .cityId(cityId)
             .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(createDTO))
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
 
-        return objectMapper
+        ShopCreateResponseDTO shopCreateResponseDTO = objectMapper
             .readValue(contentAsString, ShopCreateResponseDTO.class);
-    }
 
+        Long createdId = shopCreateResponseDTO.getId();
+        Optional<Shop> byId = shopRepository.findById(createdId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Shop with id " + createdId + " not found");
+        Shop shop = byId.get();
 
-    @Test
-    @SneakyThrows
-    @Transactional
-    public void ShopCreateTest() {
-        String shopName = "test" + ThreadLocalRandom.current().nextInt();
-        ShopCreateResponseDTO item = createTestItem(shopName, demoData.cities.get(0));
-
-        Long createdShopId = item.getId();
-
-        ShopDTO createdShopDTO = shopService
-            .findById(createdShopId).orElseThrow();
-
-        assertEquals(createdShopDTO.getId(), createdShopId);
-        assertEquals(createdShopDTO.getName(), shopName);
+        assertNotNull(shop);
+        assertEquals("shop", shop.getName());
     }
 
     @Test
     @SneakyThrows
     @Transactional
-    //@WithMockUser(value = "spring")
     public void shopUpdateTest() {
 
         Shop shop = demoData.shops.get(0);
@@ -123,7 +108,7 @@ public class ShopControllerTest {
         String contentAsString = mockMvc.perform(patch("/shop/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Authorization", demoData.ACCESS_ADMIN)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -148,9 +133,8 @@ public class ShopControllerTest {
     @SneakyThrows
     @Transactional
     public void shopScheduleUpdateTest() {
-        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
-
-        Long createdShopId = item.getId();
+        Shop shop = demoData.shops.get(0);
+        Long createdShopId = shop.getId();
 
         ShopScheduleUpdateDTO updateDTO = ShopScheduleUpdateDTO.builder()
             .id(createdShopId)
@@ -177,6 +161,7 @@ public class ShopControllerTest {
         String contentAsString = mockMvc.perform(patch("/shop/schedule/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -201,18 +186,18 @@ public class ShopControllerTest {
     @SneakyThrows
     @Transactional
     public void shopDeleteTest() {
-        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
+        Shop shop = demoData.shops.get(0);
+        Long shopId = shop.getId();
 
-        Long itemId = item.getId();
-
-        mockMvc.perform(delete("/shop/" + itemId)
+        mockMvc.perform(delete("/shop/" + shopId)
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
 
-        Optional<ShopDTO> byId = shopService.findById(itemId);
+        Optional<ShopDTO> byId = shopService.findById(shopId);
         assertTrue(byId.isEmpty());
     }
 
@@ -220,19 +205,20 @@ public class ShopControllerTest {
     @SneakyThrows
     @Transactional
     public void regionUpdateTest() {
-        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
+        Shop shop = demoData.shops.get(0);
 
-        Long itemId = item.getId();
+        Long shopId = shop.getId();
 
         RegionUpdateDTO regionUpdateDTO = RegionUpdateDTO.builder()
-            .shopId(itemId)
+            .shopId(shopId)
             .points(Arrays.asList(
-                1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D
+                1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D
             )).build();
 
         String contentAsString = mockMvc.perform(patch("/map/regionupdate")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(regionUpdateDTO))
         )
             .andExpect(status().isOk())
@@ -243,13 +229,10 @@ public class ShopControllerTest {
 
         Long updatableId = regionUpdateResponseDTO.getId();
 
-        assertEquals(itemId, updatableId);
+        assertEquals(shopId, updatableId);
 
-        Optional<Shop> byId = shopRepository.findById(itemId);
-        Shop shop = byId.get();
-        RegionDelivery region = shop.getRegion();
-
-        assertNotNull(region);
+        Optional<Shop> byId = shopRepository.findById(shopId);
+        assertNotNull(byId.get().getRegion());
     }
 
     @Test

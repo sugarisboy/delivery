@@ -28,8 +28,6 @@ public class JwtUserDetailsService implements UserDetailsService {
             throw new EntityNotFoundException("AuthorizedUser with email " + email + " not found");
         AuthorizedUser user = authorizedUser.get();
 
-        JwtUser jwtUser = userToJwtIUserConverter.convert(user);
-
-        return jwtUser;
+        return userToJwtIUserConverter.convert(user);
     }
 }

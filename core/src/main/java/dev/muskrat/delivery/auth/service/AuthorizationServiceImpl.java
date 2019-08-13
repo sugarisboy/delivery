@@ -26,7 +26,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
 
-    private final RoleRepository roleRepository;
     private final AuthorizedUserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;

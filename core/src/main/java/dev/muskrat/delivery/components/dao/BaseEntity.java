@@ -1,5 +1,6 @@
-package dev.muskrat.delivery.auth.dao;
+package dev.muskrat.delivery.components.dao;
 
+import dev.muskrat.delivery.auth.dao.Status;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.user.dao;
 
 import dev.muskrat.delivery.auth.dao.AuthorizedUser;
-import dev.muskrat.delivery.auth.dao.BaseEntity;
+import dev.muskrat.delivery.components.dao.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.*;

@@ -2,20 +2,19 @@ package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
-import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.order.dao.Order;
-import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.order.service.OrderService;
+import dev.muskrat.delivery.product.dao.Product;
 import dev.muskrat.delivery.product.dto.ProductCreateDTO;
 import dev.muskrat.delivery.product.dto.ProductCreateResponseDTO;
+import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dto.ShopCreateDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateResponseDTO;
 import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import lombok.SneakyThrows;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +26,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -88,10 +86,31 @@ public class OrderControllerTest {
     @SneakyThrows
     @Transactional
     public void orderCreateSuccessfulTest() {
+        Shop shop = demoData.shops.get(0);
+        Long shopId = shop.getId();
+
+        List<OrderProductDTO> products = shop.getProducts().stream()
+            .map(dto -> OrderProductDTO.builder()
+                .productId(dto.getId())
+                .count(1)
+                .build())
+            .collect(Collectors.toList());
+
+        OrderCreateDTO orderCreateDTO = OrderCreateDTO.builder()
+            .name("Ivan Ivanov")
+            .address("Jalan Teoh Kim Swee, 4")
+            .comment("no comments")
+            .email("sugarisboy@outlook.com")
+            .phone("7920121333" + ThreadLocalRandom.current().nextInt(2))
+            .shopId(shopId)
+            .products(products)
+            .build();
+
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO()))
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .content(objectMapper.writeValueAsString(orderCreateDTO))
         )
             .andExpect(status().isOk())
             .andReturn().getResponse();
@@ -112,13 +131,31 @@ public class OrderControllerTest {
     @SneakyThrows
     @Transactional
     public void orderCreateWithBadEmailTest() {
-        OrderCreateDTO dto = createDTO();
-        dto.setEmail("notemail");
+        Shop shop = demoData.shops.get(0);
+        Long shopId = shop.getId();
+
+        List<OrderProductDTO> products = shop.getProducts().stream()
+            .map(dto -> OrderProductDTO.builder()
+                .productId(dto.getId())
+                .count(1)
+                .build())
+            .collect(Collectors.toList());
+
+        OrderCreateDTO orderCreateDTO = OrderCreateDTO.builder()
+            .name("Ivan Ivanov")
+            .address("Jalan Teoh Kim Swee, 4")
+            .comment("no comments")
+            .email("notemail")
+            .phone("7920121333" + ThreadLocalRandom.current().nextInt(2))
+            .shopId(shopId)
+            .products(products)
+            .build();
+
 
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(dto))
+            .content(objectMapper.writeValueAsString(orderCreateDTO))
         )
             .andExpect(status().isBadRequest())
             .andReturn().getResponse();
@@ -132,59 +169,19 @@ public class OrderControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void createWithoutDataTest() {
-        String[] badFields = {"products", "shopId", "email", "phone", "name", "address"};
-
-        for (int i = 0; i < badFields.length; i++) {
-            OrderCreateDTO dto = createDTO();
-
-            if (i == 0) dto.setProducts(null);
-            else if (i == 1) dto.setShopId(null);
-            else if (i == 2) dto.setEmail(null);
-            else if (i == 3) dto.setPhone(null);
-            else if (i == 4) dto.setName(null);
-            else if (i == 5) dto.setAddress(null);
-
-            MockHttpServletResponse response = mockMvc.perform(post("/order/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-            )
-                .andExpect(status().isBadRequest())
-                .andReturn().getResponse();
-
-            ValidationExceptionDTO validationExceptionDTO = objectMapper
-                .readValue(response.getContentAsString(), ValidationExceptionDTO.class);
-
-            assertEquals(validationExceptionDTO.getField(), badFields[i]);
-        }
-    }
-
-    @Test
-    @SneakyThrows
-    @Transactional
     public void updateStatusTest() {
-        MockHttpServletResponse response = mockMvc.perform(post("/order/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO()))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse();
-
-        ShopCreateResponseDTO item = objectMapper
-            .readValue(response.getContentAsString(), ShopCreateResponseDTO.class);
-
-        Long createdOrderId = item.getId();
+        Shop shop = demoData.shops.get(0);
+        Long shopId = shop.getId();
 
         OrderUpdateDTO updateDTO = OrderUpdateDTO.builder()
-            .id(createdOrderId)
+            .id(shopId)
             .status(10)
             .build();
 
-        response = mockMvc.perform(patch("/order/update")
+        MockHttpServletResponse response = mockMvc.perform(patch("/order/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -219,92 +216,5 @@ public class OrderControllerTest {
 
         assertTrue(startTime.getTime() - createdTime.getTime() < 10_000);
         assertEquals(responseDTO.getId(), orderId);
-    }
-
-    @SneakyThrows
-    private void shopRegionSet(ShopCreateResponseDTO item) {
-        Long itemId = item.getId();
-
-        RegionUpdateDTO regionUpdateDTO = RegionUpdateDTO.builder()
-            .shopId(itemId)
-            .points(Arrays.asList(
-                4.5272D, 101.1638D, 100D,
-                4.6335D, 101.1250D, 100D,
-                4.5452D, 101.0834D, 100D,
-                4.5272D, 101.1638D, 100D
-            )).build();
-
-        mockMvc.perform(patch("/map/regionupdate")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(regionUpdateDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-    }
-
-    @SneakyThrows
-    private ProductCreateResponseDTO createTestableProduct(String title, Long shopId) {
-        ProductCreateDTO productCreateDTO = ProductCreateDTO.builder()
-            .title(title)
-            .category(demoData.categories.get(0).getId())
-            .price(20D)
-            .shopId(shopId)
-            .build();
-
-        String contentAsString = mockMvc.perform(post("/product/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(productCreateDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        return objectMapper
-            .readValue(contentAsString, ProductCreateResponseDTO.class);
-    }
-
-    @SneakyThrows
-    private ShopCreateResponseDTO createTestableShop() {
-        ShopCreateDTO createDTO = ShopCreateDTO.builder()
-            .name("shop" + ThreadLocalRandom.current().nextInt())
-            .cityId(demoData.cities.get(0).getId())
-            .build();
-
-        String contentAsString = mockMvc.perform(post("/shop/create")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createDTO))
-        )
-            .andExpect(status().isOk())
-            .andReturn().getResponse().getContentAsString();
-
-        return objectMapper
-            .readValue(contentAsString, ShopCreateResponseDTO.class);
-    }
-
-    @SneakyThrows
-    private OrderCreateDTO createDTO() {
-        ShopCreateResponseDTO testableShop = createTestableShop();
-        shopRegionSet(testableShop);
-        Long shopId = testableShop.getId();
-
-        ProductCreateResponseDTO first = createTestableProduct("first", shopId);
-        ProductCreateResponseDTO second = createTestableProduct("second", shopId);
-
-        List<OrderProductDTO> products = Arrays.asList(
-            OrderProductDTO.builder().productId(first.getId()).count(1).build(),
-            OrderProductDTO.builder().productId(second.getId()).count(2).build()
-        );
-
-        return OrderCreateDTO.builder()
-            .name("Ivan Ivanov")
-            .address("Jalan Teoh Kim Swee, 4")
-            .comment("no comments")
-            .email("sugarisboy@outlook.com")
-            .phone("7920121333" + ThreadLocalRandom.current().nextInt(2))
-            .shopId(shopId)
-            .products(products)
-            .build();
     }
 }

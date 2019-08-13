@@ -1,18 +1,14 @@
 package dev.muskrat.delivery.configurations;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebMvc
-//@EnableGlobalMethodSecurity(prePostEnabled = true,proxyTargetClass = true)
 public class WebConfig implements WebMvcConfigurer {
 
     @Value("${application.storage.upload.main}")

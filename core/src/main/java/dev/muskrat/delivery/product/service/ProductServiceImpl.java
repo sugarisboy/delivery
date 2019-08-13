@@ -1,10 +1,13 @@
 package dev.muskrat.delivery.product.service;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.files.components.FileFormat;
 import dev.muskrat.delivery.files.components.FileFormats;
 import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.files.service.FileStorageService;
+import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.converter.ProductToProductDTOConverter;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
@@ -16,6 +19,7 @@ import dev.muskrat.delivery.shop.dao.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -183,4 +187,23 @@ public class ProductServiceImpl implements ProductService {
 
         return fileStorageService.uploadFile(type, fileName, img);
     }
+
+    @Override
+    public boolean isProductOwner(Authentication authentication, Long productId) {
+        Optional<Product> byId = productRepository.findById(productId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Product with id " + productId + " not found");
+        Product product = byId.get();
+
+        Shop shop = product.getShop();
+        Partner partner = shop.getPartner();
+        AuthorizedUser user = partner.getUser();
+        String userEmail = user.getEmail();
+
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        String jwtUserEmail = jwtUser.getEmail();
+
+        return userEmail.equalsIgnoreCase(jwtUserEmail);
+    }
+
 }

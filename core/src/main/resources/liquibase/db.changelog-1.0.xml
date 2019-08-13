@@ -502,5 +502,57 @@
                                  referencedColumnNames="id"
                                  referencedTableName="roles"/>
     </changeSet>
+
+    <changeSet id="1.0.33" author="muskrat.dev">
+        <createTable tableName="regions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="abscissa" type="VARCHAR(1023)"/>
+            <column name="ordinate" type="VARCHAR(1023)"/>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.34" author="muskrat.dev">
+        <createTable tableName="shop_region">
+
+            <column name="shop_id" type="BIGINT"/>
+            <column name="region_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.35" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="shop_id"
+                                 baseTableName="shop_region"
+                                 constraintName="fk_shop_region_shop"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="shops"/>
+    </changeSet>
+
+    <changeSet id="1.0.36" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="region_id"
+                                 baseTableName="shop_region"
+                                 constraintName="fk_shop_region_region"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="regions"/>
+    </changeSet>
     
 </databaseChangeLog>

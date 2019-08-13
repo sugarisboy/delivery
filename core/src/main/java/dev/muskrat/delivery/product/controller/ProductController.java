@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,6 +21,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #productDTO.shopId))")
     public ProductCreateResponseDTO create(
         @Valid @RequestBody ProductCreateDTO productDTO
     ) {
@@ -27,6 +29,7 @@ public class ProductController {
     }
 
     @PatchMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @productServiceImpl.isProductOwner(authentication, #productDTO.id))")
     public ProductUpdateResponseDTO update(
         @Valid @RequestBody ProductUpdateDTO productDTO
     ) {
@@ -51,6 +54,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @productServiceImpl.isProductOwner(authentication, #id))")
     public void delete(
         @NotNull @PathVariable Long id
     ) {

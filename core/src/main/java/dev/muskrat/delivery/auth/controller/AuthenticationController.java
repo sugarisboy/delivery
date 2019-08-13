@@ -6,6 +6,7 @@ import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterResponseDTO;
 import dev.muskrat.delivery.auth.service.AuthorizationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,6 +33,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
+    @PreAuthorize("hasAuthority('USER')")
     public UserLoginResponseDTO refresh(
         @RequestHeader("Authorization") String authorization
     ) {

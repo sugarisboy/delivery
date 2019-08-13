@@ -5,6 +5,7 @@ import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.map.service.MappingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +26,7 @@ public class MapController {
     }
 
     @PatchMapping("/regionupdate")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #regionUpdateDTO.shopId))")
     public RegionUpdateResponseDTO updateRegion(
         @Valid @RequestBody RegionUpdateDTO regionUpdateDTO
     ) {
