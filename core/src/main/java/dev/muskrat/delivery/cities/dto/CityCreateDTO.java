@@ -15,6 +15,6 @@ import javax.validation.constraints.Size;
 public class CityCreateDTO {
 
     @NotNull
-    @Size(min = 3, max = 64, message = "very short or long shop name")
+    @Size(min = 3, max = 64, message = "Very short or long shop name")
     private String name;
 }

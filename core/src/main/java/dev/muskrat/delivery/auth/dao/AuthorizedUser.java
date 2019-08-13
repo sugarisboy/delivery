@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.auth.dao;
 
+import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;

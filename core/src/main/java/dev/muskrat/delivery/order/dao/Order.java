@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.order.dao;
 
-import dev.muskrat.delivery.auth.dao.BaseEntity;
+import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.dao.Shop;
 import lombok.Data;

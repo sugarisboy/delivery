@@ -1,19 +1,15 @@
 package dev.muskrat.delivery.shop.controller;
 
-import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.dto.*;
 import dev.muskrat.delivery.shop.service.ShopService;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -22,11 +18,10 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class ShopController {
 
-    private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
     private final ShopService shopService;
 
-
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PARTNER')")
     public ShopCreateResponseDTO create(
         @Valid @RequestBody ShopCreateDTO shopCreateDTO
     ) {
@@ -34,16 +29,15 @@ public class ShopController {
     }
 
     @PatchMapping("/update")
-    @PreAuthorize("@shopServiceImpl.isOwner(authentication, #shopUpdateDTO.id)")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #shopUpdateDTO.id))")
     public ShopUpdateResponseDTO update(
         @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
-        //@RequestHeader(value = "Authorization") String authorization
     ) {
-        //AuthorizedUser convert = jwtAuthorizationToUserConverter.convert(authorization);
         return shopService.update(shopUpdateDTO);
     }
 
     @PatchMapping("/schedule/update")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #shopScheduleUpdateDTO.id))")
     public ShopScheduleResponseDTO updateSchedule(
         @Valid @RequestBody ShopScheduleUpdateDTO shopScheduleUpdateDTO
     ) {
@@ -66,6 +60,7 @@ public class ShopController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #id))")
     public void delete(@NotNull @PathVariable Long id) {
         shopService.delete(id);
     }

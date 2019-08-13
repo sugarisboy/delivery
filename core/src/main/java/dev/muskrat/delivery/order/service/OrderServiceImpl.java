@@ -1,5 +1,7 @@
 package dev.muskrat.delivery.order.service;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
@@ -12,6 +14,7 @@ import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.order.dto.*;
+import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
 import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.shop.dao.Shop;
@@ -19,6 +22,7 @@ import dev.muskrat.delivery.shop.dao.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -164,5 +168,22 @@ public class OrderServiceImpl implements OrderService {
             .currentPage(pageable.getPageNumber())
             .lastPage(page.getTotalPages())
             .build();
+    }
+
+    @Override
+    public boolean isOwner(Authentication authentication, Long id) {
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        String username = jwtUser.getEmail();
+
+        Optional<Order> byId = orderRepository.findById(id);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Order with id " + id + " not found");
+        Order order = byId.get();
+        Shop shop = order.getShop();
+        Partner partner = shop.getPartner();
+        AuthorizedUser user = partner.getUser();
+        String email = user.getEmail();
+
+        return email.equalsIgnoreCase(username);
     }
 }

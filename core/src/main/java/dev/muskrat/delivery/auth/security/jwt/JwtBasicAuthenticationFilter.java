@@ -9,8 +9,4 @@ public class JwtBasicAuthenticationFilter extends BasicAuthenticationFilter {
     public JwtBasicAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
-
-    public JwtBasicAuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationEntryPoint authenticationEntryPoint) {
-        super(authenticationManager, authenticationEntryPoint);
-    }
 }

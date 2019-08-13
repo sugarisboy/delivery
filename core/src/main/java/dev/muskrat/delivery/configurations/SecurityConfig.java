@@ -74,11 +74,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authenticationProvider(jwtTokenProvider)
             .userDetailsService(jwtUserDetailsService)
             .passwordEncoder(passwordEncoder);
-        /*
-        auth.inMemoryAuthentication()
-            .withUser("user").password("{noop}password").roles("USER")
-            .and()
-            .withUser("admin").password("{noop}password").roles("ADMIN");*/
 
     }
 

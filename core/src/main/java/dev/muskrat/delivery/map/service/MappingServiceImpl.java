@@ -6,6 +6,7 @@ import dev.muskrat.delivery.components.exception.AddressNotFoundException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.components.exception.LocationParseException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
+import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
 import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.dto.AutoCompleteResponseDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
@@ -14,6 +15,7 @@ import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,6 +31,7 @@ import java.util.Optional;
 public class MappingServiceImpl implements MappingService {
 
     private final ShopRepository shopRepository;
+    private final RegionDeliveryRepository regionDeliveryRepository;
 
     @Value("${geocode.app.id}")
     private String APP_ID;
@@ -105,28 +108,40 @@ public class MappingServiceImpl implements MappingService {
         RegionDelivery regionDelivery = new RegionDelivery();
 
         List<Double> pointsDTO = regionUpdateDTO.getPoints();
-        List<RegionPoint> points = new ArrayList<>();
         Iterator<Double> iter = pointsDTO.iterator();
+
+        List<Double> abscissa = new ArrayList<>();
+        List<Double> ordinate = new ArrayList<>();
+
         while (iter.hasNext()) {
-            points.add(new RegionPoint(
-                iter.next(),
-                iter.next(),
-                iter.next())
-            );
+            abscissa.add(iter.next());
+            ordinate.add(iter.next());
         }
-        regionDelivery.setPoints(points);
+
+        regionDelivery.setAbscissa(abscissa);
+        regionDelivery.setOrdinate(ordinate);
+        regionDelivery = regionDeliveryRepository.save(regionDelivery);
 
         Long shopId = regionUpdateDTO.getShopId();
         Optional<Shop> byId = shopRepository.findById(shopId);
         if (byId.isEmpty())
             throw new EntityNotFoundException("Shop with " + shopId + " not found");
-
         Shop shop = byId.get();
+
         shop.setRegion(regionDelivery);
         shopRepository.save(shop);
 
         return RegionUpdateResponseDTO.builder()
             .id(shopId)
             .build();
+    }
+
+    @Bean
+    private RegionDelivery getEmptyRegion() {
+        RegionDelivery regionDelivery = new RegionDelivery();
+        regionDelivery.setAbscissa(new ArrayList<>());
+        regionDelivery.setOrdinate(new ArrayList<>());
+        regionDeliveryRepository.save(regionDelivery);
+        return regionDelivery;
     }
 }

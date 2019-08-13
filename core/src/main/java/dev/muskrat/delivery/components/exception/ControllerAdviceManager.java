@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.AbstractPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -83,6 +84,34 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
         } else {
             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
                 .message("Access denied")
+                .build();
+        }
+
+        return ResponseEntity
+            .status(HttpServletResponse.SC_FORBIDDEN)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(jwtAccessDeniedExceptionDTO);
+    }
+
+    @ExceptionHandler(value = { AuthenticationCredentialsNotFoundException.class })
+    public ResponseEntity<Object> commence(HttpServletRequest request, HttpServletResponse response, AuthenticationCredentialsNotFoundException ex) throws IOException {
+
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        List<StackTraceElement> collect = Arrays.stream(stackTrace)
+            .filter(trace -> trace.getClassName().contains("dev.muskrat"))
+            .collect(Collectors.toList());
+
+        JwtAccessDeniedExceptionDTO jwtAccessDeniedExceptionDTO;
+        if (collect.size() != 0) {
+            StackTraceElement stackTraceElement = collect.get(0);
+             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
+                .message("Access denied: only authorized")
+                .clazz(stackTraceElement.getClassName())
+                .method(stackTraceElement.getMethodName())
+                .build();
+        } else {
+            jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
+                .message("Access denied: only authorized")
                 .build();
         }
 

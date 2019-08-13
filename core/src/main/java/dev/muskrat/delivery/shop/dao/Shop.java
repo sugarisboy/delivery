@@ -5,7 +5,11 @@ import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Where;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.time.LocalTime;
@@ -25,7 +29,8 @@ public class Shop {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SELECT)
     @JoinTable(name = "partner_shop",
         joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
@@ -63,9 +68,12 @@ public class Shop {
     @Column(name = "close")
     private List<LocalTime> close;
 
-    @Embedded
-    @Column(name = "region")
-    private RegionDelivery region = RegionDelivery.getEmpty();
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "shop_region",
+        joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "region_id", referencedColumnName = "id")}
+    )
+    private RegionDelivery region;
 
     @Column(name = "deleted")
     private Boolean deleted = false;

@@ -13,7 +13,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableWebSecurity
 
-// todo: read doc
 @EnableGlobalMethodSecurity(
     securedEnabled = true,
     jsr250Enabled = true,

@@ -59,6 +59,7 @@ public class ProductControllerTest {
         String contentAsString = mockMvc.perform(post("/product/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(productCreateDTO))
         )
             .andExpect(status().isOk())
@@ -96,6 +97,7 @@ public class ProductControllerTest {
         String contentAsString = mockMvc.perform(patch("/product/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -127,6 +129,7 @@ public class ProductControllerTest {
 
         mockMvc.perform(delete("/product/" + productId)
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk())

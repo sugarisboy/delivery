@@ -11,12 +11,15 @@ import dev.muskrat.delivery.auth.service.AuthorizedUserService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
+import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
 import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
+import dev.muskrat.delivery.partner.dto.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.partner.service.PartnerService;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
 import dev.muskrat.delivery.product.dao.Product;
@@ -37,6 +40,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemoData {
 
+    private final AuthorizedUserRepository authorizedUserRepository;
+    private final RegionDeliveryRepository regionDeliveryRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final PartnerRepository partnerRepository;
@@ -45,11 +50,12 @@ public class DemoData {
     private final ShopRepository shopRepository;
 
     private final RoleRepository roleRepository;
+    private final PartnerService partnerService;
     private final AuthorizationService authorizationService;
     private final AuthorizedUserService authorizedUserService;
-    private final AuthorizedUserRepository authorizedUserRepository;
 
     public String ACCESS_USER;
+    public String ACCESS_ADMIN;
     public String ACCESS_PARTNER;
 
     public RegionDelivery regionDelivery;
@@ -102,6 +108,7 @@ public class DemoData {
 
         roles = roleRepository.findAll();
 
+        // Create default user
         AuthorizedUser user = new AuthorizedUser();
         user.setEmail("user@gmail.com");
         user.setPassword("test");
@@ -109,20 +116,30 @@ public class DemoData {
 
         authorizedUserService.register(user);
 
+        // Create partner
         user = new AuthorizedUser();
         user.setEmail("part@gmail.com");
         user.setPassword("test");
-        user.setRoles(Arrays.asList(roles.get(0), roles.get(1)));
+        user.setRoles(Arrays.asList(roles.get(0)));
+        user = authorizedUserService.register(user);
 
-        Partner saved = partnerRepository.save(new Partner());
-        user.setPartner(saved);
+        partnerService.create(user);
 
-        authorizedUserService.register(user);
+        // Create admin
+        user = new AuthorizedUser();
+        user.setEmail("admin@gmail.com");
+        user.setPassword("test");
+        user = authorizedUserService.register(user);
+
+        user.setRoles(Arrays.asList(roles.get(0), roles.get(2)));
+        authorizedUserRepository.save(user);
 
         UserLoginResponseDTO userDTO = authorizationService.login(UserLoginDTO.builder().username("user@gmail.com").password("test").build());
         UserLoginResponseDTO partnerDTO = authorizationService.login(UserLoginDTO.builder().username("part@gmail.com").password("test").build());
+        UserLoginResponseDTO adminDTO = authorizationService.login(UserLoginDTO.builder().username("admin@gmail.com").password("test").build());
 
         ACCESS_USER = "Bearer_" + userDTO.getAccess();
+        ACCESS_ADMIN = "Bearer_" + adminDTO.getAccess();
         ACCESS_PARTNER = "Bearer_" + partnerDTO.getAccess();
     }
 
@@ -150,24 +167,9 @@ public class DemoData {
 
     private void generateRegionDelivery() {
         regionDelivery = new RegionDelivery();
-
-        RegionPoint point1 = new RegionPoint();
-        point1.setX(4.5272D);
-        point1.setY(101.1638D);
-
-        RegionPoint point2 = new RegionPoint();
-        point1.setX(4.6335D);
-        point1.setY(101.1250D);
-
-        RegionPoint point3 = new RegionPoint();
-        point1.setX(4.5452D);
-        point1.setY(101.0834D);
-
-        RegionPoint point4 = new RegionPoint();
-        point1.setX(4.5272D);
-        point1.setY(101.1638D);
-
-        regionDelivery.setPoints(Arrays.asList(point1, point2, point3, point4));
+        regionDelivery.setAbscissa(Arrays.asList(4.5272D, 4.6335D, 4.5452D, 4.5272D));
+        regionDelivery.setOrdinate(Arrays.asList(101.1638D, 101.1250D, 101.0834D, 101.1638D));
+        regionDelivery = regionDeliveryRepository.save(regionDelivery);
     }
 
     private void generateShops() {
