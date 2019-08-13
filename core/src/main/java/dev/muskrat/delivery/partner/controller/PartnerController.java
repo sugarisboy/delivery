@@ -5,6 +5,7 @@ import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.partner.dto.*;
 import dev.muskrat.delivery.partner.service.PartnerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,26 +20,11 @@ public class PartnerController {
     private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public PartnerRegisterResponseDTO register(
-        @Valid @RequestBody PartnerRegisterDTO partnerRegisterDTO,
         @RequestHeader("Authorization") String authorization
     ) {
         AuthorizedUser authorizedUser = jwtAuthorizationToUserConverter.convert(authorization);
-        return partnerService.create(authorizedUser, partnerRegisterDTO);
+        return partnerService.create(authorizedUser);
     }
-
-    /*@GetMapping("/{id}")
-    public PartnerDTO findById(
-        @Positive @PathVariable Long id
-    ) {
-        return partnerService.findById(id).orElseThrow();
-    }*/
-
-    @PatchMapping("/update")
-    public PartnerUpdateResponseDTO update(
-        @Valid @RequestBody PartnerUpdateDTO partnerUpdateDTO
-    ) {
-        return partnerService.update(partnerUpdateDTO);
-    }
-
 }

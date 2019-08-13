@@ -1,7 +1,6 @@
 package dev.muskrat.delivery.product.dao;
 
-import dev.muskrat.delivery.auth.dao.BaseEntity;
-import dev.muskrat.delivery.shop.dao.Shop;
+import dev.muskrat.delivery.components.dao.BaseEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

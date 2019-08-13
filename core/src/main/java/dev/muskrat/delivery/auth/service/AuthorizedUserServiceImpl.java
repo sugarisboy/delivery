@@ -5,6 +5,8 @@ import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.Status;
 import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.partner.dao.Partner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,11 @@ public class AuthorizedUserServiceImpl implements AuthorizedUserService {
     @Override
     public AuthorizedUser register(AuthorizedUser user) {
 
-        Role role = roleRepository.findByName(Role.Name.USER.getName());
+        String userRoleName = Role.Name.USER.getName();
+        Optional<Role> byName = roleRepository.findByName(Role.Name.USER.getName());
+        if (byName.isEmpty())
+            throw new EntityNotFoundException("Role with name " + userRoleName + " not found");
+        Role role = byName.get();
 
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(role);
@@ -35,9 +41,7 @@ public class AuthorizedUserServiceImpl implements AuthorizedUserService {
         user.setStatus(Status.ACTIVE);
         user.setUsername(user.getEmail());
 
-        AuthorizedUser savedUser = userRepository.save(user);
-
-        return savedUser;
+        return userRepository.save(user);
     }
 
     @Override

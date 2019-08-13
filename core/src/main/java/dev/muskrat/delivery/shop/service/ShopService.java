@@ -4,6 +4,7 @@ package dev.muskrat.delivery.shop.service;
 import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.shop.dto.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -23,4 +24,6 @@ public interface ShopService {
     void delete(Long id);
 
     FileStorageUploadDTO updateImg(MultipartFile img, Long shopId);
+
+    boolean isShopOwner(Authentication authentication, Long id);
 }
