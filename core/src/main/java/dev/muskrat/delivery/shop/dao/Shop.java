@@ -25,7 +25,7 @@ public class Shop {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(name = "partner_shop",
         joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}

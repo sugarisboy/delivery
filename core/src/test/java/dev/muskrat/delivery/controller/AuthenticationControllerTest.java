@@ -50,7 +50,7 @@ public class AuthenticationControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void register() {
+    public void registerUserTest() {
         UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
             .email("sugarisboy@muskrat.dev")
             .firstName("Nikita")
@@ -82,7 +82,7 @@ public class AuthenticationControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void login() {
+    public void loginUserTest() {
         // Generated in DemoData
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
             .username("user@gmail.com")
@@ -108,7 +108,7 @@ public class AuthenticationControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void refresh() {
+    public void refreshTokenTest() {
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
             .username("user@gmail.com")
             .password("test")

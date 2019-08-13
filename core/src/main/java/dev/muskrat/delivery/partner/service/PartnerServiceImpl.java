@@ -22,8 +22,10 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public PartnerRegisterResponseDTO create(AuthorizedUser executor, PartnerRegisterDTO partnerRegisterDTO) {
-        Partner saved = partnerRepository.save(new Partner());
-        executor.setPartner(saved);
+        Partner partner = new Partner();
+        executor.setPartner(partner);
+        Partner saved = partnerRepository.save(partner);
+
         return PartnerRegisterResponseDTO.builder()
             .id(executor.getId())
             .build();

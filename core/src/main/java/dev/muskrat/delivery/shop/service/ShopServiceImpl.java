@@ -1,5 +1,8 @@
 package dev.muskrat.delivery.shop.service;
 
+import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityExistException;
@@ -8,13 +11,18 @@ import dev.muskrat.delivery.files.components.FileFormat;
 import dev.muskrat.delivery.files.components.FileFormats;
 import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.files.service.FileStorageService;
+import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.shop.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +41,7 @@ public class ShopServiceImpl implements ShopService {
     private final CitiesRepository citiesRepository;
     private final FileStorageService fileStorageService;
     private final ShopToShopDTOConverter shopToShopDTOConverter;
+    private final AuthorizedUserRepository authorizedUserRepository;
 
     @Override
     public ShopCreateResponseDTO create(ShopCreateDTO shopDTO) {
@@ -180,5 +189,22 @@ public class ShopServiceImpl implements ShopService {
         FileFormat type = fileFormats.getShop();
 
         return fileStorageService.uploadFile(type, fileName, img);
+    }
+
+    @Override
+    public boolean isOwner(Authentication authentication, Long id) {
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        String username = jwtUser.getEmail();
+
+        Optional<Shop> byId = shopRepository.findById(id);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Shop with id not found");
+        Shop shop = byId.get();
+
+        Partner partner = shop.getPartner();
+        AuthorizedUser user = partner.getUser();
+        String email = user.getEmail();
+
+        return email.equalsIgnoreCase(username);
     }
 }
