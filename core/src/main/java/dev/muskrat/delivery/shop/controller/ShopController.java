@@ -6,11 +6,14 @@ import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.shop.dto.*;
 import dev.muskrat.delivery.shop.service.ShopService;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -22,6 +25,7 @@ public class ShopController {
     private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
     private final ShopService shopService;
 
+
     @PostMapping("/create")
     public ShopCreateResponseDTO create(
         @Valid @RequestBody ShopCreateDTO shopCreateDTO
@@ -30,8 +34,7 @@ public class ShopController {
     }
 
     @PatchMapping("/update")
-    // todo: check work this
-    // @PreAuthorize("hasAuthority('partner') or hasAuthority('admin')")
+    @PreAuthorize("@shopServiceImpl.isOwner(authentication, #shopUpdateDTO.id)")
     public ShopUpdateResponseDTO update(
         @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
         //@RequestHeader(value = "Authorization") String authorization

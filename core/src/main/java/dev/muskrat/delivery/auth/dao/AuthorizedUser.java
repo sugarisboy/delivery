@@ -30,7 +30,7 @@ public class AuthorizedUser extends BaseEntity {
     @Column(name = "refresh")
     private String refresh;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "authuser_roles",
         joinColumns = {@JoinColumn(name = "authuser_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
@@ -50,8 +50,4 @@ public class AuthorizedUser extends BaseEntity {
         inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
     )
     private User user;
-
-    public boolean isAdmin() {
-        return roles.stream().filter(role -> role.getName().equalsIgnoreCase("ADMIN")).count() > 0;
-    }
 }

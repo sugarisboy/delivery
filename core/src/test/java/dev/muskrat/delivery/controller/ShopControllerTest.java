@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +53,14 @@ public class ShopControllerTest {
     @Autowired
     private DemoData demoData;
 
+    /*@Before
+    public void setup() {
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup(webApplicationContext)
+            .apply(springSecurity())
+            .build();
+    }*/
+
     @SneakyThrows
     private ShopCreateResponseDTO createTestItem(String shopName, City city) {
         Random random = new Random();
@@ -73,6 +82,7 @@ public class ShopControllerTest {
             .readValue(contentAsString, ShopCreateResponseDTO.class);
     }
 
+
     @Test
     @SneakyThrows
     @Transactional
@@ -92,25 +102,28 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
+    //@WithMockUser(value = "spring")
     public void shopUpdateTest() {
-        Long newCityId = demoData.cities.get(1).getId();
 
-        ShopCreateResponseDTO item = createTestItem("test", demoData.cities.get(0));
+        Shop shop = demoData.shops.get(0);
+        Long shopId = shop.getId();
 
-        Long createdShopId = item.getId();
+        City city = demoData.cities.get(0);
+        Long cityId = city.getId();
 
         ShopUpdateDTO updateDTO = ShopUpdateDTO.builder()
-            .id(createdShopId)
+            .id(shopId)
             .description("description")
             .freeOrderPrice(10D)
             .minOrderPrice(5D)
             .name("new name")
-            .cityId(newCityId)
+            .cityId(cityId)
             .build();
 
         String contentAsString = mockMvc.perform(patch("/shop/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())

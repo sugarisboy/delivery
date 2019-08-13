@@ -2,8 +2,11 @@ package dev.muskrat.delivery;
 
 import dev.muskrat.delivery.auth.dao.AuthorizedUser;
 import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.auth.dto.UserLoginDTO;
+import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.auth.service.AuthorizationService;
 import dev.muskrat.delivery.auth.service.AuthorizedUserService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
@@ -23,7 +26,6 @@ import dev.muskrat.delivery.shop.dao.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -35,8 +37,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemoData {
 
-    private final AuthenticationManager authenticationManager;
-
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final PartnerRepository partnerRepository;
@@ -44,9 +44,13 @@ public class DemoData {
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
 
-    private final AuthorizedUserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final AuthorizedUserService userService;
+    private final AuthorizationService authorizationService;
+    private final AuthorizedUserService authorizedUserService;
+    private final AuthorizedUserRepository authorizedUserRepository;
+
+    public String ACCESS_USER;
+    public String ACCESS_PARTNER;
 
     public RegionDelivery regionDelivery;
     public Partner partner;
@@ -61,9 +65,6 @@ public class DemoData {
 
     @EventListener
     public void appReady(ApplicationReadyEvent event) {
-
-        generatePartner();
-        update();
 
         generateUser();
         update();
@@ -99,28 +100,30 @@ public class DemoData {
                 }
         );
 
-        update();
+        roles = roleRepository.findAll();
 
         AuthorizedUser user = new AuthorizedUser();
         user.setEmail("user@gmail.com");
         user.setPassword("test");
         user.setRoles(Arrays.asList(roles.get(0)));
 
-        userService.register(user);
+        authorizedUserService.register(user);
 
         user = new AuthorizedUser();
         user.setEmail("part@gmail.com");
         user.setPassword("test");
         user.setRoles(Arrays.asList(roles.get(0), roles.get(1)));
-        user.setPartner(partner);
 
-        userService.register(user);
-    }
+        Partner saved = partnerRepository.save(new Partner());
+        user.setPartner(saved);
 
-    private void generatePartner() {
-        partner = new Partner();
-        partner.setShops(null);
-        partnerRepository.save(partner);
+        authorizedUserService.register(user);
+
+        UserLoginResponseDTO userDTO = authorizationService.login(UserLoginDTO.builder().username("user@gmail.com").password("test").build());
+        UserLoginResponseDTO partnerDTO = authorizationService.login(UserLoginDTO.builder().username("part@gmail.com").password("test").build());
+
+        ACCESS_USER = "Bearer_" + userDTO.getAccess();
+        ACCESS_PARTNER = "Bearer_" + partnerDTO.getAccess();
     }
 
     private void generateCategory() {
@@ -265,7 +268,7 @@ public class DemoData {
     }
 
     public void update() {
-        users = userRepository.findAll();
+        users = authorizedUserRepository.findAll();
         roles = roleRepository.findAll();
         shops = shopRepository.findAll();
         orders = orderRepository.findAll();
@@ -273,6 +276,6 @@ public class DemoData {
         products = productRepository.findAll();
         categories = categoryRepository.findAll();
 
-        partner = partnerRepository.findById(partner.getId()).get();
+        partner = partnerRepository.findAll().get(0);
     }
 }
