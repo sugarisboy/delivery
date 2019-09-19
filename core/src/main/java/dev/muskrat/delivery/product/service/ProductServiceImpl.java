@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.product.service;
 
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.files.components.FileFormat;
@@ -197,7 +197,7 @@ public class ProductServiceImpl implements ProductService {
 
         Shop shop = product.getShop();
         Partner partner = shop.getPartner();
-        AuthorizedUser user = partner.getUser();
+        User user = partner.getUser();
         String userEmail = user.getEmail();
 
         JwtUser jwtUser = (JwtUser) authentication.getPrincipal();

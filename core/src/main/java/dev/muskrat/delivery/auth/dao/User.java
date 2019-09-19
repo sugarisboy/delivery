@@ -2,7 +2,6 @@ package dev.muskrat.delivery.auth.dao;
 
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.partner.dao.Partner;
-import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,8 +9,8 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "authusers")
-public class AuthorizedUser extends BaseEntity {
+@Table(name = "users")
+public class User extends BaseEntity {
 
     @Column(name = "username")
     private String username;
@@ -25,6 +24,9 @@ public class AuthorizedUser extends BaseEntity {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "phone")
+    private String phone;
+
     @Column(name = "password")
     private String password;
 
@@ -32,23 +34,16 @@ public class AuthorizedUser extends BaseEntity {
     private String refresh;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "authuser_roles",
-        joinColumns = {@JoinColumn(name = "authuser_id", referencedColumnName = "id")},
+    @JoinTable(name = "user_roles",
+        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
     )
     private List<Role> roles;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinTable(name = "authuser_partner",
-        joinColumns = {@JoinColumn(name = "authuser_id", referencedColumnName = "id")},
+    @JoinTable(name = "user_partner",
+        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
     )
     private Partner partner;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinTable(name = "authuser_user",
-        joinColumns = {@JoinColumn(name = "authuser_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
-    )
-    private User user;
 }

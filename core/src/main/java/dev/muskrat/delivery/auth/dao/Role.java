@@ -15,7 +15,7 @@ public class Role extends BaseEntity {
     private String name;
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private List<AuthorizedUser> users;
+    private List<User> users;
 
     public enum Name {
 

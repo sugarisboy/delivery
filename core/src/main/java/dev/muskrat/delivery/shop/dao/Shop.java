@@ -8,16 +8,20 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Proxy;
 import org.hibernate.annotations.Where;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
+@Proxy(lazy = false)
 @Table(name = "shops")
 @Where(clause = "deleted = 0")
 public class Shop {
@@ -44,12 +48,12 @@ public class Shop {
     )
     private City city;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "product_shop",
+    @OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="shop")
+    /*@JoinTable(name = "product_shop",
         joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "id")}
-    )
-    private List<Product> products = new ArrayList<>();
+    )*/
+    private List<Product> products;
 
     @Column(name = "description")
     private String description;
