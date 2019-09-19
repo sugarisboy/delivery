@@ -1,7 +1,6 @@
 package dev.muskrat.delivery.shop.service;
 
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
-import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
@@ -209,7 +208,7 @@ public class ShopServiceImpl implements ShopService {
         Shop shop = byId.get();
 
         Partner partner = shop.getPartner();
-        AuthorizedUser user = partner.getUser();
+        User user = partner.getUser();
         String email = user.getEmail();
 
         return email.equalsIgnoreCase(username);

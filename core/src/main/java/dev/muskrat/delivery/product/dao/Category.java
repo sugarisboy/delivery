@@ -16,7 +16,7 @@ public class Category extends BaseEntity {
     @Column(name = "title")
     private String title;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "product_category",
         joinColumns = {@JoinColumn(name = "category_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "product_id", referencedColumnName = "id")}

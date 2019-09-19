@@ -2,12 +2,12 @@ package dev.muskrat.delivery.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dto.UserLoginDTO;
 import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterResponseDTO;
-import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.auth.service.AuthorizationService;
 import lombok.SneakyThrows;
@@ -39,7 +39,7 @@ public class AuthenticationControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private AuthorizedUserRepository authorizedUserRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -72,10 +72,10 @@ public class AuthenticationControllerTest {
 
         Long registeredPartnerId = userRegisterResponseDTO.getId();
 
-        AuthorizedUser authorizedUser = authorizedUserRepository
+        User user = userRepository
             .findById(registeredPartnerId).orElseThrow();
 
-        assertEquals(authorizedUser.getUsername(), userRegisterResponseDTO.getUsername());
+        assertEquals(user.getUsername(), userRegisterResponseDTO.getUsername());
         assertNotNull(userRegisterResponseDTO.getAccess());
     }
 

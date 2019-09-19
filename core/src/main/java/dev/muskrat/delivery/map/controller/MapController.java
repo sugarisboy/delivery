@@ -26,7 +26,7 @@ public class MapController {
     }
 
     @PatchMapping("/regionupdate")
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #regionUpdateDTO.shopId))")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #regionUpdateDTO.shopId))")
     public RegionUpdateResponseDTO updateRegion(
         @Valid @RequestBody RegionUpdateDTO regionUpdateDTO
     ) {

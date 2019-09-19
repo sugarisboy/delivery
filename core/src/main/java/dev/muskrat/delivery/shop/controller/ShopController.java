@@ -29,7 +29,7 @@ public class ShopController {
     }
 
     @PatchMapping("/update")
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #shopUpdateDTO.id))")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #shopUpdateDTO.id))")
     public ShopUpdateResponseDTO update(
         @Valid @RequestBody ShopUpdateDTO shopUpdateDTO
     ) {
@@ -37,7 +37,7 @@ public class ShopController {
     }
 
     @PatchMapping("/schedule/update")
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #shopScheduleUpdateDTO.id))")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #shopScheduleUpdateDTO.id))")
     public ShopScheduleResponseDTO updateSchedule(
         @Valid @RequestBody ShopScheduleUpdateDTO shopScheduleUpdateDTO
     ) {
@@ -60,7 +60,7 @@ public class ShopController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #id))")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #id))")
     public void delete(@NotNull @PathVariable Long id) {
         shopService.delete(id);
     }

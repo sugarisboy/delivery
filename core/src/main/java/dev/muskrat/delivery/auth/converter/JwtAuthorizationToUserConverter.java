@@ -1,7 +1,7 @@
 package dev.muskrat.delivery.auth.converter;
 
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
-import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.dao.User;
+import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.components.converter.ObjectConverter;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
@@ -14,13 +14,13 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthorizationToUserConverter implements ObjectConverter<String, AuthorizedUser> {
+public class JwtAuthorizationToUserConverter implements ObjectConverter<String, User> {
 
-    private final AuthorizedUserRepository userRepository;
+    private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public AuthorizedUser convert(String authorization) {
+    public User convert(String authorization) {
         String resolveToken = jwtTokenProvider.resolveToken(authorization);
         if (resolveToken == null)
             throw new JwtAuthenticationException("Jwt auth exception");
@@ -32,9 +32,9 @@ public class JwtAuthorizationToUserConverter implements ObjectConverter<String, 
         if (username == null)
             throw new JwtAuthenticationException("Jwt auth exception");
 
-        Optional<AuthorizedUser> byUsername = userRepository.findByUsername(username);
+        Optional<User> byUsername = userRepository.findByUsername(username);
         if (byUsername.isEmpty())
-            throw new UsernameNotFoundException("AuthorizedUser with " + username + " not found");
+            throw new UsernameNotFoundException("User with " + username + " not found");
 
         return byUsername.get();
     }

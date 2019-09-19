@@ -3,6 +3,7 @@ package dev.muskrat.delivery.product.controller;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.product.service.ProductService;
+import dev.muskrat.delivery.shop.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,10 +19,11 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class ProductController {
 
+    private final ShopService shopService;
     private final ProductService productService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.shopOwner(authentication, #productDTO.shopId))")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #productDTO.shopId))")
     public ProductCreateResponseDTO create(
         @Valid @RequestBody ProductCreateDTO productDTO
     ) {
