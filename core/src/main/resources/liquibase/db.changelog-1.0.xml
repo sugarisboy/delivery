@@ -4,7 +4,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <changeSet id="1.0.0" author="muskrat.dev">
-        <createTable tableName="authusers">
+        <createTable tableName="users">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -14,6 +14,22 @@
             </column>
 
             <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="phone" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="email" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="first_name" type="VARCHAR(63)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_name" type="VARCHAR(63)">
                 <constraints nullable="false"/>
             </column>
 
@@ -42,34 +58,6 @@
             <column name="name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-
-            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="1.0.2" author="muskrat.dev">
-        <createTable tableName="users">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-
-            <column name="email" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="phone" type="VARCHAR(255)"/>
-            <column name="first_name" type="VARCHAR(100)"/>
-            <column name="last_name" type="VARCHAR(100)"/>
 
             <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
                 <constraints nullable="false"/>
@@ -417,86 +405,57 @@
     </changeSet>
 
     <changeSet id="1.0.24" author="muskrat.dev">
-        <createTable tableName="authuser_partner">
+        <createTable tableName="user_partner">
 
-            <column name="authuser_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
             <column name="partner_id" type="BIGINT"/>
 
         </createTable>
     </changeSet>
 
     <changeSet id="1.0.25" author="muskrat.dev">
-        <addForeignKeyConstraint baseColumnNames="authuser_id"
-                                 baseTableName="authuser_partner"
-                                 constraintName="fk_authuser_partner_authuser"
-                                 onDelete="CASCADE"
-                                 onUpdate="RESTRICT"
-                                 referencedColumnNames="id"
-                                 referencedTableName="authusers"/>
-    </changeSet>
-
-    <changeSet id="1.0.26" author="muskrat.dev">
-        <addForeignKeyConstraint baseColumnNames="partner_id"
-                                 baseTableName="authuser_partner"
-                                 constraintName="fk_authuser_partner_partner"
-                                 onDelete="CASCADE"
-                                 onUpdate="RESTRICT"
-                                 referencedColumnNames="id"
-                                 referencedTableName="partners"/>
-    </changeSet>
-
-    <changeSet id="1.0.27" author="muskrat.dev">
-        <createTable tableName="authuser_user">
-
-            <column name="authuser_id" type="BIGINT"/>
-            <column name="user_id" type="BIGINT"/>
-
-        </createTable>
-    </changeSet>
-
-    <changeSet id="1.0.28" author="muskrat.dev">
-        <addForeignKeyConstraint baseColumnNames="authuser_id"
-                                 baseTableName="authuser_user"
-                                 constraintName="fk_authuser_user_authuser"
-                                 onDelete="CASCADE"
-                                 onUpdate="RESTRICT"
-                                 referencedColumnNames="id"
-                                 referencedTableName="authusers"/>
-    </changeSet>
-
-    <changeSet id="1.0.29" author="muskrat.dev">
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="authuser_user"
-                                 constraintName="fk_authuser_user_user"
+                                 baseTableName="user_partner"
+                                 constraintName="fk_user_partner_user"
                                  onDelete="CASCADE"
                                  onUpdate="RESTRICT"
                                  referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
 
-    <changeSet id="1.0.30" author="muskrat.dev">
-        <createTable tableName="authuser_roles">
+    <changeSet id="1.0.26" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="partner_id"
+                                 baseTableName="user_partner"
+                                 constraintName="fk_user_partner_partner"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="partners"/>
+    </changeSet>
 
-            <column name="authuser_id" type="BIGINT"/>
+    <changeSet id="1.0.30" author="muskrat.dev">
+        <createTable tableName="user_roles">
+
+            <column name="user_id" type="BIGINT"/>
             <column name="role_id" type="BIGINT"/>
 
         </createTable>
     </changeSet>
 
     <changeSet id="1.0.31" author="muskrat.dev">
-        <addForeignKeyConstraint baseColumnNames="authuser_id"
-                                 baseTableName="authuser_roles"
-                                 constraintName="fk_authuser_roles_user"
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_roles"
+                                 constraintName="fk_user_roles_user"
                                  onDelete="CASCADE"
                                  onUpdate="RESTRICT"
                                  referencedColumnNames="id"
-                                 referencedTableName="authusers"/>
+                                 referencedTableName="users"/>
     </changeSet>
 
     <changeSet id="1.0.32" author="muskrat.dev">
         <addForeignKeyConstraint baseColumnNames="role_id"
-                                 baseTableName="authuser_roles"
-                                 constraintName="fk_authuser_roles_roles"
+                                 baseTableName="user_roles"
+                                 constraintName="fk_user_roles_roles"
                                  onDelete="CASCADE"
                                  onUpdate="RESTRICT"
                                  referencedColumnNames="id"

@@ -1,8 +1,8 @@
 package dev.muskrat.delivery.partner.service;
 
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Role;
-import dev.muskrat.delivery.auth.repository.AuthorizedUserRepository;
+import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
@@ -22,10 +22,10 @@ public class PartnerServiceImpl implements PartnerService {
 
     private final RoleRepository roleRepository;
     private final PartnerRepository partnerRepository;
-    private final AuthorizedUserRepository authorizedUserRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public PartnerRegisterResponseDTO create(AuthorizedUser executor) {
+    public PartnerRegisterResponseDTO create(User executor) {
         if (executor.getPartner() != null)
             throw new RuntimeException("User already partner");
 
@@ -39,7 +39,7 @@ public class PartnerServiceImpl implements PartnerService {
         executor.setRoles(roles);
         executor.setPartner(partner);
 
-        authorizedUserRepository.save(executor);
+        userRepository.save(executor);
 
         return PartnerRegisterResponseDTO.builder()
             .id(executor.getId())
@@ -61,12 +61,12 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public boolean isCurrentPartner(Authentication authentication, Long id) {
-        Optional<AuthorizedUser> byId = authorizedUserRepository.findById(id);
+        Optional<User> byId = userRepository.findById(id);
         if (byId.isEmpty())
-            throw new EntityNotFoundException("AuthorizedUser with id " + id + " not found");
-        AuthorizedUser authorizedUser = byId.get();
+            throw new EntityNotFoundException("User with id " + id + " not found");
+        User user = byId.get();
 
-        String authorizedUserEmail = authorizedUser.getEmail();
+        String authorizedUserEmail = user.getEmail();
         JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
         String jwtUserEmail = jwtUser.getEmail();
 

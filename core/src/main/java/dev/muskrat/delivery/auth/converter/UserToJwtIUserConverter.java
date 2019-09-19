@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.auth.converter;
 
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Status;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.converter.ObjectConverter;
@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class UserToJwtIUserConverter implements ObjectConverter<AuthorizedUser, JwtUser> {
+public class UserToJwtIUserConverter implements ObjectConverter<User, JwtUser> {
 
     @Override
-    public JwtUser convert(AuthorizedUser user) {
+    public JwtUser convert(User user) {
         return new JwtUser(
             user.getId(),
             user.getUsername(),
@@ -29,7 +29,7 @@ public class UserToJwtIUserConverter implements ObjectConverter<AuthorizedUser, 
         );
     }
 
-    private List<GrantedAuthority> mapRoleToGrantedAuthority(AuthorizedUser user) {
+    private List<GrantedAuthority> mapRoleToGrantedAuthority(User user) {
         return user.getRoles().stream()
             .map(role ->
                 new SimpleGrantedAuthority(role.getName()))
