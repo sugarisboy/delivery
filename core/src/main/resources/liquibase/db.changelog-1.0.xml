@@ -513,5 +513,34 @@
                                  referencedColumnNames="id"
                                  referencedTableName="regions"/>
     </changeSet>
+
+    <changeSet id="1.0.37" author="muskrat.dev">
+        <createTable tableName="user_city">
+
+            <column name="user_id" type="BIGINT"/>
+            <column name="city_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.38" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_city"
+                                 constraintName="fk_user_city_user"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+
+    <changeSet id="1.0.39" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="city_id"
+                                 baseTableName="user_city"
+                                 constraintName="fk_user_city_city"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cities"/>
+    </changeSet>
     
 </databaseChangeLog>

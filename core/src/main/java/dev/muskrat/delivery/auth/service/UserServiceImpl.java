@@ -9,11 +9,14 @@ import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
 import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
 import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final RoleRepository roleRepository;
+    private final CitiesRepository citiesRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
@@ -72,6 +76,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .cityId(user.getCity().getId())
                 .build();
         } else {
             return UserDTO.builder()
@@ -100,6 +105,15 @@ public class UserServiceImpl implements UserService {
 
         if (userUpdateDTO.getPhone() != null)
             user.setPhone(userUpdateDTO.getPhone());
+
+        if (userUpdateDTO.getCityId() != null) {
+            Long cityId = userUpdateDTO.getCityId();
+            Optional<City> byCityId = citiesRepository.findById(cityId);
+            if (byCityId.isEmpty())
+                throw new EntityNotFoundException("City with " + cityId + " not found!");
+            City city = byCityId.get();
+            user.setCity(city);
+        }
 
         userRepository.save(user);
 
