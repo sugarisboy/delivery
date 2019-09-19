@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.auth.dao;
 
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.partner.dao.Partner;
 import lombok.Data;
@@ -46,4 +47,11 @@ public class User extends BaseEntity {
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
     )
     private Partner partner;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_city",
+        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
+    )
+    private City city;
 }

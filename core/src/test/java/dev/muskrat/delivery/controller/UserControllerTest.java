@@ -6,6 +6,7 @@ import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
 import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
 import dev.muskrat.delivery.auth.repository.UserRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.auth.dto.UserDTO;
 import lombok.SneakyThrows;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.transaction.Transactional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -95,5 +97,38 @@ public class UserControllerTest {
         assertEquals(   userUpdateDTO.getFirstName(),  user.getFirstName()  );
         assertEquals(   userUpdateDTO.getLastName(),   user.getLastName()   );
         assertEquals(   userUpdateDTO.getPhone(),      user.getPhone()      );
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
+    public void changeUserCityTest() {
+        User user = demoData.users.get(0);
+        Long userId = user.getId();
+        assertNull(user.getCity());
+
+        City city = demoData.cities.get(0);
+        Long cityId = city.getId();
+
+        UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
+            .id(userId)
+            .cityId(cityId)
+            .build();
+
+        String contentAsString = mockMvc.perform(patch("/user/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(userUpdateDTO))
+            .header("Authorization", demoData.ACCESS_USER)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        UserUpdateResponseDTO responseDTO = objectMapper
+            .readValue(contentAsString, UserUpdateResponseDTO.class);
+        userId = responseDTO.getId();
+        user = userRepository.findById(userId).get();
+
+        assertEquals(cityId, user.getCity().getId());
     }
 }
