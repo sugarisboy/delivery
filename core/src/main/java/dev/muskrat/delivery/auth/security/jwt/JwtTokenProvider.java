@@ -1,8 +1,8 @@
 package dev.muskrat.delivery.auth.security.jwt;
 
-import dev.muskrat.delivery.auth.dao.AuthorizedUser;
+import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Role;
-import dev.muskrat.delivery.auth.service.AuthorizedUserService;
+import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
 import dev.muskrat.delivery.components.exception.JwtTokenExpiredException;
 import io.jsonwebtoken.*;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
-    private final AuthorizedUserService userService;
+    private final UserRepository userRepository;
 
     @Value("${application.jwt.token.secret}")
     private String secret;
@@ -40,18 +40,21 @@ public class JwtTokenProvider implements AuthenticationProvider {
         secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String refreshToken(AuthorizedUser user, String oldRefresh) {
+    public String refreshToken(User user, String oldRefresh) {
         String refresh = user.getRefresh();
         if (refresh.equals(oldRefresh)) {
             String token = createToken(user);
-            userService.updateRefresh(user, token);
+
+            user.setRefresh(refresh);
+            userRepository.save(user);
+
             return token;
         } else {
             throw new JwtAuthenticationException("Refresh token is not valid");
         }
     }
 
-    public String createToken(AuthorizedUser user) {
+    public String createToken(User user) {
 
         String username = user.getUsername();
 
@@ -70,7 +73,7 @@ public class JwtTokenProvider implements AuthenticationProvider {
             .compact();
     }
 
-    private String createRefresh(AuthorizedUser user) {
+    private String createRefresh(User user) {
         Claims claims = Jwts.claims().setSubject(user.getUsername());
 
         String refresh = Jwts.builder()
@@ -78,7 +81,8 @@ public class JwtTokenProvider implements AuthenticationProvider {
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact();
 
-        userService.updateRefresh(user, refresh);
+        user.setRefresh(refresh);
+        userRepository.save(user);
 
         return refresh;
     }

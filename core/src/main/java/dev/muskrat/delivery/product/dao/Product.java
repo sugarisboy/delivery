@@ -2,6 +2,7 @@ package dev.muskrat.delivery.product.dao;
 
 import dev.muskrat.delivery.shop.dao.Shop;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @Data
 @Table(name = "products")
 @Where(clause = "deleted = 0")
+@ToString
 public class Product {
 
     @Id

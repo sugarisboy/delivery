@@ -31,7 +31,7 @@ public class City {
     private List<Order> orders;
 
     @Column(name = "shops")
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "shop_city",
         joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")}
