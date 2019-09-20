@@ -7,6 +7,7 @@ import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterResponseDTO;
 import dev.muskrat.delivery.auth.repository.UserRepository;
+import dev.muskrat.delivery.auth.security.jwt.JwtToken;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
@@ -60,12 +61,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         User registeredUser = userService.register(user);
 
-        String token = jwtTokenProvider.createToken(registeredUser);
+        JwtToken token = jwtTokenProvider.generateJwtToken(registeredUser);
 
         return UserRegisterResponseDTO.builder()
             .id(user.getId())
             .username(user.getUsername())
-            .access(token)
+            .key(token.getKey())
+            .access(token.getAccess())
+            .refresh(token.getRefresh())
             .build();
     }
 
@@ -83,11 +86,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 throw new UsernameNotFoundException("User with username " + username + " not found");
             User user = byUsername.get();
 
-            String token = jwtTokenProvider.createToken(user);
+            JwtToken token = jwtTokenProvider.generateJwtToken(user);
 
             return UserLoginResponseDTO.builder()
-                .username(username)
-                .access(token)
+                .username(user.getUsername())
+                .key(token.getKey())
+                .access(token.getAccess())
+                .refresh(token.getRefresh())
                 .build();
 
         } catch (AuthenticationException ex) {
@@ -97,21 +102,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public UserLoginResponseDTO refresh(String authorization) {
-
-        String resolveToken = jwtTokenProvider.resolveToken(authorization);
-        String refresh = jwtTokenProvider.getRefresh(resolveToken);
-        User user = jwtAuthorizationToUserConverter.convert(authorization);
-        String token = jwtTokenProvider.refreshToken(user, refresh);
-
-        String username = user.getUsername();
+    public UserLoginResponseDTO refresh(String key, String authorization) {
+        String refresh = jwtTokenProvider.resolveToken(authorization);
+        User user = jwtAuthorizationToUserConverter.convert(key, authorization);
+        JwtToken token = jwtTokenProvider.updateJwtToken(user, refresh);
 
         return UserLoginResponseDTO.builder()
-            .username(username)
-            .access(token)
+            .username(user.getUsername())
+            .key(token.getKey())
+            .access(token.getAccess())
+            .refresh(token.getRefresh())
             .build();
     }
-
 
     @Override
     public boolean isEquals(Authentication authentication, Long authorizedUserId) {
@@ -122,11 +124,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
         String jwtUserEmail = jwtUser.getEmail();
-
         String authorizedUserEmail = user.getEmail();
 
         return jwtUserEmail.equalsIgnoreCase(authorizedUserEmail);
     }
-
-
 }

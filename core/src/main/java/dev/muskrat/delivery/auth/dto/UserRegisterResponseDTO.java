@@ -14,4 +14,6 @@ public class UserRegisterResponseDTO {
     private Long id;
     private String username;
     private String access;
+    private String refresh;
+    private String key;
 }

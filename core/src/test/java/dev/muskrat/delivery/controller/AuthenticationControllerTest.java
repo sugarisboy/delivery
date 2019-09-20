@@ -100,9 +100,10 @@ public class AuthenticationControllerTest {
         UserLoginResponseDTO userLoginResponseDTO = objectMapper
             .readValue(contentAsString, UserLoginResponseDTO.class);
 
+        String key = userLoginResponseDTO.getKey();
         String access = userLoginResponseDTO.getAccess();
 
-        assertTrue(jwtTokenProvider.validateToken(access));
+        assertTrue(jwtTokenProvider.validateAccessToken(key, access));
     }
 
     @Test
@@ -122,7 +123,8 @@ public class AuthenticationControllerTest {
         String contentAsString = mockMvc.perform(post("/auth/refresh")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", "Bearer_" + access)
+            .header("Authorization", "Bearer_" + oldUserLoginDTO.getRefresh())
+            .header("Key", oldUserLoginDTO.getKey())
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
@@ -131,7 +133,10 @@ public class AuthenticationControllerTest {
         UserLoginResponseDTO newUserLoginDTO = objectMapper
             .readValue(contentAsString, UserLoginResponseDTO.class);
 
-        assertTrue(jwtTokenProvider.validateToken(newUserLoginDTO.getAccess()));
+        String key = newUserLoginDTO.getKey();
+        access = newUserLoginDTO.getAccess();
+
+        assertTrue(jwtTokenProvider.validateAccessToken(key, access));
 
     }
 }

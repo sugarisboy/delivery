@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Entity
@@ -29,9 +30,6 @@ public class User extends BaseEntity {
 
     @Column(name = "password")
     private String password;
-
-    @Column(name = "refresh")
-    private String refresh;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",

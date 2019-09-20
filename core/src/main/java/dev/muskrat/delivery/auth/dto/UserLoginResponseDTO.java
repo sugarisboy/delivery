@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 public class UserLoginResponseDTO {
 
     private String username;
+    private String key;
     private String access;
+    private String refresh;
 }

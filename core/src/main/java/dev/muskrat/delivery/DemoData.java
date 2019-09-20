@@ -43,8 +43,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemoData {
 
-    private final EntityManager entityManager;
-
     private final UserRepository userRepository;
     private final RegionDeliveryRepository regionDeliveryRepository;
     private final CategoryRepository categoryRepository;
@@ -62,6 +60,10 @@ public class DemoData {
     public String ACCESS_USER;
     public String ACCESS_ADMIN;
     public String ACCESS_PARTNER;
+
+    public String KEY_USER;
+    public String KEY_ADMIN;
+    public String KEY_PARTNER;
 
     public RegionDelivery regionDelivery;
     public Partner partner;
@@ -146,6 +148,10 @@ public class DemoData {
         ACCESS_USER = "Bearer_" + userDTO.getAccess();
         ACCESS_ADMIN = "Bearer_" + adminDTO.getAccess();
         ACCESS_PARTNER = "Bearer_" + partnerDTO.getAccess();
+
+        KEY_USER = userDTO.getKey();
+        KEY_ADMIN = adminDTO.getKey();
+        KEY_PARTNER = partnerDTO.getKey();
     }
 
     private void generateCategory() {

@@ -19,9 +19,10 @@ public class PartnerController {
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN')")
     public PartnerRegisterResponseDTO register(
+        @RequestHeader("Key") String key,
         @RequestHeader("Authorization") String authorization
     ) {
-        User user = jwtAuthorizationToUserConverter.convert(authorization);
+        User user = jwtAuthorizationToUserConverter.convert(key, authorization);
         return partnerService.create(user);
     }
 }

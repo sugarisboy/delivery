@@ -16,7 +16,7 @@ public interface UserService {
 
     Optional<User> findByEmail(String email);
 
-    UserDTO findById(Long id, String authorization);
+    UserDTO findById(Long id, String key, String authorization);
 
     UserUpdateResponseDTO update(UserUpdateDTO userUpdateDTO);
 
