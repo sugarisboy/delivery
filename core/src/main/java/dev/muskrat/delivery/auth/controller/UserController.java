@@ -20,9 +20,10 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDTO findById(
         @PathVariable Long id,
+        @RequestHeader("Key") String key,
         @RequestHeader("Authorization") String authorization
     ) {
-        return userService.findById(id, authorization);
+        return userService.findById(id, key, authorization);
     }
 
     @PatchMapping("/update")

@@ -35,8 +35,9 @@ public class AuthenticationController {
     @PostMapping("/refresh")
     @PreAuthorize("hasAuthority('USER')")
     public UserLoginResponseDTO refresh(
+        @RequestHeader("Key") String key,
         @RequestHeader("Authorization") String authorization
     ) {
-        return authorizationService.refresh(authorization);
+        return authorizationService.refresh(key, authorization);
     }
 }

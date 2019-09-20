@@ -12,7 +12,7 @@ public interface AuthorizationService {
 
     UserLoginResponseDTO login(UserLoginDTO userLoginDTO);
 
-    UserLoginResponseDTO refresh(String refresh);
+    UserLoginResponseDTO refresh(String key, String refresh);
 
     boolean isEquals(Authentication authentication, Long authorizedUserId);
 }

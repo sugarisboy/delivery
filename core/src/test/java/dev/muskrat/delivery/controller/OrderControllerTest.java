@@ -182,6 +182,7 @@ public class OrderControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())

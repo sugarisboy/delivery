@@ -56,15 +56,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO findById(Long id, String authorization) {
-        User executor = jwtAuthorizationToUserConverter.convert(authorization);
+    public UserDTO findById(Long id, String key, String authorization) {
+        User executor = jwtAuthorizationToUserConverter.convert(key, authorization);
 
         Optional<User> byId = userRepository.findById(id);
         if (byId.isEmpty())
             throw new EntityNotFoundException("User with id " + id + " not found");
         User user = byId.get();
-
-
 
         if (executor.getId() == user.getId()) {
             return UserDTO.builder()

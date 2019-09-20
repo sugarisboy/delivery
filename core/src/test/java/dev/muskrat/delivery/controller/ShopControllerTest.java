@@ -7,6 +7,7 @@ import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
+import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.shop.dto.*;
@@ -67,6 +68,7 @@ public class ShopControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(createDTO))
         )
             .andExpect(status().isOk())
@@ -108,7 +110,8 @@ public class ShopControllerTest {
         String contentAsString = mockMvc.perform(patch("/shop/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -162,6 +165,7 @@ public class ShopControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -192,6 +196,7 @@ public class ShopControllerTest {
         mockMvc.perform(delete("/shop/" + shopId)
             .contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk())
@@ -219,6 +224,7 @@ public class ShopControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(regionUpdateDTO))
         )
             .andExpect(status().isOk())

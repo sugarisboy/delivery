@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
@@ -22,13 +21,25 @@ public class JwtTokenFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication  authentication = jwtTokenProvider.getAuthentication(token);
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-            if (authentication != null) {
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        String access = jwtTokenProvider.resolveToken((httpRequest));
+        String key = (httpRequest).getHeader("key");
+
+        String requestURI = httpRequest.getRequestURI();
+        boolean isRefresh = requestURI.endsWith("/refresh");
+
+        if (access != null) {
+            boolean isValid = isRefresh ?
+                jwtTokenProvider.validateRefreshToken(key, access) : jwtTokenProvider.validateAccessToken(key, access);
+
+            if (isValid) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(access);
+
+                if (authentication != null)
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
             }
         }
 

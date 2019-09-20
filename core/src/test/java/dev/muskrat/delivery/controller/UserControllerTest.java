@@ -52,6 +52,7 @@ public class UserControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
@@ -82,6 +83,7 @@ public class UserControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userUpdateDTO))
             .header("Authorization", demoData.ACCESS_USER)
+            .header("Key", demoData.KEY_USER)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
