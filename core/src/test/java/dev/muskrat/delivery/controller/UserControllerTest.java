@@ -2,12 +2,12 @@ package dev.muskrat.delivery.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
-import dev.muskrat.delivery.auth.dao.User;
-import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
-import dev.muskrat.delivery.auth.repository.UserRepository;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.dto.UserUpdateDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import dev.muskrat.delivery.partner.dao.Partner;
-import dev.muskrat.delivery.auth.dto.UserDTO;
+import dev.muskrat.delivery.user.dto.UserDTO;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;

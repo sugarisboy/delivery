@@ -1,6 +1,5 @@
 package dev.muskrat.delivery.order.service;
 
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
@@ -19,6 +18,7 @@ import dev.muskrat.delivery.product.dao.Product;
 import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

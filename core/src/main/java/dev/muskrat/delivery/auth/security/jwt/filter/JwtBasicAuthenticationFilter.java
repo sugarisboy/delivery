@@ -1,7 +1,6 @@
-package dev.muskrat.delivery.auth.security.jwt;
+package dev.muskrat.delivery.auth.security.jwt.filter;
 
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 public class JwtBasicAuthenticationFilter extends BasicAuthenticationFilter {

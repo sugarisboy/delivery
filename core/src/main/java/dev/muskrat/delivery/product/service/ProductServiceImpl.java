@@ -1,6 +1,5 @@
 package dev.muskrat.delivery.product.service;
 
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.files.components.FileFormat;
@@ -16,6 +15,7 @@ import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.product.dto.*;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,10 +1,9 @@
 package dev.muskrat.delivery.partner.dao;
 
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.shop.dao.Shop;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
-import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.util.Set;

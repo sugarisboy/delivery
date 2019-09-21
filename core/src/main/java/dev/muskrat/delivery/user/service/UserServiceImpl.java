@@ -1,15 +1,14 @@
-package dev.muskrat.delivery.auth.service;
+package dev.muskrat.delivery.user.service;
 
-import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.Status;
-import dev.muskrat.delivery.auth.dto.UserDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.dto.UserDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final RoleRepository roleRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public User register(User user) {
@@ -45,6 +43,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user);
     }
+
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
@@ -56,27 +55,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO findById(Long id, String key, String authorization) {
-        User executor = jwtAuthorizationToUserConverter.convert(key, authorization);
-
+    public UserDTO findById(Long id) {
         Optional<User> byId = userRepository.findById(id);
         if (byId.isEmpty())
             throw new EntityNotFoundException("User with id " + id + " not found");
         User user = byId.get();
 
-        if (executor.getId() == user.getId()) {
             return UserDTO.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .build();
-        } else {
-            return UserDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .build();
-        }
     }
 
     @Override

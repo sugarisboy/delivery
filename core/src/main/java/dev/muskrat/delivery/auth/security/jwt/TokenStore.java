@@ -15,7 +15,9 @@ public interface TokenStore {
 
     void clearTokensByUserId(Long userId);
 
+    void clearExceptByKey(Long userId, String key);
+
     boolean containsKey(Long userId, String key);
 
-    JwtToken updateToken(Long userId, String key, String access);
+    //JwtToken updateToken(Long userId, String key, String access);
 }

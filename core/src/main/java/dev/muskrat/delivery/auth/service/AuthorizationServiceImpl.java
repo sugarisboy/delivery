@@ -1,17 +1,19 @@
 package dev.muskrat.delivery.auth.service;
 
-import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dto.UserLoginDTO;
 import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterResponseDTO;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtToken;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
+import dev.muskrat.delivery.auth.security.jwt.TokenStore;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
+import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
+import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private final TokenStore tokenStore;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
@@ -127,5 +130,20 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         String authorizedUserEmail = user.getEmail();
 
         return jwtUserEmail.equalsIgnoreCase(authorizedUserEmail);
+    }
+
+    @Override
+    public void logout(User user, String key) {
+        tokenStore.removeTokenByKey(user.getId(), key);
+    }
+
+    @Override
+    public void logoutAll(User user) {
+        tokenStore.clearTokensByUserId(user.getId());
+    }
+
+    @Override
+    public void logoutSecure(User user, String key) {
+        tokenStore.clearExceptByKey(user.getId(), key);
     }
 }

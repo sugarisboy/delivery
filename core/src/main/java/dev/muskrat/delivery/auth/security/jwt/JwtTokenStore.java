@@ -45,17 +45,23 @@ public class JwtTokenStore implements TokenStore {
     }
 
     @Override
+    public void clearExceptByKey(Long userId, String key) {
+        Set<JwtToken> jwts = findTokensByUserId(userId);
+        jwts.removeIf(t -> !t.getKey().equals(key));
+    }
+
+    @Override
     public boolean containsKey(Long userId, String key) {
         Set<JwtToken> jwts = findTokensByUserId(userId);
         return jwts.stream()
             .filter(t -> t.getKey().equals(key))
-            .findAny()
+            .findFirst()
             .isPresent();
     }
 
-    @Override
+    /*@Override
     public JwtToken updateToken(Long userId, String key, String access) {
         return null;
-    }
+    }*/
 }
 

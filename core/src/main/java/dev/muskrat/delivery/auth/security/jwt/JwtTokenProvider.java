@@ -1,9 +1,9 @@
 package dev.muskrat.delivery.auth.security.jwt;
 
 import dev.muskrat.delivery.auth.dao.Role;
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
 import dev.muskrat.delivery.components.exception.JwtTokenExpiredException;
+import dev.muskrat.delivery.user.dao.User;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
