@@ -1,9 +1,9 @@
-package dev.muskrat.delivery.auth.service;
+package dev.muskrat.delivery.user.service;
 
-import dev.muskrat.delivery.auth.dao.User;
-import dev.muskrat.delivery.auth.dto.UserDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.dto.UserDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +16,7 @@ public interface UserService {
 
     Optional<User> findByEmail(String email);
 
-    UserDTO findById(Long id, String key, String authorization);
+    UserDTO findById(Long id);
 
     UserUpdateResponseDTO update(UserUpdateDTO userUpdateDTO);
 

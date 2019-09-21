@@ -1,12 +1,15 @@
 package dev.muskrat.delivery.partner.controller;
 
-import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
-import dev.muskrat.delivery.partner.dto.*;
+import dev.muskrat.delivery.partner.dto.PartnerRegisterResponseDTO;
 import dev.muskrat.delivery.partner.service.PartnerService;
+import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/partner")

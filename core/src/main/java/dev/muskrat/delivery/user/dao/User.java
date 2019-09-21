@@ -1,12 +1,12 @@
-package dev.muskrat.delivery.auth.dao;
+package dev.muskrat.delivery.user.dao;
 
+import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.partner.dao.Partner;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Entity

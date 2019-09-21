@@ -1,5 +1,6 @@
-package dev.muskrat.delivery.auth.security.jwt;
+package dev.muskrat.delivery.auth.security.jwt.filter;
 
+import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

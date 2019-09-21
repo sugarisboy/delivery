@@ -1,9 +1,9 @@
 package dev.muskrat.delivery.auth.security;
 
-import dev.muskrat.delivery.auth.converter.UserToJwtIUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.user.converter.UserToJwtIUserConverter;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

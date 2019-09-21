@@ -1,9 +1,9 @@
-package dev.muskrat.delivery.auth.controller;
+package dev.muskrat.delivery.user.controller;
 
-import dev.muskrat.delivery.auth.dto.UserDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
-import dev.muskrat.delivery.auth.service.UserService;
+import dev.muskrat.delivery.user.dto.UserDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
+import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +18,11 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PARTNER') or @authorizationServiceImpl.isEquals(authentication, #userUpdateDTO.id)")
     public UserDTO findById(
-        @PathVariable Long id,
-        @RequestHeader("Key") String key,
-        @RequestHeader("Authorization") String authorization
+        @PathVariable Long id
     ) {
-        return userService.findById(id, key, authorization);
+        return userService.findById(id);
     }
 
     @PatchMapping("/update")

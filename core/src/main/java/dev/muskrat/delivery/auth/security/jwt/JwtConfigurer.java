@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.auth.security.jwt;
 
+import dev.muskrat.delivery.auth.security.jwt.filter.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;

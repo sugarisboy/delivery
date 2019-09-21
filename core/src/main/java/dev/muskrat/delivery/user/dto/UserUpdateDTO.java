@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.auth.dto;
+package dev.muskrat.delivery.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

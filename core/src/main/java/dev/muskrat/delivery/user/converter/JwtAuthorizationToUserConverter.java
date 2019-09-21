@@ -1,10 +1,10 @@
-package dev.muskrat.delivery.auth.converter;
+package dev.muskrat.delivery.user.converter;
 
-import dev.muskrat.delivery.auth.dao.User;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
 import dev.muskrat.delivery.components.exception.JwtTokenExpiredException;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
