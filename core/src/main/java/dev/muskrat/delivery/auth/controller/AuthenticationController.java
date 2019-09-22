@@ -44,8 +44,7 @@ public class AuthenticationController {
         return authorizationService.refresh(key, authorization);
     }
 
-    @GetMapping("/logout")
-    @PostMapping("/logout")
+    @RequestMapping("/logout")
     public void logout(
         @RequestHeader("Key") String key,
         @RequestHeader("Authorization") String authorization,
