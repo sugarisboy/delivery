@@ -109,7 +109,6 @@ public class OrderControllerTest {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_ADMIN)
             .content(objectMapper.writeValueAsString(orderCreateDTO))
         )
             .andExpect(status().isOk())

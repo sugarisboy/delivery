@@ -171,6 +171,9 @@ public class AuthenticationControllerTest {
         access = newUserLoginDTO.getAccess();
 
         assertTrue(jwtTokenProvider.validateAccessToken(key, access));
+
+        demoData.KEY_USER = key;
+        demoData.ACCESS_USER = "Bearer_" + access;
     }
 
     @Test
@@ -208,19 +211,24 @@ public class AuthenticationControllerTest {
         User user = demoData.users.get(0);
         Long userId = user.getId();
 
-        String key = token.getKey();
-        String access = token.getAccess();
+        String key = demoData.KEY_USER;
+        String access = demoData.ACCESS_USER;
+
+        JwtToken demoToken = tokenStore.readTokenByKey(userId, key).get();
 
         mockMvc.perform(get("/auth/logout?type=all")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", "Bearer_" + access)
+            .header("Authorization", access)
             .header("Key", key)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
 
         assertTrue(tokenStore.findTokensByUserId(userId).size() == 0);
+
+        tokenStore.saveToken(userId, demoToken);
+        System.out.println();
     }
 
     @Test
@@ -233,19 +241,25 @@ public class AuthenticationControllerTest {
         User user = demoData.users.get(0);
         Long userId = user.getId();
 
-        String key = token.getKey();
-        String access = token.getAccess();
+        String key = demoData.KEY_USER;
+        String access = demoData.ACCESS_USER;
 
         mockMvc.perform(get("/auth/logout?type=secure")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", "Bearer_" + access)
+            .header("Authorization", access)
             .header("Key", key)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
 
         Set<JwtToken> tokensByUserId = tokenStore.findTokensByUserId(userId);
+
+        /*tokenStore.findTokensByUserId(userId)
+            .stream()
+            .mapToInt(Object::hashCode)
+            .forEach(System.out::println);*/
+
         assertTrue(tokenStore.findTokensByUserId(userId).size() == 1);
 
         JwtToken checkable = tokensByUserId.stream().findFirst().get();
