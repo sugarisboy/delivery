@@ -165,6 +165,10 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="price" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="comments" type="VARCHAR(511)"/>
 
             <column name="order_status" type="INT"/>
@@ -512,6 +516,35 @@
                                  onUpdate="RESTRICT"
                                  referencedColumnNames="id"
                                  referencedTableName="regions"/>
+    </changeSet>
+
+    <changeSet id="1.0.37" author="muskrat.dev">
+        <createTable tableName="user_orders">
+
+            <column name="user_id" type="BIGINT"/>
+            <column name="order_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.38" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_orders"
+                                 constraintName="fk_user_orders_user"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+
+    <changeSet id="1.0.39" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="order_id"
+                                 baseTableName="user_orders"
+                                 constraintName="fk_user_orders_order"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="orders"/>
     </changeSet>
     
 </databaseChangeLog>

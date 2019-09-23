@@ -28,7 +28,8 @@ public class OrderController {
     }
 
     @PatchMapping("/update")
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @orderServiceImpl.isOwner(authentication, #orderDTO.id))")
+    @PreAuthorize("hasAuthority('ADMIN') or" +
+        "(hasAuthority('PARTNER') and @orderServiceImpl.isOwnerByOrder(authentication, #orderDTO.id))")
     public OrderDTO orderStatusUpdate(
         @Valid @RequestBody OrderUpdateDTO orderDTO
     ) {
@@ -36,6 +37,9 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN') or" +
+        "(hasAuthority('PARTNER') and @orderServiceImpl.isOwnerByOrder(authentication, #id)) or" +
+        "(hasAuthority('USER') and @orderServiceImpl.isClientByOrder(authentication, #id))")
     public OrderDTO findById(
         @NotNull @PathVariable Long id
     ) {
@@ -44,7 +48,12 @@ public class OrderController {
         );
     }
 
+    // For partner need indicate your shopId in OrderPageRequestDTO
+    // For user need indicate your userId in OrderPageRequestDTO
     @GetMapping("/page")
+    @PreAuthorize("hasAuthority('ADMIN') or" +
+        "(hasAuthority('PARTNER') and @orderServiceImpl.isOwnerByShop(authentication, #orderPageRequestDTO.shopId)) or" +
+        "(hasAuthority('USER') and @orderServiceImpl.isClientByUser(authentication, #orderPageRequestDTO.userId))")
     public OrderPageDTO page(
         @Valid @RequestBody(required = false) OrderPageRequestDTO orderPageRequestDTO,
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable

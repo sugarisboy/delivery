@@ -3,6 +3,7 @@ package dev.muskrat.delivery.auth.security.jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenStore implements TokenStore {
@@ -17,6 +18,9 @@ public class JwtTokenStore implements TokenStore {
     public void saveToken(Long userId, JwtToken token) {
         Set<JwtToken> jwts = findTokensByUserId(userId);
         jwts.add(token);
+
+        // REMOVE DUPLICATE
+        jwts = new HashSet<>(jwts);
         store.put(userId, jwts);
     }
 

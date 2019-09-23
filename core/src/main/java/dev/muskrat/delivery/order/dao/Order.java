@@ -3,6 +3,7 @@ package dev.muskrat.delivery.order.dao;
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.dao.Shop;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,6 +24,16 @@ public class Order extends BaseEntity {
         inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
     )
     private City city;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_orders",
+        joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
+    )
+    private User user;
+
+    @Column(name = "price")
+    private Double price;
 
     @Column(name = "phone")
     private String phone;

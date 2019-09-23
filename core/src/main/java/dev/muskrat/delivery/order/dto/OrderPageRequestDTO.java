@@ -18,6 +18,9 @@ public class OrderPageRequestDTO {
     private Boolean active;
 
     @Positive
+    private Long userId;
+
+    @Positive
     private Long shopId;
 
     @Positive

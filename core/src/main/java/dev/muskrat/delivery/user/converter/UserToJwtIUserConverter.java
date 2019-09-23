@@ -16,17 +16,22 @@ public class UserToJwtIUserConverter implements ObjectConverter<User, JwtUser> {
 
     @Override
     public JwtUser convert(User user) {
-        return new JwtUser(
-            user.getId(),
-            user.getUsername(),
-            user.getFirstName(),
-            user.getLastName(),
-            user.getPassword(),
-            user.getEmail(),
-            user.getStatus().equals(Status.ACTIVE),
-            user.getUpdated(),
-            mapRoleToGrantedAuthority(user)
-        );
+        try {
+            return new JwtUser(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPassword(),
+                user.getEmail(),
+                user.getStatus().equals(Status.ACTIVE),
+                user.getUpdated(),
+                mapRoleToGrantedAuthority(user)
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     private List<GrantedAuthority> mapRoleToGrantedAuthority(User user) {
