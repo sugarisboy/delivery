@@ -130,8 +130,8 @@ public class DemoData {
 
         // Create admin
         user = new User();
-        user.setEmail("admin@gmail.com");
-        user.setPassword("test");
+        user.setEmail("admin");
+        user.setPassword("admin");
         user = userService.register(user);
 
         user.setRoles(Arrays.asList(roles.get(0), roles.get(2)));
@@ -139,7 +139,7 @@ public class DemoData {
 
         UserLoginResponseDTO userDTO = authorizationService.login(UserLoginDTO.builder().username("user@gmail.com").password("test").build());
         UserLoginResponseDTO partnerDTO = authorizationService.login(UserLoginDTO.builder().username("part@gmail.com").password("test").build());
-        UserLoginResponseDTO adminDTO = authorizationService.login(UserLoginDTO.builder().username("admin@gmail.com").password("test").build());
+        UserLoginResponseDTO adminDTO = authorizationService.login(UserLoginDTO.builder().username("admin").password("admin").build());
 
         ACCESS_USER = "Bearer_" + userDTO.getAccess();
         ACCESS_ADMIN = "Bearer_" + adminDTO.getAccess();

@@ -15,12 +15,14 @@ import dev.muskrat.delivery.user.dao.User;
 import dev.muskrat.delivery.user.repository.UserRepository;
 import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -31,9 +33,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private final TokenStore tokenStore;
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
 
     @Override
@@ -81,14 +85,16 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             String username = userLoginDTO.getUsername();
             String password = userLoginDTO.getPassword();
 
-            Authentication authenticate = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
             Optional<User> byUsername = userService.findByUsername(username);
             if (byUsername.isEmpty())
-                throw new UsernameNotFoundException("User with username " + username + " not found");
+                throw new AccessDeniedException("Password or username not valid");
             User user = byUsername.get();
 
+            if (!bCryptPasswordEncoder.matches(password, user.getPassword()))
+                throw new AccessDeniedException("Password or username not valid");
+
+            Authentication authenticate = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(username, password));
             JwtToken token = jwtTokenProvider.generateJwtToken(user);
 
             return UserLoginResponseDTO.builder()

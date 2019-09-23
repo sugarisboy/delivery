@@ -29,5 +29,11 @@ public interface OrderService {
 
     OrderPageDTO findAll(OrderPageRequestDTO orderPageRequestDTO, Pageable pageable);
 
-    boolean isOwner(Authentication authentication, Long id);
+    boolean isOwnerByOrder(Authentication authentication, Long orderId);
+
+    boolean isOwnerByShop(Authentication authentication, Long shopId);
+
+    boolean isClientByOrder(Authentication authentication, Long orderId);
+
+    boolean isClientByUser(Authentication authentication, Long userId);
 }

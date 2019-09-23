@@ -2,6 +2,7 @@ package dev.muskrat.delivery.user.dao;
 
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.components.dao.BaseEntity;
+import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.dao.Partner;
 import lombok.Data;
 
@@ -44,4 +45,11 @@ public class User extends BaseEntity {
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
     )
     private Partner partner;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_orders",
+        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")}
+    )
+    private List<Order> orders;
 }

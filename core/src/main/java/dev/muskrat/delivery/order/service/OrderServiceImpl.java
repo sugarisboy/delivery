@@ -55,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
         String address = orderDTO.getAddress();
         List<OrderProduct> products = order.getProducts();
 
+        double orderPrice = 0;
         // Check products
         for (OrderProduct orderProduct : products) {
             Long productId = orderProduct.getProductId();
@@ -67,20 +68,25 @@ public class OrderServiceImpl implements OrderService {
             if (product.getShop().getId() != shopId) {
                 throw new RuntimeException("Order contains products from two and more shop");
             }
+
+            orderPrice += product.getPrice() * orderProduct.getCount();
         }
+        order.setPrice(orderPrice);
 
         // Check shopId
         Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
+        if (byId.isEmpty()) {
             throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+        }
         Shop shop = byId.get();
 
         // Check region delivery
         RegionPoint pointByAddress = mappingService.getPointByAddress(address);
         RegionDelivery shopRegion = shop.getRegion();
         boolean regionAvailable = shopRegion.isRegionAvailable(pointByAddress);
-        if (!regionAvailable)
+        if (!regionAvailable) {
             throw new RuntimeException("Out of delivery area");
+        }
 
         City city = shop.getCity();
         order.setCity(city);
@@ -89,7 +95,9 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderDTO.builder()
             .id(order.getId())
+            .price(orderPrice)
             .status(order.getOrderStatus())
+            .createdTime(order.getCreated())
             .build();
     }
 
@@ -171,13 +179,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean isOwner(Authentication authentication, Long id) {
+    public boolean isOwnerByOrder(Authentication authentication, Long orderId) {
         JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
         String username = jwtUser.getEmail();
 
-        Optional<Order> byId = orderRepository.findById(id);
+        Optional<Order> byId = orderRepository.findById(orderId);
         if (byId.isEmpty())
-            throw new EntityNotFoundException("Order with id " + id + " not found");
+            throw new EntityNotFoundException("Order with id " + orderId + " not found");
         Order order = byId.get();
         Shop shop = order.getShop();
         Partner partner = shop.getPartner();
@@ -185,5 +193,49 @@ public class OrderServiceImpl implements OrderService {
         String email = user.getEmail();
 
         return email.equalsIgnoreCase(username);
+    }
+
+    @Override
+    public boolean isClientByUser(Authentication authentication, Long userId) {
+        if (userId == null)
+            return false;
+
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        Long id = jwtUser.getId();
+
+        return id.longValue() == userId;
+    }
+
+    @Override
+    public boolean isClientByOrder(Authentication authentication, Long orderId) {
+        if (orderId == null)
+            return false;
+
+        Optional<Order> byId = orderRepository.findById(orderId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Order with id " + orderId + " not found");
+        Order order = byId.get();
+
+        User user = order.getUser();
+        return user.getId().longValue() == orderId;
+    }
+
+    @Override
+    public boolean isOwnerByShop(Authentication authentication, Long shopId) {
+        if (shopId == null)
+            return false;
+
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        Long senderId = jwtUser.getId();
+
+        Optional<Shop> byId = shopRepository.findById(shopId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Shop with id " + shopId + " not found");
+        Shop shop = byId.get();
+        Partner partner = shop.getPartner();
+        User user = partner.getUser();
+        Long shopOwnerId = user.getId();
+
+        return shopOwnerId.longValue() == senderId.longValue();
     }
 }

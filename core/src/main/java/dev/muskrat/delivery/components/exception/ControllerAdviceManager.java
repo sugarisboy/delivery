@@ -65,8 +65,10 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, exception, headers, status, request);
     }
 
-    @ExceptionHandler(value = { AccessDeniedException.class })
-    public ResponseEntity<Object> commence(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<Object> commence(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           AccessDeniedException accessDeniedException) throws IOException {
 
         StackTraceElement[] stackTrace = accessDeniedException.getStackTrace();
         List<StackTraceElement> collect = Arrays.stream(stackTrace)
@@ -76,14 +78,14 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
         JwtAccessDeniedExceptionDTO jwtAccessDeniedExceptionDTO;
         if (collect.size() != 0) {
             StackTraceElement stackTraceElement = collect.get(0);
-             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
-                .message("Access denied")
+            jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
+                .message(accessDeniedException.getMessage())
                 .clazz(stackTraceElement.getClassName())
                 .method(stackTraceElement.getMethodName())
                 .build();
         } else {
             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
-                .message("Access denied")
+                .message(accessDeniedException.getMessage())
                 .build();
         }
 
@@ -93,8 +95,10 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
             .body(jwtAccessDeniedExceptionDTO);
     }
 
-    @ExceptionHandler(value = { AuthenticationCredentialsNotFoundException.class })
-    public ResponseEntity<Object> commence(HttpServletRequest request, HttpServletResponse response, AuthenticationCredentialsNotFoundException ex) throws IOException {
+    @ExceptionHandler(value = {AuthenticationCredentialsNotFoundException.class})
+    public ResponseEntity<Object> commence(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           AuthenticationCredentialsNotFoundException ex) {
 
         StackTraceElement[] stackTrace = ex.getStackTrace();
         List<StackTraceElement> collect = Arrays.stream(stackTrace)
@@ -104,7 +108,7 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
         JwtAccessDeniedExceptionDTO jwtAccessDeniedExceptionDTO;
         if (collect.size() != 0) {
             StackTraceElement stackTraceElement = collect.get(0);
-             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
+            jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
                 .message("Access denied: only authorized")
                 .clazz(stackTraceElement.getClassName())
                 .method(stackTraceElement.getMethodName())

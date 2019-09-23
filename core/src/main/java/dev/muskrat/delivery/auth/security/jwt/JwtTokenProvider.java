@@ -91,15 +91,16 @@ public class JwtTokenProvider implements AuthenticationProvider {
 
     // UGLY CODE
     public boolean validateAccessToken(String key, String access) {
-        try {
 
             Jws<Claims> claims;
 
             try {
                 claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(access);
             } catch (ExpiredJwtException e) {
-                throw new JwtTokenExpiredException("Token is expired");
+                return false;
             }
+
+        try {
 
             Long userId = getId(access);
             Claims body = claims.getBody();
@@ -121,7 +122,7 @@ public class JwtTokenProvider implements AuthenticationProvider {
             try {
                 Jwts.parser().setSigningKey(secret).parseClaimsJws(refresh);
             } catch (ExpiredJwtException e) {
-                throw new JwtTokenExpiredException("Token is expired");
+                return false;
             }
 
             Long userId = getId(refresh);

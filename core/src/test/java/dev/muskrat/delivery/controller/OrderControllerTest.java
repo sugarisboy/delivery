@@ -3,15 +3,10 @@ package dev.muskrat.delivery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.order.service.OrderService;
-import dev.muskrat.delivery.product.dao.Product;
-import dev.muskrat.delivery.product.dto.ProductCreateDTO;
-import dev.muskrat.delivery.product.dto.ProductCreateResponseDTO;
 import dev.muskrat.delivery.shop.dao.Shop;
-import dev.muskrat.delivery.shop.dto.ShopCreateDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateResponseDTO;
 import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import lombok.SneakyThrows;
@@ -26,7 +21,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -72,6 +66,8 @@ public class OrderControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDTO))
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse();
@@ -206,6 +202,8 @@ public class OrderControllerTest {
             .perform(get("/order/" + orderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", demoData.ACCESS_ADMIN)
+                .header("Key", demoData.KEY_ADMIN)
             )
             .andExpect(status().isOk())
             .andReturn().getResponse();

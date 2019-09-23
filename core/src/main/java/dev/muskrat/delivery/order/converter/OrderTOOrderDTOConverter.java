@@ -33,6 +33,8 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .phone(order.getPhone())
             .products(collect)
             .createdTime(order.getCreated())
+            .lastUpdateTime(order.getUpdated())
+            .price(order.getPrice())
             .build();
     }
 }
