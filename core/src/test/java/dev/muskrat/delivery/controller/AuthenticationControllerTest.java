@@ -208,7 +208,7 @@ public class AuthenticationControllerTest {
         List<JwtToken> jwts = demo();
         JwtToken token = jwts.get(2);
 
-        User user = demoData.users.get(0);
+        User user = demoData.users.get(1);
         Long userId = user.getId();
 
         String key = demoData.KEY_USER;
@@ -227,7 +227,7 @@ public class AuthenticationControllerTest {
 
         assertTrue(tokenStore.findTokensByUserId(userId).size() == 0);
 
-        tokenStore.saveToken(userId, demoToken);
+        //tokenStore.saveToken(userId, demoToken);
         System.out.println();
     }
 
@@ -238,7 +238,7 @@ public class AuthenticationControllerTest {
         List<JwtToken> jwts = demo();
         JwtToken token = jwts.get(2);
 
-        User user = demoData.users.get(0);
+        User user = demoData.users.get(1);
         Long userId = user.getId();
 
         String key = demoData.KEY_USER;

@@ -165,7 +165,7 @@ public class OrderControllerTest {
     @SneakyThrows
     @Transactional
     public void updateStatusTest() {
-        Shop shop = demoData.shops.get(0);
+        Shop shop = demoData.shops.get(1);
         Long shopId = shop.getId();
 
         OrderUpdateDTO updateDTO = OrderUpdateDTO.builder()
@@ -176,8 +176,8 @@ public class OrderControllerTest {
         MockHttpServletResponse response = mockMvc.perform(patch("/order/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_PARTNER)
-            .header("Key", demoData.KEY_PARTNER)
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())

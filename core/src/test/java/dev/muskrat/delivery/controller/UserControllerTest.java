@@ -67,7 +67,7 @@ public class UserControllerTest {
     @SneakyThrows
     @Transactional
     public void userUpdateTest() {
-        User user = demoData.users.get(0);
+        User user = demoData.users.get(1);
         Long userId = user.getId();
 
         UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()

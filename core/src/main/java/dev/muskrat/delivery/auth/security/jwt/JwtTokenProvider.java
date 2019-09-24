@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,7 @@ public class JwtTokenProvider implements AuthenticationProvider {
 
     public String getUsername(String access) {
         return Jwts.parser()
+            .setClock(() -> Date.from(Instant.now()))
             .setSigningKey(secret)
             .parseClaimsJws(access)
             .getBody()
@@ -95,7 +97,10 @@ public class JwtTokenProvider implements AuthenticationProvider {
             Jws<Claims> claims;
 
             try {
-                claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(access);
+                claims = Jwts.parser()
+                    .setClock(() -> Date.from(Instant.now()))
+                    .setSigningKey(secret)
+                    .parseClaimsJws(access);
             } catch (ExpiredJwtException e) {
                 return false;
             }
@@ -120,7 +125,10 @@ public class JwtTokenProvider implements AuthenticationProvider {
         try {
 
             try {
-                Jwts.parser().setSigningKey(secret).parseClaimsJws(refresh);
+                Jwts.parser()
+                    .setClock(() -> Date.from(Instant.now()))
+                    .setSigningKey(secret)
+                    .parseClaimsJws(refresh);
             } catch (ExpiredJwtException e) {
                 return false;
             }
@@ -140,8 +148,8 @@ public class JwtTokenProvider implements AuthenticationProvider {
         claims.put("id", user.getId());
         claims.put("roles", getRoleNames(user.getRoles()));
 
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + expiredTime);
+        Date now = Date.from(Instant.now());
+        Date validity = Date.from(Instant.now().plusMillis(expiredTime));
 
         String refresh = generateRefreshToken(user);
 
@@ -152,9 +160,9 @@ public class JwtTokenProvider implements AuthenticationProvider {
             .signWith(SignatureAlgorithm.HS256, secret)
             .compact();
 
-        String key = generateKey(refresh);
+        if (token.getKey() == null)
+            token.setKey(generateKey(refresh));
 
-        token.setKey(key);
         token.setAccess(access);
         token.setRefresh(refresh);
 
@@ -165,7 +173,7 @@ public class JwtTokenProvider implements AuthenticationProvider {
 
     private String generateKey(String refresh) {
         return jwtPasswordEncoder.passwordEncoder()
-            .encode(refresh.substring(16) + "-SUPER-SALT-" + System.currentTimeMillis());
+            .encode(refresh.substring(14, 26) + "-SUPER-SALT-" + System.currentTimeMillis());
     }
 
     private String generateRefreshToken(User user) {
