@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.auth.service;
 
+import dev.muskrat.delivery.auth.dao.Status;
 import dev.muskrat.delivery.auth.dto.UserLoginDTO;
 import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
@@ -65,6 +66,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         user.setLastName(lastName);
         user.setPassword(password);
         user.setFirstName(firstName);
+        user.setStatus(Status.ACTIVE);
 
         User registeredUser = userService.register(user);
 
@@ -84,6 +86,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         try {
             String username = userLoginDTO.getUsername();
             String password = userLoginDTO.getPassword();
+
+            if (password.equals(""))
+                throw new AccessDeniedException("Password or username not valid");
 
             Optional<User> byUsername = userService.findByUsername(username);
             if (byUsername.isEmpty())
