@@ -7,6 +7,7 @@ import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.service.AuthorizationService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.loaders.SecureLoader;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
 import dev.muskrat.delivery.order.dao.Order;
@@ -26,8 +27,7 @@ import dev.muskrat.delivery.user.repository.UserRepository;
 import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -37,7 +37,10 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@DependsOn({"secureLoader"})
 public class DemoData {
+
+    private final SecureLoader secureLoader;
 
     private final UserRepository userRepository;
     private final RegionDeliveryRepository regionDeliveryRepository;
@@ -72,9 +75,7 @@ public class DemoData {
     public List<Role> roles;
     public List<User> users;
 
-    @EventListener
-    public void appReady(ApplicationReadyEvent event) {
-
+    public void load() {
         generateUser();
         update();
 
@@ -99,16 +100,6 @@ public class DemoData {
 
     private void generateUser() {
 
-        Arrays.stream(Role.Name.values())
-            .map(Role.Name::getName)
-            .forEach(
-                roleName -> {
-                    Role role = new Role();
-                    role.setName(roleName);
-                    roleRepository.save(role);
-                }
-        );
-
         roles = roleRepository.findAll();
 
         // Create default user
@@ -123,31 +114,21 @@ public class DemoData {
         user = new User();
         user.setEmail("part@gmail.com");
         user.setPassword("test");
-        user.setRoles(Arrays.asList(roles.get(0)));
+        user.setRoles(Arrays.asList(roles.get(0), roles.get(1)));
         user = userService.register(user);
 
         partnerService.create(user);
 
-        // Create admin
-        user = new User();
-        user.setEmail("admin");
-        user.setPassword("admin");
-        user = userService.register(user);
-
-        user.setRoles(Arrays.asList(roles.get(0), roles.get(2)));
-        userRepository.save(user);
-
         UserLoginResponseDTO userDTO = authorizationService.login(UserLoginDTO.builder().username("user@gmail.com").password("test").build());
         UserLoginResponseDTO partnerDTO = authorizationService.login(UserLoginDTO.builder().username("part@gmail.com").password("test").build());
-        UserLoginResponseDTO adminDTO = authorizationService.login(UserLoginDTO.builder().username("admin").password("admin").build());
 
         ACCESS_USER = "Bearer_" + userDTO.getAccess();
-        ACCESS_ADMIN = "Bearer_" + adminDTO.getAccess();
         ACCESS_PARTNER = "Bearer_" + partnerDTO.getAccess();
+        ACCESS_ADMIN = "Bearer_" + secureLoader.getLoginAdminDTO().getAccess();
 
         KEY_USER = userDTO.getKey();
-        KEY_ADMIN = adminDTO.getKey();
         KEY_PARTNER = partnerDTO.getKey();
+        KEY_ADMIN = secureLoader.getLoginAdminDTO().getKey();
     }
 
     private void generateCategory() {
@@ -291,6 +272,6 @@ public class DemoData {
         products = productRepository.findAll();
         categories = categoryRepository.findAll();
 
-        partner = partnerRepository.findAll().get(0);
+        partner = partnerRepository.findByUser(users.get(2)).get();
     }
 }

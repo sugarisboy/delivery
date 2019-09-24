@@ -7,6 +7,7 @@ import dev.muskrat.delivery.order.dto.OrderProductDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,8 +33,8 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .name(order.getName())
             .phone(order.getPhone())
             .products(collect)
-            .createdTime(order.getCreated())
-            .lastUpdateTime(order.getUpdated())
+            .createdTime(Date.from(order.getCreated()))
+            .lastUpdateTime(Date.from(order.getUpdated()))
             .price(order.getPrice())
             .build();
     }

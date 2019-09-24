@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -97,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
             .id(order.getId())
             .price(orderPrice)
             .status(order.getOrderStatus())
-            .createdTime(order.getCreated())
+            .createdTime(Date.from(order.getCreated()))
             .build();
     }
 
