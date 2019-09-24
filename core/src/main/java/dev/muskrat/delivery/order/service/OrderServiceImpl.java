@@ -3,6 +3,9 @@ package dev.muskrat.delivery.order.service;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
+import dev.muskrat.delivery.components.events.order.OrderStatusUpdateEvent;
+import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
@@ -20,6 +23,7 @@ import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -43,13 +47,13 @@ public class OrderServiceImpl implements OrderService {
     private final ShopRepository shopRepository;
     private final CitiesRepository citiesRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final OrderCreateDTOTOOrderConverter orderCreateDTOTOOrderConverter;
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
 
+
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
-        //TODO trigger event
-
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
         Long shopId = orderDTO.getShopId();
@@ -92,6 +96,9 @@ public class OrderServiceImpl implements OrderService {
         City city = shop.getCity();
         order.setCity(city);
 
+        OrderCreateEvent orderCreateEvent = new OrderCreateEvent(this, order);
+        applicationEventPublisher.publishEvent(orderCreateEvent);
+
         orderRepository.save(order);
 
         return OrderDTO.builder()
@@ -113,7 +120,8 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(orderDTO.getStatus());
         orderRepository.save(order);
 
-        //TODO: trigger event
+        OrderStatusUpdateEvent orderCreateEvent = new OrderStatusUpdateEvent(this, order);
+        applicationEventPublisher.publishEvent(orderCreateEvent);
 
         return OrderDTO.builder()
             .id(order.getId())
