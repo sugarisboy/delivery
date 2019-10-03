@@ -1,8 +1,11 @@
 package dev.muskrat.delivery.shop.controller;
 
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.shop.dto.*;
 import dev.muskrat.delivery.shop.service.ShopService;
+import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,13 +22,18 @@ import javax.validation.constraints.NotNull;
 public class ShopController {
 
     private final ShopService shopService;
+    private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PARTNER')")
     public ShopCreateResponseDTO create(
-        @Valid @RequestBody ShopCreateDTO shopCreateDTO
+        @Valid @RequestBody ShopCreateDTO shopCreateDTO,
+        @RequestHeader("Key") String key,
+        @RequestHeader("Authorization") String authorization
     ) {
-        return shopService.create(shopCreateDTO);
+        User user = jwtAuthorizationToUserConverter.convert(key, authorization);
+        Partner partner = user.getPartner();
+        return shopService.create(shopCreateDTO, partner);
     }
 
     @PatchMapping("/update")

@@ -35,6 +35,7 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
             .cityId(shop.getCity().getId())
             .minOrderPrice(shop.getMinOrderPrice())
             .schedule(scheduleDTO)
+            .partnerId(shop.getPartner().getId())
             .build();
     }
 }

@@ -43,33 +43,30 @@ public class ShopServiceImpl implements ShopService {
     private final RegionDeliveryRepository regionDeliveryRepository;
 
     @Override
-    public ShopCreateResponseDTO create(ShopCreateDTO shopDTO) {
-
-        Optional<Shop> sameShopPartner = shopRepository
-                .findByName(shopDTO.getName());
-        if (sameShopPartner.isPresent())
+    public ShopCreateResponseDTO create(ShopCreateDTO shopDTO, Partner partner) {
+        Optional<Shop> byName = shopRepository.findByName(shopDTO.getName());
+        if (byName.isPresent())
             throw new EntityExistException("This shop name is already taken.");
 
         Long cityId = shopDTO.getCityId();
-        Optional<City> cityById = citiesRepository.findById(cityId);
-        if (cityById.isEmpty())
-            throw new EntityNotFoundException("City with id " + cityId + " not found");
-        City city = cityById.get();
+        City city = citiesRepository.findById(cityId)
+            .orElseThrow(() -> new EntityNotFoundException("City with id " + cityId + " not found"));
 
         Shop shop = new Shop();
         shop.setName(shopDTO.getName());
         shop.setCity(city);
+        shop.setPartner(partner);
 
         RegionDelivery regionDelivery = new RegionDelivery();
         regionDelivery.setAbscissa(new ArrayList<>());
         regionDelivery.setOrdinate(new ArrayList<>());
         regionDelivery = regionDeliveryRepository.save(regionDelivery);
-        shop.setRegion(regionDelivery);
 
-        Shop shopWithId = shopRepository.save(shop);
+        shop.setRegion(regionDelivery);
+        shop = shopRepository.save(shop);
 
         return ShopCreateResponseDTO.builder()
-                .id(shopWithId.getId())
+                .id(shop.getId())
                 .build();
     }
 

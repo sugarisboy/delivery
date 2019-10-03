@@ -13,6 +13,7 @@ public class ShopDTO {
 
     private Long id;
     private Long cityId;
+    private Long partnerId;
     private String name;
     private String description;
     private Double minOrderPrice;
