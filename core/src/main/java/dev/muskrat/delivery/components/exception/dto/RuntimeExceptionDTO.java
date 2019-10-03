@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class JwtAccessDeniedExceptionDTO {
+public class RuntimeExceptionDTO {
 
-    private String clazz;
-    private String method;
     private String message;
+    private String method;
+    private String clazz;
 }

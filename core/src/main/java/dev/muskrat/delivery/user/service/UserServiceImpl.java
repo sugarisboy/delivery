@@ -3,6 +3,8 @@ package dev.muskrat.delivery.user.service;
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.Status;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.user.dao.User;
 import dev.muskrat.delivery.user.dto.UserDTO;
@@ -23,15 +25,16 @@ public class UserServiceImpl implements UserService {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final CitiesRepository citiesRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public User register(User user) {
         String userRoleName = Role.Name.USER.getName();
-        Optional<Role> byName = roleRepository.findByName(Role.Name.USER.getName());
-        if (byName.isEmpty())
-            throw new EntityNotFoundException("Role with name " + userRoleName + " not found");
-        Role role = byName.get();
+        Role.Name roleUser = Role.Name.USER;
+        Role role = roleRepository
+            .findByName(roleUser.getName())
+            .orElseThrow(()-> new EntityNotFoundException("Role with name " + userRoleName + " not found"));
 
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(role);
@@ -56,17 +59,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO findById(Long id) {
-        Optional<User> byId = userRepository.findById(id);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("User with id " + id + " not found");
-        User user = byId.get();
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
+        City city = user.getCity();
+        Long cityId = city.getId();
 
-            return UserDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .build();
+        return UserDTO.builder()
+            .firstName(user.getFirstName())
+            .lastName(user.getLastName())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .cityId(cityId)
+            .build();
     }
 
     @Override
@@ -89,11 +93,17 @@ public class UserServiceImpl implements UserService {
         if (userUpdateDTO.getPhone() != null)
             user.setPhone(userUpdateDTO.getPhone());
 
+        if (userUpdateDTO.getCityId() != null) {
+            Long cityId = userUpdateDTO.getCityId();
+            City city = citiesRepository.findById(cityId)
+                .orElseThrow(() -> new EntityNotFoundException("City with id " + cityId + " not found"));
+            user.setCity(city);
+        }
+
         userRepository.save(user);
 
         return UserUpdateResponseDTO.builder()
             .id(user.getId())
             .build();
-
     }
 }

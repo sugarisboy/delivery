@@ -70,11 +70,14 @@ public class UserControllerTest {
         User user = demoData.users.get(1);
         Long userId = user.getId();
 
+        Long cityId = demoData.cities.get(0).getId();
+
         UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
             .firstName("new1")
             .lastName("new2")
             .phone("1234567890")
             .email("sugarisboy@muskrat.dev")
+            .cityId(cityId)
             .id(userId)
             .build();
 
