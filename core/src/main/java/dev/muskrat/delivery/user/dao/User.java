@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.user.dao;
 
 import dev.muskrat.delivery.auth.dao.Role;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.dao.Partner;
@@ -45,6 +46,13 @@ public class User extends BaseEntity {
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
     )
     private Partner partner;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinTable(name = "city_users",
+        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
+    )
+    private City city;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_orders",
