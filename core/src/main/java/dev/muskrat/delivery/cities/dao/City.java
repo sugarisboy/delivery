@@ -23,7 +23,6 @@ public class City {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "orders")
     @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "order_city",
         joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
@@ -31,7 +30,6 @@ public class City {
     )
     private List<Order> orders;
 
-    @Column(name = "shops")
     @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "shop_city",
         joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
@@ -39,13 +37,13 @@ public class City {
     )
     private List<Shop> shops;
 
-    @Column(name = "users")
+
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_city",
+    @JoinTable(name = "user_orders",
         joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
     )
-    private List<User> users;
+    private List<User> residents;
 
     @Column(name = "deleted")
     private Boolean deleted = false;
