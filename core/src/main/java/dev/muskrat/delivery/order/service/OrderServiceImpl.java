@@ -5,16 +5,14 @@ import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
 import dev.muskrat.delivery.components.events.order.OrderStatusUpdateEvent;
-import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.service.MappingService;
 import dev.muskrat.delivery.order.converter.OrderCreateDTOTOOrderConverter;
+import dev.muskrat.delivery.order.converter.OrderStatusTOOrderStatusDTOConverter;
 import dev.muskrat.delivery.order.converter.OrderTOOrderDTOConverter;
-import dev.muskrat.delivery.order.dao.Order;
-import dev.muskrat.delivery.order.dao.OrderProduct;
-import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dao.*;
 import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
@@ -31,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,10 +46,11 @@ public class OrderServiceImpl implements OrderService {
     private final ShopRepository shopRepository;
     private final CitiesRepository citiesRepository;
     private final ProductRepository productRepository;
+    private final OrderStatusRepository orderStatusRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final OrderCreateDTOTOOrderConverter orderCreateDTOTOOrderConverter;
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
-
+    private final OrderStatusTOOrderStatusDTOConverter orderStatusTOOrderStatusDTOConverter;
 
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
@@ -89,13 +89,11 @@ public class OrderServiceImpl implements OrderService {
         RegionPoint pointByAddress = mappingService.getPointByAddress(address);
         RegionDelivery shopRegion = shop.getRegion();
         boolean regionAvailable = shopRegion.isRegionAvailable(pointByAddress);
-        if (!regionAvailable) {
+        if (!regionAvailable)
             throw new RuntimeException("Out of delivery area");
-        }
 
         City city = shop.getCity();
         order.setCity(city);
-
         order = orderRepository.save(order);
 
         OrderCreateEvent orderCreateEvent = new OrderCreateEvent(this, order);
@@ -104,7 +102,6 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTO.builder()
             .id(order.getId())
             .price(orderPrice)
-            .status(order.getOrderStatus())
             .createdTime(Date.from(order.getCreated()))
             .build();
     }
@@ -112,20 +109,25 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO updateStatus(OrderUpdateDTO orderDTO) {
         Long id = orderDTO.getId();
-        Optional<Order> byId = orderRepository.findById(id);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("Order with id " + id + " not found");
+        Order order = orderRepository.findById(id)
+            .orElseThrow(()-> new EntityNotFoundException("Order with id " + id + " not found"));
 
-        Order order = byId.get();
-        order.setOrderStatus(orderDTO.getStatus());
-        orderRepository.save(order);
+        OrderStatusEntry orderStatusEntry = new OrderStatusEntry();
+        orderStatusEntry.setOrder(order);
+        orderStatusEntry.setUpdatedTime(Instant.now());
+        orderStatusEntry.setStatus(orderDTO.getStatus());
+        orderStatusRepository.save(orderStatusEntry);
 
         OrderStatusUpdateEvent orderCreateEvent = new OrderStatusUpdateEvent(this, order);
         applicationEventPublisher.publishEvent(orderCreateEvent);
 
+        List<OrderStatusEntryDTO> orderStatusLog = order.getOrderStatusLog().stream()
+            .map(orderStatusTOOrderStatusDTOConverter::convert)
+            .collect(Collectors.toList());
+
         return OrderDTO.builder()
             .id(order.getId())
-            .status(order.getOrderStatus())
+            .status(orderStatusLog)
             .build();
     }
 
