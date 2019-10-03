@@ -3,7 +3,10 @@ package dev.muskrat.delivery.user.service;
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.Status;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
 import dev.muskrat.delivery.user.dao.User;
 import dev.muskrat.delivery.user.dto.UserDTO;
 import dev.muskrat.delivery.user.dto.UserUpdateDTO;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +26,10 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
+    private final CitiesRepository citiesRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
 
     @Override
     public User register(User user) {
@@ -66,6 +72,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .cityId(user.getCity().getId())
                 .build();
     }
 
@@ -88,6 +95,15 @@ public class UserServiceImpl implements UserService {
 
         if (userUpdateDTO.getPhone() != null)
             user.setPhone(userUpdateDTO.getPhone());
+
+        if (userUpdateDTO.getCityId() != null) {
+            Long cityId = userUpdateDTO.getCityId();
+            Optional<City> byCityId = citiesRepository.findById(cityId);
+            if (byCityId.isEmpty())
+                throw new EntityNotFoundException("City with " + cityId + " not found!");
+            City city = byCityId.get();
+            user.setCity(city);
+        }
 
         userRepository.save(user);
 
