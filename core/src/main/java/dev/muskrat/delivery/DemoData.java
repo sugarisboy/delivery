@@ -151,6 +151,12 @@ public class DemoData {
         }
 
         citiesRepository.saveAll(cities);
+
+        City city = cities.get(0);
+        for (User user : users) {
+            user.setCity(city);
+            userRepository.save(user);
+        }
     }
 
     private RegionDelivery generateRegionDelivery() {
