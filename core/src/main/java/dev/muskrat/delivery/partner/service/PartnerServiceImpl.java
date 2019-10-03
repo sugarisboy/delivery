@@ -46,19 +46,6 @@ public class PartnerServiceImpl implements PartnerService {
             .build();
     }
 
-    /*@Override
-    public PartnerRegisterResponseDTO createByOrder(Order order) {
-        PartnerRegisterDTO partnerRegisterDTO = PartnerRegisterDTO.builder()
-            .email(order.getEmail())
-            .name(order.getName())
-            .phone(order.getPhone())
-            // TODO: Fix it. How here generate password?
-            .password("password")
-            .passwordRepeat("password")
-            .build();
-        return create(partnerRegisterDTO);
-    }*/
-
     @Override
     public boolean isCurrentPartner(Authentication authentication, Long id) {
         Optional<User> byId = userRepository.findById(id);
