@@ -96,10 +96,10 @@ public class OrderServiceImpl implements OrderService {
         City city = shop.getCity();
         order.setCity(city);
 
+        order = orderRepository.save(order);
+
         OrderCreateEvent orderCreateEvent = new OrderCreateEvent(this, order);
         applicationEventPublisher.publishEvent(orderCreateEvent);
-
-        orderRepository.save(order);
 
         return OrderDTO.builder()
             .id(order.getId())
