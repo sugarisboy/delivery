@@ -61,11 +61,4 @@ public class User extends BaseEntity {
         inverseJoinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")}
     )
     private List<Order> orders;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_city",
-        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
-    )
-    private City city;
 }
