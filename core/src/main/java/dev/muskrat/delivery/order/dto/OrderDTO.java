@@ -20,6 +20,7 @@ public class OrderDTO {
     private Long id;
 
     private List<OrderProductDTO> products;
+    private List<OrderStatusEntryDTO> status;
 
     private String phone;
     private String address;
@@ -27,9 +28,7 @@ public class OrderDTO {
     private String email;
     private Long shopId;
     private Double price;
-    private Integer status;
     private Date createdTime;
-    private Date lastUpdateTime;
 
     private String comments;
 }

@@ -119,7 +119,7 @@ public class OrderControllerTest {
             .findById(createdOrderId).orElseThrow();
 
         assertEquals(createdItem.getId(), createdOrderId);
-        assertTrue(createdItem.getStatus() == 0);
+        assertTrue(createdItem.getStatus().get(0).getStatus() == 0);
     }
 
     @Test
@@ -186,7 +186,9 @@ public class OrderControllerTest {
         OrderDTO updatedItem = objectMapper
             .readValue(response.getContentAsString(), OrderDTO.class);
 
-        assertTrue(updatedItem.getStatus() == 10L);
+        boolean flag = updatedItem.getStatus().stream()
+            .anyMatch(i -> i.getStatus() == 10L);
+        assertTrue(flag);
     }
 
     @Test

@@ -253,12 +253,6 @@ public class DemoData {
                     order.setProducts(Arrays.asList(product1, product2, product3));
                     order.setName(shop.getName() + "-order-" + i);
 
-                    if (i == 1) {
-                        order.setOrderStatus(1);
-                    } else if (i == 2) {
-                        order.setOrderStatus(10);
-                    }
-
                     orders.add(order);
                 }
             }

@@ -5,14 +5,20 @@ import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "orders")
-public class Order extends BaseEntity {
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "products")
     @ElementCollection
@@ -50,8 +56,17 @@ public class Order extends BaseEntity {
     @Column(name = "comments")
     private String comments;
 
+    @CreatedDate
+    @Column(name = "created")
+    private Instant created;
+
     @Column(name = "order_status")
-    private Integer orderStatus = 0;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "order_status_log",
+        joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "status_id", referencedColumnName = "id")}
+    )
+    private List<OrderStatusEntry> orderStatusLog;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "order_shop",
