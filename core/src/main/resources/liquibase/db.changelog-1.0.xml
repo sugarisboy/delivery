@@ -546,5 +546,5 @@
                                  referencedColumnNames="id"
                                  referencedTableName="orders"/>
     </changeSet>
-    
+
 </databaseChangeLog>
