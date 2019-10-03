@@ -546,5 +546,34 @@
                                  referencedColumnNames="id"
                                  referencedTableName="orders"/>
     </changeSet>
+
+    <changeSet id="1.0.40" author="muskrat.dev">
+        <createTable tableName="city_users">
+
+            <column name="user_id" type="BIGINT"/>
+            <column name="city_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.41" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="city_users"
+                                 constraintName="fk_city_users_user"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+
+    <changeSet id="1.0.42" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="city_id"
+                                 baseTableName="city_users"
+                                 constraintName="fk_city_users_city"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cities"/>
+    </changeSet>
     
 </databaseChangeLog>
