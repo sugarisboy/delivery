@@ -1,9 +1,9 @@
 package dev.muskrat.delivery.cities.dao;
 
 
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.shop.dao.Shop;
+import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 

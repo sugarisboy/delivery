@@ -10,6 +10,7 @@ import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.user.dto.UserDTO;
 import lombok.SneakyThrows;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -105,9 +105,9 @@ public class UserControllerTest {
     @SneakyThrows
     @Transactional
     public void changeUserCityTest() {
-        User user = demoData.users.get(0);
+        User user = demoData.users.get(1);
         Long userId = user.getId();
-        assertNull(user.getCity());
+        assertTrue(user.getCity() != null);
 
         City city = demoData.cities.get(0);
         Long cityId = city.getId();
@@ -122,6 +122,7 @@ public class UserControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userUpdateDTO))
             .header("Authorization", demoData.ACCESS_USER)
+            .header("Key", demoData.KEY_USER)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
