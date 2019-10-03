@@ -304,7 +304,7 @@
     <changeSet id="1.0.13" author="muskrat.dev">
         <addForeignKeyConstraint baseColumnNames="partner_id"
                                  baseTableName="partner_shop"
-                                 constraintName="fk_partner_shop_order"
+                                 constraintName="fk_partner_shop_partner"
                                  onDelete="CASCADE"
                                  onUpdate="RESTRICT"
                                  referencedColumnNames="id"
