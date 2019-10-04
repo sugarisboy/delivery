@@ -15,12 +15,12 @@ public class OrderStatusEntry {
     private Long id;
 
     @Column(name = "time")
-    private Instant updatedTime;
+    private Instant updatedTime = Instant.now();
 
-    @Column(name = "orderStatusLog")
+    @Column(name = "status")
     private Integer status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "order_status_log",
         joinColumns = {@JoinColumn(name = "status_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")}
