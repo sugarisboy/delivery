@@ -144,6 +144,10 @@ public class DemoData {
     private void generateCities() {
         cities = new ArrayList<>();
 
+        City sibu = new City();
+        sibu.setName("Sibu");
+        cities.add(sibu);
+
         for (int i = 1; i < 3; i++) {
             City city = new City();
             city.setName("city-" + i);
@@ -152,9 +156,9 @@ public class DemoData {
 
         citiesRepository.saveAll(cities);
 
-        City city = cities.get(0);
+        City random = cities.get(0);
         for (User user : users) {
-            user.setCity(city);
+            user.setCity(random);
             userRepository.save(user);
         }
     }

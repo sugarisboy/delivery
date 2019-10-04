@@ -87,7 +87,7 @@ public class OrderControllerTest {
         OrderPageDTO pageDTO = objectMapper
             .readValue(response.getContentAsString(), OrderPageDTO.class);
 
-        assertEquals(6, pageDTO.getOrders().size());
+        assertEquals(9, pageDTO.getOrders().size());
     }
 
     @Test

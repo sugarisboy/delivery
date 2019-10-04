@@ -62,6 +62,7 @@ public class ShopControllerTest {
         ShopCreateDTO createDTO = ShopCreateDTO.builder()
             .name("shop")
             .cityId(cityId)
+            .address("103 Jalan Kampung Nyabor")
             .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
@@ -105,6 +106,7 @@ public class ShopControllerTest {
             .minOrderPrice(5D)
             .name("new name")
             .cityId(cityId)
+            .address("95 Jalan Kampung Nyabor")
             .build();
 
         String contentAsString = mockMvc.perform(patch("/shop/update")
