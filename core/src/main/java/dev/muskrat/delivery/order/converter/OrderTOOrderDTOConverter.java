@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,9 +26,13 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .map(orderProductTOOrderProductDTOConverter::convert)
             .collect(Collectors.toList());
 
-        List<OrderStatusEntryDTO> orderStatusLog = order.getOrderStatusLog().stream()
-            .map(orderStatusTOOrderStatusDTOConverter::convert)
-            .collect(Collectors.toList());
+
+        List<OrderStatusEntryDTO> orderStatusLog = null;
+        if (order.getOrderStatusLog() != null) {
+            order.getOrderStatusLog().stream()
+                .map(orderStatusTOOrderStatusDTOConverter::convert)
+                .collect(Collectors.toList());
+        }
 
         return OrderDTO.builder()
             .id(order.getId())

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.order.dao.Order;
+import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dao.OrderStatusRepository;
 import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.order.service.OrderService;
 import dev.muskrat.delivery.shop.dao.Shop;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,6 +50,15 @@ public class OrderControllerTest {
 
     @Autowired
     private DemoData demoData;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderStatusRepository orderStatusRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     @SneakyThrows
@@ -119,7 +131,6 @@ public class OrderControllerTest {
             .findById(createdOrderId).orElseThrow();
 
         assertEquals(createdItem.getId(), createdOrderId);
-        assertTrue(createdItem.getStatus().get(0).getStatus() == 0);
     }
 
     @Test

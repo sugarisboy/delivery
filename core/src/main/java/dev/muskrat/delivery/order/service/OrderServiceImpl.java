@@ -4,7 +4,6 @@ import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
-import dev.muskrat.delivery.components.events.order.OrderStatusUpdateEvent;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
@@ -21,17 +20,22 @@ import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
+import org.hibernate.Transaction;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +55,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderCreateDTOTOOrderConverter orderCreateDTOTOOrderConverter;
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
     private final OrderStatusTOOrderStatusDTOConverter orderStatusTOOrderStatusDTOConverter;
+
+    private final JdbcTemplate jdbcTemplate;
+    private final EntityManager entityManager;
 
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
@@ -113,13 +120,18 @@ public class OrderServiceImpl implements OrderService {
             .orElseThrow(()-> new EntityNotFoundException("Order with id " + id + " not found"));
 
         OrderStatusEntry orderStatusEntry = new OrderStatusEntry();
-        orderStatusEntry.setOrder(order);
         orderStatusEntry.setUpdatedTime(Instant.now());
         orderStatusEntry.setStatus(orderDTO.getStatus());
+        orderStatusEntry.setOrder(order);
+
         orderStatusRepository.save(orderStatusEntry);
 
-        OrderStatusUpdateEvent orderCreateEvent = new OrderStatusUpdateEvent(this, order);
-        applicationEventPublisher.publishEvent(orderCreateEvent);
+        Order order1 = orderRepository.findById(id).get();
+        Hibernate.initialize(order1.getOrderStatusLog());
+        //Set<OrderStatusEntry> orderStatusLog = order1.getOrderStatusLog();
+        //order.getOrderStatusLog().add(orderStatusEntry);
+
+        System.out.println();
 
         List<OrderStatusEntryDTO> orderStatusLog = order.getOrderStatusLog().stream()
             .map(orderStatusTOOrderStatusDTOConverter::convert)
@@ -152,9 +164,9 @@ public class OrderServiceImpl implements OrderService {
             if (requestDTO.getEmail() != null)
                 email = requestDTO.getEmail();
 
-            if (requestDTO.getActive() != null) {
+            /*if (requestDTO.getActive() != null) {
                 status = requestDTO.getActive() ? ORDERS_NOT_ACTIVE_BEGIN_WITH : status;
-            }
+            }*/
 
             if (requestDTO.getCityId() != null) {
                 Long cityId = requestDTO.getCityId();
@@ -174,7 +186,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Page<Order> page = orderRepository.findWithFilter(
-            phone, email, city, shop, status, pageable
+            phone, email, city, shop, pageable
         );
 
         List<Order> content = page.getContent();
