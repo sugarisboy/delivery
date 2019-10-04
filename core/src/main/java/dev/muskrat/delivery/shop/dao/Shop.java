@@ -58,6 +58,9 @@ public class Shop {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "min_order_price")
     private Double minOrderPrice;
 

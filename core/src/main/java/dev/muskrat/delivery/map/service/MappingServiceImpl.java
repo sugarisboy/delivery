@@ -136,6 +136,46 @@ public class MappingServiceImpl implements MappingService {
             .build();
     }
 
+    @Override
+    public boolean isValidAddress(String city, String label) {
+        String http = UriComponentsBuilder.newInstance()
+            .scheme("http")
+            .host("geocoder.api.here.com")
+            .path("/6.2/geocode.json")
+            .query("app_id=" + APP_ID)
+            .query("app_code=" + APP_CODE)
+            .query("locationattributes=address")
+            .query("country=" + COUNTRY)
+            .query("maxresults=" + MAX_RESULTS)
+            .query("searchtext=" + city + " " + label)
+            .build().toString();
+
+        RestTemplate restTemplate = new RestTemplate();
+        String json = restTemplate.getForObject(http, String.class);
+
+        JsonNode house;
+
+        try {
+            JsonNode httpResponse = new ObjectMapper().readTree(json);
+            if (!httpResponse.has("Response"))
+                throw new LocationParseException("MapApi timeout");
+
+            JsonNode view = httpResponse.get("Response").get("View");
+            if (!view.has(0))
+                throw new AddressNotFoundException("Address not found");
+
+            house = view.get(0)
+                .get("Result").get(0)
+                .get("Location")
+                .get("Address")
+                .get("HouseNumber");
+        } catch (IOException ex) {
+            throw new LocationParseException("Location don't parsed");
+        }
+
+        return !house.isNull();
+    }
+
     @Bean
     private RegionDelivery getEmptyRegion() {
         RegionDelivery regionDelivery = new RegionDelivery();
