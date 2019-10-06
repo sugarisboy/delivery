@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
-import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.shop.dto.*;
@@ -101,8 +99,9 @@ public class ShopControllerTest {
         ShopUpdateDTO updateDTO = ShopUpdateDTO.builder()
             .id(shopId)
             .description("description")
-            .freeOrderPrice(10D)
-            .minOrderPrice(5D)
+            .freeDeliveryCost(10D)
+            .minOrderCost(5D)
+            .deliveryCost(7D)
             .name("new name")
             .cityId(cityId)
             .build();
@@ -127,8 +126,9 @@ public class ShopControllerTest {
 
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
         assertEquals(updateDTO.getDescription(), updatedShopDTO.getDescription());
-        assertEquals(updateDTO.getFreeOrderPrice(), updatedShopDTO.getFreeOrderPrice());
-        assertEquals(updateDTO.getMinOrderPrice(), updatedShopDTO.getMinOrderPrice());
+        assertEquals(updateDTO.getFreeDeliveryCost(), updatedShopDTO.getFreeDeliveryCost());
+        assertEquals(updateDTO.getDeliveryCost(), updatedShopDTO.getDeliveryCost());
+        assertEquals(updateDTO.getMinOrderCost(), updatedShopDTO.getMinOrderCost());
         assertEquals(updateDTO.getName(), "new name");
     }
 

@@ -112,7 +112,7 @@ public class ShopServiceImpl implements ShopService {
             }
         }
 
-        Page<Shop> page = shopRepository.findWithFilter(name, city, maxMinOrderPrice, maxFreeOrderPrice, pageable);
+        Page<Shop> page = shopRepository.findWithFilter(name, city, pageable);
 
         List<Shop> content = page.getContent();
         List<ShopDTO> collect = content.stream()
@@ -135,14 +135,19 @@ public class ShopServiceImpl implements ShopService {
         }
 
         Shop shop = byId.get();
+
+        RegionDelivery region = shop.getRegion();
+        if (shopUpdateDTO.getFreeDeliveryCost() != null)
+            region.setFreeDeliveryCost(shopUpdateDTO.getFreeDeliveryCost());
+        if (shopUpdateDTO.getMinOrderCost() != null)
+            region.setMinOrderCost(shopUpdateDTO.getMinOrderCost());
+        if (shopUpdateDTO.getDeliveryCost() != null)
+            region.setDeliveryCost(shopUpdateDTO.getDeliveryCost());
+
         if (shopUpdateDTO.getName() != null)
             shop.setName(shopUpdateDTO.getName());
         if (shopUpdateDTO.getDescription() != null)
             shop.setDescription(shopUpdateDTO.getDescription());
-        if (shopUpdateDTO.getFreeOrderPrice() != null)
-            shop.setFreeOrderPrice(shopUpdateDTO.getFreeOrderPrice());
-        if (shopUpdateDTO.getMinOrderPrice() != null)
-            shop.setMinOrderPrice(shopUpdateDTO.getMinOrderPrice());
         if (shopUpdateDTO.getCityId() != null) {
             Long cityId = shopUpdateDTO.getCityId();
             Optional<City> cityById = citiesRepository.findById(cityId);

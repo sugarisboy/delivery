@@ -31,15 +31,11 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     @Query(
         "SELECT o FROM Shop o WHERE" +
             "(:name is null or o.name like :name) and" +
-            "(:city is null or o.city = :city) and" +
-            "(:maxMinOrderPrice is null or o.minOrderPrice <= :maxMinOrderPrice) and" +
-            "(:maxFreeOrderPrice is null or o.freeOrderPrice <= :maxFreeOrderPrice)"
+            "(:city is null or o.city = :city)"
     )
     Page<Shop> findWithFilter(
         @Param("name") String name,
         @Param("city") City city,
-        @Param("maxMinOrderPrice") Double maxMinOrderPrice,
-        @Param("maxFreeOrderPrice") Double maxFreeOrderPrice,
         Pageable pageable
     );
 }

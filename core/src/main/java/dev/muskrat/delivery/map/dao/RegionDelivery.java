@@ -12,6 +12,15 @@ import java.util.List;
 @Table(name = "regions")
 public class RegionDelivery extends BaseEntity {
 
+    @Column(name = "deliveryCost")
+    private Double deliveryCost;
+
+    @Column(name = "minOrderCost")
+    private Double minOrderCost;
+
+    @Column(name = "freeDeliveryCost")
+    private Double freeDeliveryCost;
+
     @ElementCollection
     @Column(name = "abscissa")
     private List<Double> abscissa;

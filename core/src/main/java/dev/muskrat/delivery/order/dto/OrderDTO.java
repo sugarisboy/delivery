@@ -26,7 +26,8 @@ public class OrderDTO {
     private String name;
     private String email;
     private Long shopId;
-    private Double price;
+    private Double cost;
+    private Double costAndDelivery;
     private Integer status;
     private Date createdTime;
     private Date lastUpdateTime;

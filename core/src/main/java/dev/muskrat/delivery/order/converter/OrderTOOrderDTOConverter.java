@@ -35,7 +35,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .products(collect)
             .createdTime(Date.from(order.getCreated()))
             .lastUpdateTime(Date.from(order.getUpdated()))
-            .price(order.getPrice())
+            .cost(order.getCost())
             .build();
     }
 }

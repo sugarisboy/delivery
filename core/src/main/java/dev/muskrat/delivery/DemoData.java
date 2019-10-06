@@ -171,13 +171,17 @@ public class DemoData {
 
         for (City city : cities) {
             for (int i = 0; i < 3; i++) {
+                RegionDelivery region = generateRegionDelivery();
+                region.setMinOrderCost((i + 1) * 10D);
+                region.setDeliveryCost((i + 1) * 15D);
+                region.setFreeDeliveryCost((i + 1) * 20D);
+                region = regionDeliveryRepository.save(region);
+
                 Shop shop = new Shop();
                 shop.setName(city.getName() + "-shop-" + i);
                 shop.setCity(city);
                 shop.setPartner(partner);
-                shop.setMinOrderPrice(i * 100D);
-                shop.setFreeOrderPrice(i * 200D);
-                shop.setRegion(generateRegionDelivery());
+                shop.setRegion(region);
                 shop.setOpen(Arrays.asList(
                     LocalTime.of(9, 0),
                     LocalTime.of(9, 0),
