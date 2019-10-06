@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.shop.converter;
 
 import dev.muskrat.delivery.components.converter.ObjectConverter;
+import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dto.ShopDTO;
 import dev.muskrat.delivery.shop.dto.ShopScheduleDTO;
@@ -27,13 +28,16 @@ public class ShopToShopDTOConverter implements ObjectConverter<Shop, ShopDTO> {
             .close(close)
             .build();
 
+        RegionDelivery region = shop.getRegion();
+
         return ShopDTO.builder()
             .id(shop.getId())
             .name(shop.getName())
             .description(shop.getDescription())
-            .freeOrderPrice(shop.getFreeOrderPrice())
+            .deliveryCost(region.getDeliveryCost())
+            .minOrderCost(region.getMinOrderCost())
+            .freeDeliveryCost(region.getFreeDeliveryCost())
             .cityId(shop.getCity().getId())
-            .minOrderPrice(shop.getMinOrderPrice())
             .schedule(scheduleDTO)
             .partnerId(shop.getPartner().getId())
             .build();

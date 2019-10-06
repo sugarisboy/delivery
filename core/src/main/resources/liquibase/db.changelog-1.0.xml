@@ -165,7 +165,11 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="price" type="FLOAT">
+            <column name="cost" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="costAndDelivery" type="FLOAT">
                 <constraints nullable="false"/>
             </column>
 
@@ -232,8 +236,6 @@
             </column>
 
             <column name="description" type="VARCHAR(255)"/>
-            <column name="min_order_price" type="FLOAT"/>
-            <column name="free_order_price" type="FLOAT"/>
 
             <column name="open" type="VARCHAR(1023)">
                 <constraints nullable="false"/>
@@ -471,6 +473,19 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+
+            <column name="minOrderCost" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="deliveryCost" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="freeDeliveryCost" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
 
             <column name="abscissa" type="VARCHAR(1023)"/>
             <column name="ordinate" type="VARCHAR(1023)"/>

@@ -5,8 +5,8 @@ import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
 import dev.muskrat.delivery.components.events.order.OrderStatusUpdateEvent;
-import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.components.exception.OrderAmountLowerLowestException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.service.MappingService;
@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
         String address = orderDTO.getAddress();
         List<OrderProduct> products = order.getProducts();
 
-        double orderPrice = 0;
+        double orderCost = 0;
         // Check products
         for (OrderProduct orderProduct : products) {
             Long productId = orderProduct.getProductId();
@@ -74,16 +74,23 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("Order contains products from two and more shop");
             }
 
-            orderPrice += product.getPrice() * orderProduct.getCount();
+            orderCost += product.getPrice() * orderProduct.getCount();
         }
-        order.setPrice(orderPrice);
+        order.setCost(orderCost);
 
-        // Check shopId
-        Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty()) {
-            throw new EntityNotFoundException("Shop with id " + shopId + " not found");
-        }
-        Shop shop = byId.get();
+        // Check shopId and set delivery cost
+        Shop shop = shopRepository.findById(shopId).orElseThrow(
+            () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
+        );
+        RegionDelivery region = Optional.of(shop.getRegion()).orElseThrow(
+            () -> new EntityNotFoundException("Region for this shop not found!")
+        );
+
+        if (orderCost < region.getMinOrderCost())
+            throw new OrderAmountLowerLowestException("Order amount lower lowest");
+
+        boolean isFreeDelivery = region.getFreeDeliveryCost() <= orderCost;
+        order.setCostAndDelivery(isFreeDelivery ? orderCost : orderCost + region.getDeliveryCost());
 
         // Check region delivery
         RegionPoint pointByAddress = mappingService.getPointByAddress(address);
@@ -103,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderDTO.builder()
             .id(order.getId())
-            .price(orderPrice)
+            .cost(orderCost)
             .status(order.getOrderStatus())
             .createdTime(Date.from(order.getCreated()))
             .build();

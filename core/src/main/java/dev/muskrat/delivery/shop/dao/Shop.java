@@ -58,12 +58,6 @@ public class Shop {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "min_order_price")
-    private Double minOrderPrice;
-
-    @Column(name = "free_order_price")
-    private Double freeOrderPrice;
-
     @ElementCollection
     @Column(name = "open")
     private List<LocalTime> open;

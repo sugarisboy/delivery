@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -213,6 +212,8 @@ public class OrderControllerTest {
         Date createdTime = responseDTO.getCreatedTime();
 
         assertTrue(startTime.getTime() - createdTime.getTime() < 10_000);
+        assertNull(responseDTO.getCost());
+        assertNull(responseDTO.getCostAndDelivery());
         assertEquals(responseDTO.getId(), orderId);
     }
 }
