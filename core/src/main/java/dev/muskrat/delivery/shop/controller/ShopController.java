@@ -36,6 +36,14 @@ public class ShopController {
         return shopService.create(shopCreateDTO, partner);
     }
 
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ShopCreateResponseDTO createWithPartner(
+        @Valid @RequestBody ShopCreateDTO shopCreateDTO
+    ) {
+        return shopService.createWithPartner(shopCreateDTO);
+    }
+
     @PatchMapping("/update")
     @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #shopUpdateDTO.id))")
     public ShopUpdateResponseDTO update(
@@ -57,6 +65,14 @@ public class ShopController {
         return shopService.findById(id).orElseThrow(() ->
             new EntityNotFoundException("Shop not found")
         );
+    }
+
+    @GetMapping("/stats")
+    // TODO add @PreAuthorize
+    public ShopStatsResponseDTO stats(
+        @Valid @RequestBody ShopStatsDTO shopStatsDTO
+    ) {
+        return shopService.stats(shopStatsDTO);
     }
 
     @GetMapping("/page")
