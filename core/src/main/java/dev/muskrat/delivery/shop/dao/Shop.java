@@ -2,6 +2,7 @@ package dev.muskrat.delivery.shop.dao;
 
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
+import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
 import lombok.Data;
@@ -75,4 +76,11 @@ public class Shop {
 
     @Column(name = "deleted")
     private Boolean deleted = false;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "order_shop",
+        joinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")},
+        inverseJoinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")}
+    )
+    private List<Order> orders;
 }

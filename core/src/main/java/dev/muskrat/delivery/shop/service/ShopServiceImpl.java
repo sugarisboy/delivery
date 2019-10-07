@@ -11,12 +11,14 @@ import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
+import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.shop.dto.*;
 import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,11 +42,13 @@ import java.util.stream.Collectors;
 public class ShopServiceImpl implements ShopService {
 
     private final FileFormats fileFormats;
+    private final UserRepository userRepository;
     private final ShopRepository shopRepository;
     private final CitiesRepository citiesRepository;
     private final FileStorageService fileStorageService;
     private final ShopToShopDTOConverter shopToShopDTOConverter;
     private final RegionDeliveryRepository regionDeliveryRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     public ShopCreateResponseDTO create(ShopCreateDTO shopDTO, Partner partner) {
@@ -214,5 +222,38 @@ public class ShopServiceImpl implements ShopService {
         String email = user.getEmail();
 
         return email.equalsIgnoreCase(username);
+    }
+
+    @Override
+    public ShopStatsResponseDTO stats(ShopStatsDTO shopStatsDTO) {
+        Long shopId = shopStatsDTO.getShopId();
+        Shop shop = shopRepository.findById(4L).orElseThrow(
+            () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
+        );
+
+        Instant startDate = shopStatsDTO.getStartDate();
+        Instant endDate = shopStatsDTO.getEndDate();
+
+        Double profit = orderRepository.getProfit(startDate, endDate, shop);
+
+        return ShopStatsResponseDTO.builder()
+            .profit(profit)
+            .build();
+    }
+
+    @Override
+    public ShopCreateResponseDTO createWithPartner(ShopCreateDTO shopCreateDTO) {
+        Long partnerId = shopCreateDTO.getPartnerId();
+        if (partnerId == null)
+            throw new EntityNotFoundException("Please indicate partnerId in your request");
+
+        User user = userRepository.findById(partnerId).orElseThrow(
+            () -> new EntityNotFoundException("User with id " + partnerId + " not found")
+        );
+        Partner partner = user.getPartner();
+        if (partner == null)
+            throw new EntityNotFoundException("User with id " + partnerId + " is not partner");
+
+        return create(shopCreateDTO, partner);
     }
 }

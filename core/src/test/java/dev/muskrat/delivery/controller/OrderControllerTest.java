@@ -212,8 +212,8 @@ public class OrderControllerTest {
         Date createdTime = responseDTO.getCreatedTime();
 
         assertTrue(startTime.getTime() - createdTime.getTime() < 10_000);
-        assertNull(responseDTO.getCost());
-        assertNull(responseDTO.getCostAndDelivery());
+        assertNotNull(responseDTO.getCost());
+        assertNotNull(responseDTO.getCostAndDelivery());
         assertEquals(responseDTO.getId(), orderId);
     }
 }
