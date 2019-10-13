@@ -67,15 +67,15 @@ public class ShopController {
         );
     }
 
-    @GetMapping("/stats")
-    // TODO add @PreAuthorize
+    @PostMapping("/stats")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #shopStatsDTO.id))")
     public ShopStatsResponseDTO stats(
         @Valid @RequestBody ShopStatsDTO shopStatsDTO
     ) {
         return shopService.stats(shopStatsDTO);
     }
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     public ShopPageDTO page(
         @Valid @RequestBody(required = false) ShopPageRequestDTO shopPageRequestDTO,
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page

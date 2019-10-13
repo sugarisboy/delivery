@@ -27,11 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -226,7 +223,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     public ShopStatsResponseDTO stats(ShopStatsDTO shopStatsDTO) {
-        Long shopId = shopStatsDTO.getShopId();
+        Long shopId = shopStatsDTO.getId();
         Shop shop = shopRepository.findById(4L).orElseThrow(
             () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
         );
@@ -234,9 +231,10 @@ public class ShopServiceImpl implements ShopService {
         Instant startDate = shopStatsDTO.getStartDate();
         Instant endDate = shopStatsDTO.getEndDate();
 
-        Double profit = orderRepository.getProfit(startDate, endDate, shop);
+        Double profit = orderRepository.getProfitByShop(startDate, endDate, shop);
 
         return ShopStatsResponseDTO.builder()
+            .id(shopId)
             .profit(profit)
             .build();
     }
