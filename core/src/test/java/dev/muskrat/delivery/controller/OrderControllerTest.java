@@ -61,7 +61,7 @@ public class OrderControllerTest {
             .email(email)
             .build();
 
-        MockHttpServletResponse response = mockMvc.perform(get("/order/page?size=1000")
+        MockHttpServletResponse response = mockMvc.perform(post("/order/page?size=1000")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDTO))

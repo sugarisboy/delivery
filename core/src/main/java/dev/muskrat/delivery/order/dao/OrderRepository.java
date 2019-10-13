@@ -38,9 +38,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "o.created < :endDate and " +
             "o.orderStatus < 10"
     )
-    Double getProfit(
+    Double getProfitByShop(
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate,
         @Param("shop") Shop shop
+    );
+
+    @Query(
+        "SELECT SUM(o.cost) FROM Order o " +
+            "WHERE " +
+            "o.created > :startDate and " +
+            "o.created < :endDate and " +
+            "o.orderStatus < 10"
+    )
+    Double getProfit(
+        @Param("startDate") Instant startDate,
+        @Param("endDate") Instant endDate
     );
 }

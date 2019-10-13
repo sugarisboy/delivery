@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +54,7 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void ShopCreateTest() {
+    public void shopCreateTest() {
         City city = demoData.cities.get(0);
         Long cityId = city.getId();
 
@@ -244,6 +245,33 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
+    public void statsTest() {
+        Shop shop = demoData.shops.get(0);
+        ShopStatsDTO statsDTO = ShopStatsDTO.builder()
+            .id(shop.getId())
+            .endDate(Instant.now())
+            .startDate(Instant.now().minusMillis(10_000_000L))
+            .build();
+
+        String content = mockMvc.perform(post("/shop/stats")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
+            .content(objectMapper.writeValueAsString(statsDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        ShopStatsResponseDTO shopStatsResponseDTO = objectMapper
+            .readValue(content, ShopStatsResponseDTO.class);
+
+        assertTrue(shopStatsResponseDTO.getProfit() > 0);
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
     public void findAllByPage() {
         Long cityId = demoData.cities.get(0).getId();
 
@@ -251,7 +279,7 @@ public class ShopControllerTest {
             .cityId(cityId)
             .build();
 
-        String thirdContent = mockMvc.perform(get("/shop/page?size=100")
+        String thirdContent = mockMvc.perform(post("/shop/page?size=100")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDTO))
