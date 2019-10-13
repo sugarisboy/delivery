@@ -171,17 +171,7 @@
 
             <column name="comments" type="VARCHAR(511)"/>
 
-            <column name="order_status" type="INT"/>
-
             <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -574,6 +564,49 @@
                                  onUpdate="RESTRICT"
                                  referencedColumnNames="id"
                                  referencedTableName="cities"/>
+    </changeSet>
+
+
+
+
+    <changeSet id="1.0.43" author="muskrat.dev">
+        <createTable tableName="orders_status_entries">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="time" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()"/>
+            <column name="status" type="BIGINT" defaultValue="0"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.44" author="muskrat.dev">
+        <createTable tableName="order_status_log">
+
+            <column name="order_id" type="BIGINT"/>
+            <column name="status_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.45" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="order_id"
+                                 baseTableName="order_status_log"
+                                 constraintName="fk_order_status_log_order"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="orders"/>
+    </changeSet>
+
+    <changeSet id="1.0.46" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="status_id"
+                                 baseTableName="order_status_log"
+                                 constraintName="fk_order_status_log_status"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="orders_status_entries"/>
     </changeSet>
     
 </databaseChangeLog>
