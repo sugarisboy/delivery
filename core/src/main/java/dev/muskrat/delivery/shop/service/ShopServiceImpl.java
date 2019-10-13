@@ -3,6 +3,7 @@ package dev.muskrat.delivery.shop.service;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.exception.AddressNotFoundException;
 import dev.muskrat.delivery.components.exception.EntityExistException;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.files.components.FileFormat;
@@ -11,6 +12,7 @@ import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
+import dev.muskrat.delivery.map.service.MappingService;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 public class ShopServiceImpl implements ShopService {
 
     private final FileFormats fileFormats;
+    private final MappingService mappingService;
     private final ShopRepository shopRepository;
     private final CitiesRepository citiesRepository;
     private final FileStorageService fileStorageService;
@@ -56,6 +59,13 @@ public class ShopServiceImpl implements ShopService {
         shop.setName(shopDTO.getName());
         shop.setCity(city);
         shop.setPartner(partner);
+
+        String cityName = city.getName();
+        String address = shopDTO.getAddress();
+        boolean validAddress = mappingService.isValidAddress(cityName, address);
+        if (!validAddress)
+            throw new AddressNotFoundException("Address" + cityName + " " + address + " not found exception");
+        shop.setAddress(address);
 
         RegionDelivery regionDelivery = new RegionDelivery();
         regionDelivery.setAbscissa(new ArrayList<>());
@@ -152,6 +162,18 @@ public class ShopServiceImpl implements ShopService {
 
             City city = cityById.get();
             shop.setCity(city);
+        }
+
+        if (shopUpdateDTO.getAddress() != null) {
+            String address = shopUpdateDTO.getAddress();
+
+            City city = shop.getCity();
+            String cityName = city.getName();
+
+            boolean validAddress = mappingService.isValidAddress(cityName, address);
+            if (!validAddress)
+                throw new AddressNotFoundException("Address" + cityName + " " + address + " not found exception");
+            shop.setAddress(address);
         }
 
         shopRepository.save(shop);

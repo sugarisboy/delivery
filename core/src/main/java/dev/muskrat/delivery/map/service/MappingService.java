@@ -12,4 +12,6 @@ public interface MappingService {
     RegionPoint getPointByAddress(String label);
 
     RegionUpdateResponseDTO updateRegion(RegionUpdateDTO regionUpdateDTO);
+
+    boolean isValidAddress(String city, String label);
 }
