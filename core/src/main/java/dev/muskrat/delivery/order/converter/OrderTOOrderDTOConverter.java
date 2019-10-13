@@ -29,7 +29,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
 
         List<OrderStatusEntryDTO> orderStatusLog = null;
         if (order.getOrderStatusLog() != null) {
-            order.getOrderStatusLog().stream()
+            orderStatusLog = order.getOrderStatusLog().stream()
                 .map(orderStatusTOOrderStatusDTOConverter::convert)
                 .collect(Collectors.toList());
         }
@@ -45,10 +45,10 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .phone(order.getPhone())
             .products(collect)
             .createdTime(Date.from(order.getCreated()))
-            .lastUpdateTime(Date.from(order.getUpdated()))
             .cost(order.getCost())
             .costAndDelivery(order.getCostAndDelivery())
-            .price(order.getPrice())
+            .cost(order.getCost())
+            .costAndDelivery(order.getCostAndDelivery())
             .address(order.getAddress())
             .comments(order.getComments())
             .build();
