@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.shop.dto;
+package dev.muskrat.delivery.admin.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopCreateResponseDTO {
+public class AdminStatsResponseDTO {
 
-    private Long id;
+    private Double profit;
 }

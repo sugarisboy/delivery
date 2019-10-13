@@ -50,7 +50,7 @@ public class OrderController {
 
     // For partner need indicate your shopId in OrderPageRequestDTO
     // For user need indicate your userId in OrderPageRequestDTO
-    @GetMapping("/page")
+    @PostMapping("/page")
     @PreAuthorize("hasAuthority('ADMIN') or" +
         "(hasAuthority('PARTNER') and @orderServiceImpl.isOwnerByShop(authentication, #orderPageRequestDTO.shopId)) or" +
         "(hasAuthority('USER') and @orderServiceImpl.isClientByUser(authentication, #orderPageRequestDTO.userId))")
