@@ -260,17 +260,12 @@ public class DemoData {
                     order.setShop(shop);
                     order.setProducts(Arrays.asList(product1, product2, product3));
                     order.setName(shop.getName() + "-order-" + i);
+                    order.setStatus(0);
 
                     double sum = products.stream().mapToDouble(Product::getPrice).sum();
 
                     order.setCost(sum);
                     order.setCostAndDelivery(sum + 250);
-
-                    if (i == 1) {
-                        order.setOrderStatus(1);
-                    } else if (i == 2) {
-                        order.setOrderStatus(10);
-                    }
 
                     orders.add(order);
                 }

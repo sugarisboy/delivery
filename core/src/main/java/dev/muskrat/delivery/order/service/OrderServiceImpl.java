@@ -58,9 +58,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
     private final OrderStatusTOOrderStatusDTOConverter orderStatusTOOrderStatusDTOConverter;
 
-    private final JdbcTemplate jdbcTemplate;
-    private final EntityManager entityManager;
-
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
@@ -68,6 +65,8 @@ public class OrderServiceImpl implements OrderService {
         Long shopId = orderDTO.getShopId();
         String address = orderDTO.getAddress();
         List<OrderProduct> products = order.getProducts();
+
+        order.setStatus(0);
 
         double orderCost = 0;
         // Check products
@@ -115,12 +114,7 @@ public class OrderServiceImpl implements OrderService {
         OrderCreateEvent orderCreateEvent = new OrderCreateEvent(this, order);
         applicationEventPublisher.publishEvent(orderCreateEvent);
 
-        return OrderDTO.builder()
-            .id(order.getId())
-            .cost(orderCost)
-            .status(order.getOrderStatus())
-            .createdTime(Date.from(order.getCreated()))
-            .build();
+        return orderTOOrderDTOConverter.convert(order);
     }
 
     @Override
@@ -135,13 +129,11 @@ public class OrderServiceImpl implements OrderService {
         orderStatusEntry.setOrder(order);
 
         orderStatusRepository.save(orderStatusEntry);
+        order.setStatus(orderDTO.getStatus());
+        orderRepository.save(order);
 
         Order order1 = orderRepository.findById(id).get();
         Hibernate.initialize(order1.getOrderStatusLog());
-        //Set<OrderStatusEntry> orderStatusLog = order1.getOrderStatusLog();
-        //order.getOrderStatusLog().add(orderStatusEntry);
-
-        System.out.println();
 
         List<OrderStatusEntryDTO> orderStatusLog = order.getOrderStatusLog().stream()
             .map(orderStatusTOOrderStatusDTOConverter::convert)

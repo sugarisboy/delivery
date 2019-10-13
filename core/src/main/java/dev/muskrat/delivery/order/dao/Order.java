@@ -61,6 +61,9 @@ public class Order {
     @Column(name = "comments")
     private String comments;
 
+    @Column(name = "status")
+    private Integer status;
+
     @CreatedDate
     @Column(name = "created")
     private Instant created = Instant.now();

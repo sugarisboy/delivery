@@ -34,7 +34,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "o.shop = :shop and " +
             "o.created > :startDate and " +
             "o.created < :endDate and " +
-            "o.orderStatus < 10"
+            "o.status < 10"
     )
     Double getProfitByShop(
         @Param("startDate") Instant startDate,
@@ -47,7 +47,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "WHERE " +
             "o.created > :startDate and " +
             "o.created < :endDate and " +
-            "o.orderStatus < 10"
+            "o.status < 10"
     )
     Double getProfit(
         @Param("startDate") Instant startDate,
