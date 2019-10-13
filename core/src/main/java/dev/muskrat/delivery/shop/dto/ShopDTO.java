@@ -17,7 +17,8 @@ public class ShopDTO {
     private String name;
     private String address;
     private String description;
-    private Double minOrderPrice;
-    private Double freeOrderPrice;
+    private Double deliveryCost;
+    private Double minOrderCost;
+    private Double freeDeliveryCost;
     private ShopScheduleDTO schedule;
 }

@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.order.dao;
 
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
@@ -42,8 +43,8 @@ public class Order {
     )
     private User user;
 
-    @Column(name = "price")
-    private Double price;
+    @Column(name = "cost")
+    private Double cost;
 
     @Column(name = "phone")
     private String phone;
@@ -71,10 +72,14 @@ public class Order {
     )
     private List<OrderStatusEntry> orderStatusLog;
 
+    @Column(name = "costAndDelivery")
+    private Double costAndDelivery;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "order_shop",
         joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "shop_id", referencedColumnName = "id")}
     )
     private Shop shop;
+
 }

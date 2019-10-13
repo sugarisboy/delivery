@@ -5,29 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import java.time.Instant;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopCreateDTO {
-
-    @NotNull
-    @Size(min = 1, max = 64)
-    private String name;
-
-    @Positive
-    private Long partnerId;
+public class ShopStatsDTO {
 
     @NotNull
     @Positive
-    private Long cityId;
+    private Long id;
 
     @NotNull
-    @Size(min = 3)
-    private String address;
+    private Instant startDate;
+
+    @NotNull
+    private Instant endDate;
 }

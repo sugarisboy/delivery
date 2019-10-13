@@ -36,6 +36,14 @@ public class ShopController {
         return shopService.create(shopCreateDTO, partner);
     }
 
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ShopCreateResponseDTO createWithPartner(
+        @Valid @RequestBody ShopCreateDTO shopCreateDTO
+    ) {
+        return shopService.createWithPartner(shopCreateDTO);
+    }
+
     @PatchMapping("/update")
     @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #shopUpdateDTO.id))")
     public ShopUpdateResponseDTO update(
@@ -59,7 +67,15 @@ public class ShopController {
         );
     }
 
-    @GetMapping("/page")
+    @PostMapping("/stats")
+    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('PARTNER') and @shopServiceImpl.isShopOwner(authentication, #shopStatsDTO.id))")
+    public ShopStatsResponseDTO stats(
+        @Valid @RequestBody ShopStatsDTO shopStatsDTO
+    ) {
+        return shopService.stats(shopStatsDTO);
+    }
+
+    @PostMapping("/page")
     public ShopPageDTO page(
         @Valid @RequestBody(required = false) ShopPageRequestDTO shopPageRequestDTO,
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page

@@ -31,8 +31,11 @@ public class ShopUpdateDTO {
     private String address;
 
     @Positive
-    private Double minOrderPrice;
+    private Double minOrderCost;
 
     @Positive
-    private Double freeOrderPrice;
+    private Double deliveryCost;
+
+    @Positive
+    private Double freeDeliveryCost;
 }

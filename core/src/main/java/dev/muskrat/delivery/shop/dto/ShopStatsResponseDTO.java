@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopCreateResponseDTO {
+public class ShopStatsResponseDTO {
 
     private Long id;
+
+    private Double profit;
 }

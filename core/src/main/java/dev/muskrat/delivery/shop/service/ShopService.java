@@ -27,4 +27,8 @@ public interface ShopService {
     FileStorageUploadDTO updateImg(MultipartFile img, Long shopId);
 
     boolean isShopOwner(Authentication authentication, Long id);
+
+    ShopStatsResponseDTO stats(ShopStatsDTO shopStatsDTO);
+
+    ShopCreateResponseDTO createWithPartner(ShopCreateDTO shopCreateDTO);
 }
