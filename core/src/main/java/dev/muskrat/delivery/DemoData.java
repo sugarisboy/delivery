@@ -13,6 +13,8 @@ import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
+import dev.muskrat.delivery.order.service.OrderService;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.service.PartnerService;
@@ -30,10 +32,13 @@ import org.hibernate.Hibernate;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -54,6 +59,7 @@ public class DemoData {
     private final RoleRepository roleRepository;
     private final PartnerService partnerService;
     private final AuthorizationService authorizationService;
+    private final OrderService orderService;
     private final UserService userService;
 
     public String ACCESS_USER;
@@ -222,7 +228,7 @@ public class DemoData {
                     product.setDescription("description");
                     product.setTitle(shop.getName() + "-prod-" + i);
                     product.setValue(i * 1D);
-                    product.setPrice(i * 10D);
+                    product.setPrice(i * 10D + 0.90D);
                     product.setCategory(category);
                     product.setShop(shop);
 
@@ -246,12 +252,15 @@ public class DemoData {
 
                     OrderProduct product1 = new OrderProduct();
                     product1.setProductId(shop.getProducts().get(0).getId());
+                    product1.setCount(1);
 
                     OrderProduct product2 = new OrderProduct();
                     product2.setProductId(shop.getProducts().get(4).getId());
+                    product2.setCount(2);
 
                     OrderProduct product3 = new OrderProduct();
                     product3.setProductId(shop.getProducts().get(8).getId());
+                    product3.setCount(3);
 
                     order.setCity(city);
                     order.setPhone("+7999666335" + i);
@@ -261,17 +270,43 @@ public class DemoData {
                     order.setProducts(Arrays.asList(product1, product2, product3));
                     order.setName(shop.getName() + "-order-" + i);
                     order.setStatus(0);
+                    if (i == 0)
+                        order.setComments("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 
-                    double sum = products.stream().mapToDouble(Product::getPrice).sum();
+                    double sum = 0;
+                    for (OrderProduct product : order.getProducts()) {
+                        Double price = productRepository.findById(product.getProductId()).get().getPrice();
+                        sum += product.getCount() * price;
+                    }
+
+                    sum = new BigDecimal(sum).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+
+                    double costAndDelivery = sum + 250D;
 
                     order.setCost(sum);
-                    order.setCostAndDelivery(sum + 250);
+                    order.setCostAndDelivery(costAndDelivery);
 
                     orders.add(order);
                 }
             }
         }
         orderRepository.saveAll(orders);
+
+
+        for (int i = 0; i < 4; i++) {
+            for (Order order : orders) {
+                if (ThreadLocalRandom.current().nextBoolean()) {
+                    int status = order.getStatus() == 3 ? 10 : order.getStatus() + 1;
+                    orderService.updateStatus(
+                        OrderUpdateDTO.builder()
+                            .id(order.getId())
+                            .status(status)
+                            .build()
+                    );
+                    order.setStatus(status);
+                }
+            }
+        }
     }
 
     public void update() {

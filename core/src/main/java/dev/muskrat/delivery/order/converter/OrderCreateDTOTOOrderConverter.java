@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.order.converter;
 
 import dev.muskrat.delivery.components.converter.ObjectConverter;
+import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dto.OrderCreateDTO;
@@ -22,7 +23,9 @@ public class OrderCreateDTOTOOrderConverter implements ObjectConverter<OrderCrea
     @Override
     public Order convert(OrderCreateDTO dto) {
         Long shopId = dto.getShopId();
-        Shop shop = shopRepository.findById(shopId).get();
+        Shop shop = shopRepository.findById(shopId).orElseThrow(
+            () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
+        );
 
         Order order = new Order();
         order.setName(dto.getName());
@@ -31,6 +34,7 @@ public class OrderCreateDTOTOOrderConverter implements ObjectConverter<OrderCrea
         order.setEmail(dto.getEmail());
         order.setAddress(dto.getAddress());
         order.setShop(shop);
+        order.setStatus(0);
 
         List<OrderProduct> collect = dto.getProducts().stream()
             .map(orderProductDTOTOOrderProductConverter::convert)
