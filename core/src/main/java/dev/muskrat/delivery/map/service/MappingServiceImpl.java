@@ -47,14 +47,14 @@ public class MappingServiceImpl implements MappingService {
 
     public AutoCompleteResponseDTO autoComplete(String label) {
         String http = UriComponentsBuilder.newInstance()
-            .scheme("http")
-            .host("autocomplete.mapping.api.here.com")
-            .path("/6.2/geocode.json")
+            .scheme("https")
+            .host("autocomplete.geocoder.api.here.com")
+            .path("/6.2/suggest.json")
             .query("app_id=" + APP_ID)
             .query("app_code=" + APP_CODE)
-            .query("country" + COUNTRY)
-            .query("maxresults" + MAX_RESULTS)
-            .query("query" + label)
+            .query("country=" + COUNTRY)
+            .query("maxresults=" + MAX_RESULTS)
+            .query("query=" + label)
             .build().toString();
 
         RestTemplate restTemplate = new RestTemplate();

@@ -4,7 +4,6 @@ import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
-import dev.muskrat.delivery.components.events.order.OrderStatusUpdateEvent;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.components.exception.OrderAmountLowerLowestException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
@@ -22,22 +21,21 @@ import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.hibernate.Hibernate;
-import org.hibernate.Transaction;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import java.sql.Date;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +43,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final static Integer ORDERS_NOT_ACTIVE_BEGIN_WITH = 10;
 
     private final MappingService mappingService;
     private final OrderRepository orderRepository;
@@ -62,53 +59,10 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO create(OrderCreateDTO orderDTO) {
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
-        Long shopId = orderDTO.getShopId();
-        String address = orderDTO.getAddress();
-        List<OrderProduct> products = order.getProducts();
+        calculateCost(order, orderDTO);
+        RegionDelivery region = calculateRegionDelivery(order, orderDTO);
+        calculateCostDelivery(order, region);
 
-        order.setStatus(0);
-
-        double orderCost = 0;
-        // Check products
-        for (OrderProduct orderProduct : products) {
-            Long productId = orderProduct.getProductId();
-            Optional<Product> byId = productRepository.findById(productId);
-            if (byId.isEmpty()) {
-                throw new EntityNotFoundException("Product with id " + productId + " not found");
-            }
-
-            Product product = byId.get();
-            if (product.getShop().getId() != shopId) {
-                throw new RuntimeException("Order contains products from two and more shop");
-            }
-
-            orderCost += product.getPrice() * orderProduct.getCount();
-        }
-        order.setCost(orderCost);
-
-        // Check shopId and set delivery cost
-        Shop shop = shopRepository.findById(shopId).orElseThrow(
-            () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
-        );
-        RegionDelivery region = Optional.of(shop.getRegion()).orElseThrow(
-            () -> new EntityNotFoundException("Region for this shop not found!")
-        );
-
-        if (orderCost < region.getMinOrderCost())
-            throw new OrderAmountLowerLowestException("Order amount lower lowest");
-
-        boolean isFreeDelivery = region.getFreeDeliveryCost() <= orderCost;
-        order.setCostAndDelivery(isFreeDelivery ? orderCost : orderCost + region.getDeliveryCost());
-
-        // Check region delivery
-        RegionPoint pointByAddress = mappingService.getPointByAddress(address);
-        RegionDelivery shopRegion = shop.getRegion();
-        boolean regionAvailable = shopRegion.isRegionAvailable(pointByAddress);
-        if (!regionAvailable)
-            throw new RuntimeException("Out of delivery area");
-
-        City city = shop.getCity();
-        order.setCity(city);
         order = orderRepository.save(order);
 
         OrderCreateEvent orderCreateEvent = new OrderCreateEvent(this, order);
@@ -262,5 +216,61 @@ public class OrderServiceImpl implements OrderService {
         Long shopOwnerId = user.getId();
 
         return shopOwnerId.longValue() == senderId.longValue();
+    }
+
+    private void calculateCost(Order order, OrderCreateDTO orderDTO) {
+        List<OrderProduct> products = order.getProducts();
+        Long shopId = orderDTO.getShopId();
+
+        double orderCost = 0;
+        for (OrderProduct orderProduct : products) {
+            Long productId = orderProduct.getProductId();
+            Optional<Product> byId = productRepository.findById(productId);
+            if (byId.isEmpty()) {
+                throw new EntityNotFoundException("Product with id " + productId + " not found");
+            }
+
+            Product product = byId.get();
+            if (product.getShop().getId() != shopId) {
+                throw new RuntimeException("Order contains products from two and more shop");
+            }
+
+            orderCost += product.getPrice() * orderProduct.getCount();
+        }
+        orderCost = new BigDecimal(orderCost).setScale(2, RoundingMode.HALF_EVEN ).doubleValue();
+        order.setCost(orderCost);
+    }
+
+    private RegionDelivery calculateRegionDelivery(Order order, OrderCreateDTO orderDTO) {
+        Long shopId = orderDTO.getShopId();
+        Shop shop = shopRepository.findById(shopId).orElseThrow(
+            () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
+        );
+        RegionDelivery region = Optional.of(shop.getRegion()).orElseThrow(
+            () -> new EntityNotFoundException("Region for this shop not found!")
+        );
+
+        String address = order.getAddress();
+
+        RegionPoint pointByAddress = mappingService.getPointByAddress(address);
+        boolean regionAvailable = region.isRegionAvailable(pointByAddress);
+        if (!regionAvailable)
+            throw new RuntimeException("Out of delivery area");
+
+        City city = shop.getCity();
+        order.setCity(city);
+
+        return region;
+    }
+
+    private void calculateCostDelivery(Order order, RegionDelivery region) {
+        Double orderCost = order.getCost();
+        if (orderCost < region.getMinOrderCost())
+            throw new OrderAmountLowerLowestException("Order amount lower lowest");
+
+        boolean isFreeDelivery = region.getFreeDeliveryCost() <= orderCost;
+        double costWithDelivery = isFreeDelivery ? orderCost : orderCost + region.getDeliveryCost();
+        costWithDelivery = new BigDecimal(costWithDelivery).setScale(2, RoundingMode.HALF_EVEN ).doubleValue();
+        order.setCostAndDelivery(costWithDelivery);
     }
 }

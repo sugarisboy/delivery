@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .collect(Collectors.toList());
 
 
-        List<OrderStatusEntryDTO> orderStatusLog = null;
+        List<OrderStatusEntryDTO> orderStatusLog = new ArrayList<>();
         if (order.getOrderStatusLog() != null) {
             orderStatusLog = order.getOrderStatusLog().stream()
                 .map(orderStatusTOOrderStatusDTOConverter::convert)
@@ -51,6 +52,7 @@ public class OrderTOOrderDTOConverter implements ObjectConverter<Order, OrderDTO
             .costAndDelivery(order.getCostAndDelivery())
             .address(order.getAddress())
             .comments(order.getComments())
+            .localStatus(order.getStatus())
             .build();
     }
 }

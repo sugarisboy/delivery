@@ -30,6 +30,7 @@ public class OrderDTO {
     private Double cost;
     private Double costAndDelivery;
     private Date createdTime;
+    private Integer localStatus;
 
     private String comments;
 }
