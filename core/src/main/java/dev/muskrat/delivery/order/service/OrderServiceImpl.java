@@ -5,6 +5,7 @@ import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.components.exception.NotCancelableOrderException;
 import dev.muskrat.delivery.components.exception.OrderAmountLowerLowestException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
@@ -23,13 +24,16 @@ import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -43,7 +47,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-
     private final MappingService mappingService;
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
@@ -54,6 +57,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderCreateDTOTOOrderConverter orderCreateDTOTOOrderConverter;
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
     private final OrderStatusTOOrderStatusDTOConverter orderStatusTOOrderStatusDTOConverter;
+
+    @Value("${application.order.irrevocable-status}")
+    private Integer irrevocableStatus;
 
     @Override
     public OrderDTO create(OrderCreateDTO orderDTO) {
@@ -72,10 +78,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO updateStatus(OrderUpdateDTO orderDTO) {
+    public OrderDTO updateStatus(OrderUpdateDTO orderDTO, boolean isClient) {
         Long id = orderDTO.getId();
         Order order = orderRepository.findById(id)
             .orElseThrow(()-> new EntityNotFoundException("Order with id " + id + " not found"));
+
+        if (isClient && order.getStatus() >= irrevocableStatus)
+            throw new NotCancelableOrderException("This order already don't be cancel");
 
         OrderStatusEntry orderStatusEntry = new OrderStatusEntry();
         orderStatusEntry.setUpdatedTime(Instant.now());
@@ -186,9 +195,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderDTO cancel(Long orderId) {
+        return updateStatus(
+            OrderUpdateDTO.builder()
+                .id(orderId)
+                .status(11)
+                .build()
+        , true);
+    }
+
+    @Override
     public boolean isClientByOrder(Authentication authentication, Long orderId) {
         if (orderId == null)
             return false;
+
+        JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+        Long senderId = jwtUser.getId();
 
         Optional<Order> byId = orderRepository.findById(orderId);
         if (byId.isEmpty())
@@ -196,7 +218,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = byId.get();
 
         User user = order.getUser();
-        return user.getId().longValue() == orderId;
+        return user.getId().longValue() == senderId;
     }
 
     @Override

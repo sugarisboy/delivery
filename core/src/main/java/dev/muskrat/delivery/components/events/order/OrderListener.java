@@ -28,7 +28,7 @@ public class OrderListener {
         if (user == null) {
             user = userRepository
                 .findByEmail(order.getEmail())
-                .orElse(registerUser(order));
+                .orElseGet(() -> registerUser(order));
         }
         order.setUser(user);
     }

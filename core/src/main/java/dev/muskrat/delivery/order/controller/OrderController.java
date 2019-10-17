@@ -27,13 +27,21 @@ public class OrderController {
         return orderService.create(orderDTO);
     }
 
+    @GetMapping("/cancel/{id}")
+    @PreAuthorize("(hasAuthority('USER') and @orderServiceImpl.isClientByOrder(authentication, #id))")
+    public OrderDTO cancelOrder(
+        @NotNull @PathVariable Long id
+    ) {
+        return orderService.cancel(id);
+    }
+
     @PatchMapping("/update")
     @PreAuthorize("hasAuthority('ADMIN') or" +
         "(hasAuthority('PARTNER') and @orderServiceImpl.isOwnerByOrder(authentication, #orderDTO.id))")
     public OrderDTO orderStatusUpdate(
         @Valid @RequestBody OrderUpdateDTO orderDTO
     ) {
-        return orderService.updateStatus(orderDTO);
+        return orderService.updateStatus(orderDTO, false);
     }
 
     @GetMapping("/{id}")

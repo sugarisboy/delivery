@@ -8,6 +8,8 @@ application:
     token:
       secret: '5HwEKY7Y8jOfzGYK'
       expired: 3600000
+  order:
+    irrevocable-status: 5
 geocode:
   app.id: 'PwhAzeVFHuSMGdcjtFvQ'
   app.code: 'yE6QWws10hfiJKPyLE-hIQ'

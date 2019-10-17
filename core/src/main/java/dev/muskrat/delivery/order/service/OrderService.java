@@ -23,7 +23,7 @@ public interface OrderService {
      * 10 - Done
      * 11 - Cancel
      */
-    OrderDTO updateStatus(OrderUpdateDTO orderDTO);
+    OrderDTO updateStatus(OrderUpdateDTO orderDTO, boolean isClient);
 
     Optional<OrderDTO> findById(Long id);
 
@@ -36,4 +36,6 @@ public interface OrderService {
     boolean isClientByOrder(Authentication authentication, Long orderId);
 
     boolean isClientByUser(Authentication authentication, Long userId);
+
+    OrderDTO cancel(Long orderId);
 }

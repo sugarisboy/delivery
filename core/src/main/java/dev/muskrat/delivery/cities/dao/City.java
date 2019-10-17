@@ -39,7 +39,7 @@ public class City {
 
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_orders",
+    @JoinTable(name = "city_users",
         joinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
     )

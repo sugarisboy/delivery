@@ -92,6 +92,29 @@ public class OrderControllerTest {
     @Test
     @SneakyThrows
     @Transactional
+    public void cancelOrder() {
+        Order order = demoData.orders.get(0);
+        Long orderId = order.getId();
+
+        MockHttpServletResponse response = mockMvc.perform(get("/order/cancel/" + orderId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_USER)
+            .header("Key", demoData.KEY_USER)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+
+        OrderDTO orderDTO = objectMapper
+            .readValue(response.getContentAsString(), OrderDTO.class);
+
+        Order updated = orderRepository.findById(orderId).get();
+
+        assertEquals(11, updated.getStatus().intValue());
+    }
+
+    @Test
+    @SneakyThrows
     public void orderCreateSuccessfulTest() {
         Shop shop = demoData.shops.get(0);
         Long shopId = shop.getId();

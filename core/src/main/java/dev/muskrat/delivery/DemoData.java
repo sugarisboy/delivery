@@ -10,9 +10,12 @@ import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.loaders.SecureLoader;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
+import dev.muskrat.delivery.order.converter.OrderProductTOOrderProductDTOConverter;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dto.OrderCreateDTO;
+import dev.muskrat.delivery.order.dto.OrderProductDTO;
 import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
 import dev.muskrat.delivery.order.service.OrderService;
 import dev.muskrat.delivery.partner.dao.Partner;
@@ -32,13 +35,13 @@ import org.hibernate.Hibernate;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -61,6 +64,8 @@ public class DemoData {
     private final AuthorizationService authorizationService;
     private final OrderService orderService;
     private final UserService userService;
+
+    private final OrderProductTOOrderProductDTOConverter orderProductTOOrderProductDTOConverter;
 
     public String ACCESS_USER;
     public String ACCESS_ADMIN;
@@ -240,58 +245,42 @@ public class DemoData {
     }
 
     public void generateOrder() {
-        orders = new ArrayList<>();
+        for (Shop shop : shops) {
+            for (int i = 0; i < 3; i++) {
+                OrderProduct product1 = new OrderProduct();
+                product1.setProductId(shop.getProducts().get(0).getId());
+                product1.setCount(1);
 
-        Shop shop1 = shopRepository.findAll().get(0);
-        List<Product> products = shop1.getProducts();
+                OrderProduct product2 = new OrderProduct();
+                product2.setProductId(shop.getProducts().get(4).getId());
+                product2.setCount(2);
 
-        for (City city : cities) {
-            for (Shop shop : shops) {
-                for (int i = 0; i < 3; i++) {
-                    Order order = new Order();
+                OrderProduct product3 = new OrderProduct();
+                product3.setProductId(shop.getProducts().get(8).getId());
+                product3.setCount(3);
 
-                    OrderProduct product1 = new OrderProduct();
-                    product1.setProductId(shop.getProducts().get(0).getId());
-                    product1.setCount(1);
+                List<OrderProductDTO> collect = Stream.of(product1, product2, product3)
+                    .map(orderProductTOOrderProductDTOConverter::convert)
+                    .collect(Collectors.toList());
 
-                    OrderProduct product2 = new OrderProduct();
-                    product2.setProductId(shop.getProducts().get(4).getId());
-                    product2.setCount(2);
+                OrderCreateDTO.OrderCreateDTOBuilder build = OrderCreateDTO.builder()
+                    .userId(users.get(1).getId())
+                    .phone("+7999666335" + i)
+                    .email("user@gmail.com")
+                    .address("Jalan Teoh Kim Swee, 4")
+                    .shopId(shop.getId())
+                    .products(collect)
+                    .name(shop.getName() + "-order-" + i);
 
-                    OrderProduct product3 = new OrderProduct();
-                    product3.setProductId(shop.getProducts().get(8).getId());
-                    product3.setCount(3);
+                if (i == 0)
+                    build = build.comment("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 
-                    order.setCity(city);
-                    order.setPhone("+7999666335" + i);
-                    order.setEmail("mail-" + i + "@cat.frog");
-                    order.setAddress("Jalan Teoh Kim Swee, 4");
-                    order.setShop(shop);
-                    order.setProducts(Arrays.asList(product1, product2, product3));
-                    order.setName(shop.getName() + "-order-" + i);
-                    order.setStatus(0);
-                    if (i == 0)
-                        order.setComments("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
-
-                    double sum = 0;
-                    for (OrderProduct product : order.getProducts()) {
-                        Double price = productRepository.findById(product.getProductId()).get().getPrice();
-                        sum += product.getCount() * price;
-                    }
-
-                    sum = new BigDecimal(sum).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-
-                    double costAndDelivery = sum + 250D;
-
-                    order.setCost(sum);
-                    order.setCostAndDelivery(costAndDelivery);
-
-                    orders.add(order);
-                }
+                OrderCreateDTO orderCreateDTO = build.build();
+                orderService.create(orderCreateDTO);
             }
         }
-        orderRepository.saveAll(orders);
 
+        update();
 
         for (int i = 0; i < 4; i++) {
             for (Order order : orders) {
@@ -302,7 +291,7 @@ public class DemoData {
                             .id(order.getId())
                             .status(status)
                             .build()
-                    );
+                    , false);
                     order.setStatus(status);
                 }
             }

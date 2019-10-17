@@ -7,6 +7,7 @@ import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.dao.Partner;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -48,7 +49,7 @@ public class User extends BaseEntity {
     )
     private Partner partner;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "city_users",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
