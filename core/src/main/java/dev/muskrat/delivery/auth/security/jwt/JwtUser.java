@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 
@@ -22,7 +23,7 @@ public class JwtUser implements UserDetails {
     private final String lastName;
 
     @Getter
-    private final Date lastPasswordResetDate;
+    private final Instant lastPasswordResetDate;
 
     private final String password;
     private final String username;
@@ -37,7 +38,7 @@ public class JwtUser implements UserDetails {
         String password,
         String email,
         boolean enabled,
-        Date lastPasswordResetDate,
+        Instant lastPasswordResetDate,
         Collection<? extends GrantedAuthority> authorities
     ) {
         this.id = id;

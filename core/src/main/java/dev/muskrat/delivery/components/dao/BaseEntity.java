@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -20,11 +21,11 @@ public class BaseEntity {
 
     @CreatedDate
     @Column(name = "created")
-    private Date created;
+    private Instant created;
 
     @LastModifiedDate
     @Column(name = "updated")
-    private Date updated;
+    private Instant updated;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

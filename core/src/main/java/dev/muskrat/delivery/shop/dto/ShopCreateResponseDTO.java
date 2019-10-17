@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class ShopCreateResponseDTO {
 
     private Long id;
-
 }

@@ -20,14 +20,17 @@ public class OrderDTO {
     private Long id;
 
     private List<OrderProductDTO> products;
+    private List<OrderStatusEntryDTO> status;
 
     private String phone;
     private String address;
     private String name;
     private String email;
     private Long shopId;
-    private Integer status;
+    private Double cost;
+    private Double costAndDelivery;
     private Date createdTime;
+    private Integer localStatus;
 
     private String comments;
 }

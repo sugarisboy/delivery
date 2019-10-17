@@ -1,6 +1,6 @@
 package dev.muskrat.delivery.components.exception;
 
-import dev.muskrat.delivery.components.exception.dto.JwtAccessDeniedExceptionDTO;
+import dev.muskrat.delivery.components.exception.dto.RuntimeExceptionDTO;
 import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -65,25 +65,27 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, exception, headers, status, request);
     }
 
-    @ExceptionHandler(value = { AccessDeniedException.class })
-    public ResponseEntity<Object> commence(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<Object> commence(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           AccessDeniedException accessDeniedException) throws IOException {
 
         StackTraceElement[] stackTrace = accessDeniedException.getStackTrace();
         List<StackTraceElement> collect = Arrays.stream(stackTrace)
             .filter(trace -> trace.getClassName().contains("dev.muskrat"))
             .collect(Collectors.toList());
 
-        JwtAccessDeniedExceptionDTO jwtAccessDeniedExceptionDTO;
+        RuntimeExceptionDTO jwtAccessDeniedExceptionDTO;
         if (collect.size() != 0) {
             StackTraceElement stackTraceElement = collect.get(0);
-             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
-                .message("Access denied")
+            jwtAccessDeniedExceptionDTO = RuntimeExceptionDTO.builder()
+                .message(accessDeniedException.getMessage())
                 .clazz(stackTraceElement.getClassName())
                 .method(stackTraceElement.getMethodName())
                 .build();
         } else {
-            jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
-                .message("Access denied")
+            jwtAccessDeniedExceptionDTO = RuntimeExceptionDTO.builder()
+                .message(accessDeniedException.getMessage())
                 .build();
         }
 
@@ -93,24 +95,24 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
             .body(jwtAccessDeniedExceptionDTO);
     }
 
-    @ExceptionHandler(value = { AuthenticationCredentialsNotFoundException.class })
-    public ResponseEntity<Object> commence(HttpServletRequest request, HttpServletResponse response, AuthenticationCredentialsNotFoundException ex) throws IOException {
+    @ExceptionHandler(value = {AuthenticationCredentialsNotFoundException.class})
+    public ResponseEntity<Object> commence(AuthenticationCredentialsNotFoundException ex) {
 
         StackTraceElement[] stackTrace = ex.getStackTrace();
         List<StackTraceElement> collect = Arrays.stream(stackTrace)
             .filter(trace -> trace.getClassName().contains("dev.muskrat"))
             .collect(Collectors.toList());
 
-        JwtAccessDeniedExceptionDTO jwtAccessDeniedExceptionDTO;
+        RuntimeExceptionDTO jwtAccessDeniedExceptionDTO;
         if (collect.size() != 0) {
             StackTraceElement stackTraceElement = collect.get(0);
-             jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
+            jwtAccessDeniedExceptionDTO = RuntimeExceptionDTO.builder()
                 .message("Access denied: only authorized")
                 .clazz(stackTraceElement.getClassName())
                 .method(stackTraceElement.getMethodName())
                 .build();
         } else {
-            jwtAccessDeniedExceptionDTO = JwtAccessDeniedExceptionDTO.builder()
+            jwtAccessDeniedExceptionDTO = RuntimeExceptionDTO.builder()
                 .message("Access denied: only authorized")
                 .build();
         }
@@ -119,5 +121,27 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
             .status(HttpServletResponse.SC_FORBIDDEN)
             .contentType(MediaType.APPLICATION_JSON)
             .body(jwtAccessDeniedExceptionDTO);
+    }
+
+    @ExceptionHandler(value = {EntityExistException.class})
+    public ResponseEntity<Object> commence(RuntimeException ex) {
+
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        List<StackTraceElement> collect = Arrays.stream(stackTrace)
+            .filter(trace -> trace.getClassName().contains("dev.muskrat"))
+            .collect(Collectors.toList());
+        StackTraceElement stackTraceElement = collect.get(0);
+
+
+        RuntimeExceptionDTO exceptionDTO = RuntimeExceptionDTO.builder()
+            .message(ex.getMessage())
+            .clazz(stackTraceElement.getClassName())
+            .method(stackTraceElement.getMethodName())
+            .build();
+
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(exceptionDTO);
     }
 }

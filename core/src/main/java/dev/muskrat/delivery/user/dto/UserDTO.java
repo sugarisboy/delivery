@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.auth.dto;
+package dev.muskrat.delivery.user.dto;
 
 import dev.muskrat.delivery.partner.dto.PartnerDTO;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDTO {
 
+    private Long cityId;
     private String firstName;
     private String lastName;
     private String email;

@@ -1,20 +1,23 @@
 package dev.muskrat.delivery;
 
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dto.UserLoginDTO;
 import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.service.AuthorizationService;
-import dev.muskrat.delivery.auth.service.UserService;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.components.loaders.SecureLoader;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
+import dev.muskrat.delivery.order.converter.OrderProductTOOrderProductDTOConverter;
 import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dto.OrderCreateDTO;
+import dev.muskrat.delivery.order.dto.OrderProductDTO;
+import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
+import dev.muskrat.delivery.order.service.OrderService;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.service.PartnerService;
@@ -24,26 +27,28 @@ import dev.muskrat.delivery.product.dao.Product;
 import dev.muskrat.delivery.product.dao.ProductRepository;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
+import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
+@DependsOn({"secureLoader"})
 public class DemoData {
 
-    private final EntityManager entityManager;
+    private final SecureLoader secureLoader;
 
     private final UserRepository userRepository;
     private final RegionDeliveryRepository regionDeliveryRepository;
@@ -57,11 +62,18 @@ public class DemoData {
     private final RoleRepository roleRepository;
     private final PartnerService partnerService;
     private final AuthorizationService authorizationService;
+    private final OrderService orderService;
     private final UserService userService;
+
+    private final OrderProductTOOrderProductDTOConverter orderProductTOOrderProductDTOConverter;
 
     public String ACCESS_USER;
     public String ACCESS_ADMIN;
     public String ACCESS_PARTNER;
+
+    public String KEY_USER;
+    public String KEY_ADMIN;
+    public String KEY_PARTNER;
 
     public RegionDelivery regionDelivery;
     public Partner partner;
@@ -74,9 +86,7 @@ public class DemoData {
     public List<Role> roles;
     public List<User> users;
 
-    @EventListener
-    public void appReady(ApplicationReadyEvent event) {
-
+    public void load() {
         generateUser();
         update();
 
@@ -101,16 +111,6 @@ public class DemoData {
 
     private void generateUser() {
 
-        Arrays.stream(Role.Name.values())
-            .map(Role.Name::getName)
-            .forEach(
-                roleName -> {
-                    Role role = new Role();
-                    role.setName(roleName);
-                    roleRepository.save(role);
-                }
-        );
-
         roles = roleRepository.findAll();
 
         // Create default user
@@ -125,27 +125,21 @@ public class DemoData {
         user = new User();
         user.setEmail("part@gmail.com");
         user.setPassword("test");
-        user.setRoles(Arrays.asList(roles.get(0)));
+        user.setRoles(Arrays.asList(roles.get(0), roles.get(1)));
         user = userService.register(user);
 
         partnerService.create(user);
 
-        // Create admin
-        user = new User();
-        user.setEmail("admin@gmail.com");
-        user.setPassword("test");
-        user = userService.register(user);
-
-        user.setRoles(Arrays.asList(roles.get(0), roles.get(2)));
-        userRepository.save(user);
-
         UserLoginResponseDTO userDTO = authorizationService.login(UserLoginDTO.builder().username("user@gmail.com").password("test").build());
         UserLoginResponseDTO partnerDTO = authorizationService.login(UserLoginDTO.builder().username("part@gmail.com").password("test").build());
-        UserLoginResponseDTO adminDTO = authorizationService.login(UserLoginDTO.builder().username("admin@gmail.com").password("test").build());
 
         ACCESS_USER = "Bearer_" + userDTO.getAccess();
-        ACCESS_ADMIN = "Bearer_" + adminDTO.getAccess();
         ACCESS_PARTNER = "Bearer_" + partnerDTO.getAccess();
+        ACCESS_ADMIN = "Bearer_" + secureLoader.getLoginAdminDTO().getAccess();
+
+        KEY_USER = userDTO.getKey();
+        KEY_PARTNER = partnerDTO.getKey();
+        KEY_ADMIN = secureLoader.getLoginAdminDTO().getKey();
     }
 
     private void generateCategory() {
@@ -161,6 +155,10 @@ public class DemoData {
     private void generateCities() {
         cities = new ArrayList<>();
 
+        City sibu = new City();
+        sibu.setName("Sibu");
+        cities.add(sibu);
+
         for (int i = 1; i < 3; i++) {
             City city = new City();
             city.setName("city-" + i);
@@ -168,6 +166,12 @@ public class DemoData {
         }
 
         citiesRepository.saveAll(cities);
+
+        City random = cities.get(0);
+        for (User user : users) {
+            user.setCity(random);
+            userRepository.save(user);
+        }
     }
 
     private RegionDelivery generateRegionDelivery() {
@@ -182,13 +186,17 @@ public class DemoData {
 
         for (City city : cities) {
             for (int i = 0; i < 3; i++) {
+                RegionDelivery region = generateRegionDelivery();
+                region.setMinOrderCost((i + 1) * 10D);
+                region.setDeliveryCost((i + 1) * 15D);
+                region.setFreeDeliveryCost((i + 1) * 20D);
+                region = regionDeliveryRepository.save(region);
+
                 Shop shop = new Shop();
                 shop.setName(city.getName() + "-shop-" + i);
                 shop.setCity(city);
                 shop.setPartner(partner);
-                shop.setMinOrderPrice(i * 100D);
-                shop.setFreeOrderPrice(i * 200D);
-                shop.setRegion(generateRegionDelivery());
+                shop.setRegion(region);
                 shop.setOpen(Arrays.asList(
                     LocalTime.of(9, 0),
                     LocalTime.of(9, 0),
@@ -225,7 +233,7 @@ public class DemoData {
                     product.setDescription("description");
                     product.setTitle(shop.getName() + "-prod-" + i);
                     product.setValue(i * 1D);
-                    product.setPrice(i * 10D);
+                    product.setPrice(i * 10D + 0.90D);
                     product.setCategory(category);
                     product.setShop(shop);
 
@@ -237,44 +245,57 @@ public class DemoData {
     }
 
     public void generateOrder() {
-        orders = new ArrayList<>();
+        for (Shop shop : shops) {
+            for (int i = 0; i < 3; i++) {
+                OrderProduct product1 = new OrderProduct();
+                product1.setProductId(shop.getProducts().get(0).getId());
+                product1.setCount(1);
 
-        Shop shop1 = shopRepository.findAll().get(0);
-        List<Product> products = shop1.getProducts();
+                OrderProduct product2 = new OrderProduct();
+                product2.setProductId(shop.getProducts().get(4).getId());
+                product2.setCount(2);
 
-        for (City city : cities) {
-            for (Shop shop : shops) {
-                for (int i = 0; i < 3; i++) {
-                    Order order = new Order();
+                OrderProduct product3 = new OrderProduct();
+                product3.setProductId(shop.getProducts().get(8).getId());
+                product3.setCount(3);
 
-                    OrderProduct product1 = new OrderProduct();
-                    product1.setProductId(shop.getProducts().get(0).getId());
+                List<OrderProductDTO> collect = Stream.of(product1, product2, product3)
+                    .map(orderProductTOOrderProductDTOConverter::convert)
+                    .collect(Collectors.toList());
 
-                    OrderProduct product2 = new OrderProduct();
-                    product2.setProductId(shop.getProducts().get(4).getId());
+                OrderCreateDTO.OrderCreateDTOBuilder build = OrderCreateDTO.builder()
+                    .userId(users.get(1).getId())
+                    .phone("+7999666335" + i)
+                    .email("user@gmail.com")
+                    .address("Jalan Teoh Kim Swee, 4")
+                    .shopId(shop.getId())
+                    .products(collect)
+                    .name(shop.getName() + "-order-" + i);
 
-                    OrderProduct product3 = new OrderProduct();
-                    product3.setProductId(shop.getProducts().get(8).getId());
+                if (i == 0)
+                    build = build.comment("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 
-                    order.setCity(city);
-                    order.setPhone("+7999666335" + i);
-                    order.setEmail("mail-" + i + "@cat.frog");
-                    order.setAddress("Jalan Teoh Kim Swee, 4");
-                    order.setShop(shop);
-                    order.setProducts(Arrays.asList(product1, product2, product3));
-                    order.setName(shop.getName() + "-order-" + i);
+                OrderCreateDTO orderCreateDTO = build.build();
+                orderService.create(orderCreateDTO);
+            }
+        }
 
-                    if (i == 1) {
-                        order.setOrderStatus(1);
-                    } else if (i == 2) {
-                        order.setOrderStatus(10);
-                    }
+        update();
 
-                    orders.add(order);
+        for (int i = 0; i < 4; i++) {
+            for (Order order : orders) {
+                if (ThreadLocalRandom.current().nextBoolean()) {
+                    int status = order.getStatus() == 3 ? 10 : order.getStatus() + 1;
+                    orderService.updateStatus(
+                        OrderUpdateDTO.builder()
+                            .id(order.getId())
+                            .status(status)
+                            .build()
+                    , false);
+                    order.setStatus(status);
                 }
             }
         }
-        orderRepository.saveAll(orders);
     }
 
     public void update() {
@@ -289,6 +310,6 @@ public class DemoData {
         products = productRepository.findAll();
         categories = categoryRepository.findAll();
 
-        partner = partnerRepository.findAll().get(0);
+        partner = partnerRepository.findByUser(users.get(2)).get();
     }
 }

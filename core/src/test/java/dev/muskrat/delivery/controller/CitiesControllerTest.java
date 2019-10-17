@@ -54,6 +54,7 @@ public class CitiesControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
             .content(objectMapper.writeValueAsString(cityCreateDTO))
         )
             .andExpect(status().isOk())
@@ -87,6 +88,7 @@ public class CitiesControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
             .content(objectMapper.writeValueAsString(cityUpdateDTO))
         )
             .andExpect(status().isOk())
@@ -114,6 +116,7 @@ public class CitiesControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();

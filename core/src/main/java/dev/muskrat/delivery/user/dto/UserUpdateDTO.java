@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.auth.dto;
+package dev.muskrat.delivery.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,4 +31,7 @@ public class UserUpdateDTO {
 
     @Size(min = 3)
     private String firstName;
+
+    @Positive
+    private Long cityId;
 }

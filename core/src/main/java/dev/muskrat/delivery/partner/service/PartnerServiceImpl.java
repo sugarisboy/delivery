@@ -1,14 +1,14 @@
 package dev.muskrat.delivery.partner.service;
 
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Role;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
-import dev.muskrat.delivery.partner.dto.*;
+import dev.muskrat.delivery.partner.dto.PartnerRegisterResponseDTO;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -45,19 +45,6 @@ public class PartnerServiceImpl implements PartnerService {
             .id(executor.getId())
             .build();
     }
-
-    /*@Override
-    public PartnerRegisterResponseDTO createByOrder(Order order) {
-        PartnerRegisterDTO partnerRegisterDTO = PartnerRegisterDTO.builder()
-            .email(order.getEmail())
-            .name(order.getName())
-            .phone(order.getPhone())
-            // TODO: Fix it. How here generate password?
-            .password("password")
-            .passwordRepeat("password")
-            .build();
-        return create(partnerRegisterDTO);
-    }*/
 
     @Override
     public boolean isCurrentPartner(Authentication authentication, Long id) {

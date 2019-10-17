@@ -1,19 +1,22 @@
-package dev.muskrat.delivery.auth.service;
+package dev.muskrat.delivery.user.service;
 
-import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
 import dev.muskrat.delivery.auth.dao.Role;
 import dev.muskrat.delivery.auth.dao.Status;
-import dev.muskrat.delivery.auth.dto.UserDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateDTO;
-import dev.muskrat.delivery.auth.dto.UserUpdateResponseDTO;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.repository.RoleRepository;
+import dev.muskrat.delivery.cities.dao.CitiesRepository;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
+import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.dto.UserDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateDTO;
+import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,17 +26,18 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final RoleRepository roleRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final CitiesRepository citiesRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
 
     @Override
     public User register(User user) {
         String userRoleName = Role.Name.USER.getName();
-        Optional<Role> byName = roleRepository.findByName(Role.Name.USER.getName());
-        if (byName.isEmpty())
-            throw new EntityNotFoundException("Role with name " + userRoleName + " not found");
-        Role role = byName.get();
+        Role.Name roleUser = Role.Name.USER;
+        Role role = roleRepository
+            .findByName(roleUser.getName())
+            .orElseThrow(()-> new EntityNotFoundException("Role with name " + userRoleName + " not found"));
 
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(role);
@@ -45,6 +49,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user);
     }
+
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
@@ -56,29 +61,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO findById(Long id, String authorization) {
-        User executor = jwtAuthorizationToUserConverter.convert(authorization);
+    public UserDTO findById(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
+        City city = user.getCity();
+        Long cityId = city.getId();
 
-        Optional<User> byId = userRepository.findById(id);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("User with id " + id + " not found");
-        User user = byId.get();
-
-
-
-        if (executor.getId() == user.getId()) {
-            return UserDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .build();
-        } else {
-            return UserDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .build();
-        }
+        return UserDTO.builder()
+            .firstName(user.getFirstName())
+            .lastName(user.getLastName())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .cityId(cityId)
+            .build();
     }
 
     @Override
@@ -101,11 +96,17 @@ public class UserServiceImpl implements UserService {
         if (userUpdateDTO.getPhone() != null)
             user.setPhone(userUpdateDTO.getPhone());
 
+        if (userUpdateDTO.getCityId() != null) {
+            Long cityId = userUpdateDTO.getCityId();
+            City city = citiesRepository.findById(cityId)
+                .orElseThrow(() -> new EntityNotFoundException("City with id " + cityId + " not found"));
+            user.setCity(city);
+        }
+
         userRepository.save(user);
 
         return UserUpdateResponseDTO.builder()
             .id(user.getId())
             .build();
-
     }
 }

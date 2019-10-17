@@ -23,11 +23,19 @@ public interface OrderService {
      * 10 - Done
      * 11 - Cancel
      */
-    OrderDTO updateStatus(OrderUpdateDTO orderDTO);
+    OrderDTO updateStatus(OrderUpdateDTO orderDTO, boolean isClient);
 
     Optional<OrderDTO> findById(Long id);
 
     OrderPageDTO findAll(OrderPageRequestDTO orderPageRequestDTO, Pageable pageable);
 
-    boolean isOwner(Authentication authentication, Long id);
+    boolean isOwnerByOrder(Authentication authentication, Long orderId);
+
+    boolean isOwnerByShop(Authentication authentication, Long shopId);
+
+    boolean isClientByOrder(Authentication authentication, Long orderId);
+
+    boolean isClientByUser(Authentication authentication, Long userId);
+
+    OrderDTO cancel(Long orderId);
 }

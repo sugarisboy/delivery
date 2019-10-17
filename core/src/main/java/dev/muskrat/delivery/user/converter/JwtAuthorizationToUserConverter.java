@@ -1,11 +1,10 @@
-package dev.muskrat.delivery.auth.converter;
+package dev.muskrat.delivery.user.converter;
 
-import dev.muskrat.delivery.auth.dao.User;
-import dev.muskrat.delivery.auth.repository.UserRepository;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
-import dev.muskrat.delivery.components.converter.ObjectConverter;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
 import dev.muskrat.delivery.components.exception.JwtTokenExpiredException;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -14,18 +13,18 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthorizationToUserConverter implements ObjectConverter<String, User> {
+public class JwtAuthorizationToUserConverter {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Override
-    public User convert(String authorization) {
+    public User convert(String key, String authorization) {
         String resolveToken = jwtTokenProvider.resolveToken(authorization);
         if (resolveToken == null)
             throw new JwtAuthenticationException("Jwt auth exception");
 
-        if (!jwtTokenProvider.validateToken(resolveToken))
+        if (!jwtTokenProvider.validateRefreshToken(key, resolveToken) &&
+            !jwtTokenProvider.validateAccessToken(key, resolveToken))
             throw new JwtTokenExpiredException("Token is expired");
 
         String username = jwtTokenProvider.getUsername(resolveToken);

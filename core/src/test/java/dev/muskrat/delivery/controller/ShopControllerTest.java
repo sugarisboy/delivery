@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.shop.dao.Shop;
@@ -22,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -54,19 +54,21 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
-    public void ShopCreateTest() {
+    public void shopCreateTest() {
         City city = demoData.cities.get(0);
         Long cityId = city.getId();
 
         ShopCreateDTO createDTO = ShopCreateDTO.builder()
             .name("shop")
             .cityId(cityId)
+            .address("103 Jalan Kampung Nyabor")
             .build();
 
         String contentAsString = mockMvc.perform(post("/shop/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(createDTO))
         )
             .andExpect(status().isOk())
@@ -99,16 +101,19 @@ public class ShopControllerTest {
         ShopUpdateDTO updateDTO = ShopUpdateDTO.builder()
             .id(shopId)
             .description("description")
-            .freeOrderPrice(10D)
-            .minOrderPrice(5D)
+            .freeDeliveryCost(10D)
+            .minOrderCost(5D)
+            .deliveryCost(7D)
             .name("new name")
             .cityId(cityId)
+            .address("95 Jalan Kampung Nyabor")
             .build();
 
         String contentAsString = mockMvc.perform(patch("/shop/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -124,8 +129,9 @@ public class ShopControllerTest {
 
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
         assertEquals(updateDTO.getDescription(), updatedShopDTO.getDescription());
-        assertEquals(updateDTO.getFreeOrderPrice(), updatedShopDTO.getFreeOrderPrice());
-        assertEquals(updateDTO.getMinOrderPrice(), updatedShopDTO.getMinOrderPrice());
+        assertEquals(updateDTO.getFreeDeliveryCost(), updatedShopDTO.getFreeDeliveryCost());
+        assertEquals(updateDTO.getDeliveryCost(), updatedShopDTO.getDeliveryCost());
+        assertEquals(updateDTO.getMinOrderCost(), updatedShopDTO.getMinOrderCost());
         assertEquals(updateDTO.getName(), "new name");
     }
 
@@ -162,6 +168,7 @@ public class ShopControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -192,6 +199,7 @@ public class ShopControllerTest {
         mockMvc.perform(delete("/shop/" + shopId)
             .contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk())
@@ -219,6 +227,7 @@ public class ShopControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
             .content(objectMapper.writeValueAsString(regionUpdateDTO))
         )
             .andExpect(status().isOk())
@@ -238,6 +247,33 @@ public class ShopControllerTest {
     @Test
     @SneakyThrows
     @Transactional
+    public void statsTest() {
+        Shop shop = demoData.shops.get(0);
+        ShopStatsDTO statsDTO = ShopStatsDTO.builder()
+            .id(shop.getId())
+            .endDate(Instant.now())
+            .startDate(Instant.now().minusMillis(10_000_000L))
+            .build();
+
+        String content = mockMvc.perform(post("/shop/stats")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Key", demoData.KEY_PARTNER)
+            .content(objectMapper.writeValueAsString(statsDTO))
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        ShopStatsResponseDTO shopStatsResponseDTO = objectMapper
+            .readValue(content, ShopStatsResponseDTO.class);
+
+        assertTrue(shopStatsResponseDTO.getProfit() > 0);
+    }
+
+    @Test
+    @SneakyThrows
+    @Transactional
     public void findAllByPage() {
         Long cityId = demoData.cities.get(0).getId();
 
@@ -245,7 +281,7 @@ public class ShopControllerTest {
             .cityId(cityId)
             .build();
 
-        String thirdContent = mockMvc.perform(get("/shop/page?size=100")
+        String thirdContent = mockMvc.perform(post("/shop/page?size=100")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDTO))

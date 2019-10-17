@@ -1,23 +1,29 @@
 package dev.muskrat.delivery.auth.service;
 
-import dev.muskrat.delivery.auth.converter.JwtAuthorizationToUserConverter;
-import dev.muskrat.delivery.auth.dao.User;
+import dev.muskrat.delivery.auth.dao.Status;
 import dev.muskrat.delivery.auth.dto.UserLoginDTO;
 import dev.muskrat.delivery.auth.dto.UserLoginResponseDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterDTO;
 import dev.muskrat.delivery.auth.dto.UserRegisterResponseDTO;
-import dev.muskrat.delivery.auth.repository.UserRepository;
+import dev.muskrat.delivery.auth.security.jwt.JwtToken;
 import dev.muskrat.delivery.auth.security.jwt.JwtTokenProvider;
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
+import dev.muskrat.delivery.auth.security.jwt.TokenStore;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.components.exception.JwtAuthenticationException;
+import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
+import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.repository.UserRepository;
+import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,10 +32,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorizationServiceImpl implements AuthorizationService {
 
+    private final TokenStore tokenStore;
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
 
     @Override
@@ -57,15 +66,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         user.setLastName(lastName);
         user.setPassword(password);
         user.setFirstName(firstName);
+        user.setStatus(Status.ACTIVE);
 
         User registeredUser = userService.register(user);
 
-        String token = jwtTokenProvider.createToken(registeredUser);
+        JwtToken token = jwtTokenProvider.generateJwtToken(registeredUser);
 
         return UserRegisterResponseDTO.builder()
             .id(user.getId())
             .username(user.getUsername())
-            .access(token)
+            .key(token.getKey())
+            .access(token.getAccess())
+            .refresh(token.getRefresh())
             .build();
     }
 
@@ -75,19 +87,26 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             String username = userLoginDTO.getUsername();
             String password = userLoginDTO.getPassword();
 
-            Authentication authenticate = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            if (password.equals(""))
+                throw new AccessDeniedException("Password or username not valid");
 
             Optional<User> byUsername = userService.findByUsername(username);
             if (byUsername.isEmpty())
-                throw new UsernameNotFoundException("User with username " + username + " not found");
+                throw new AccessDeniedException("Password or username not valid");
             User user = byUsername.get();
 
-            String token = jwtTokenProvider.createToken(user);
+            if (!bCryptPasswordEncoder.matches(password, user.getPassword()))
+                throw new AccessDeniedException("Password or username not valid");
+
+            Authentication authenticate = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            JwtToken token = jwtTokenProvider.generateJwtToken(user);
 
             return UserLoginResponseDTO.builder()
-                .username(username)
-                .access(token)
+                .username(user.getUsername())
+                .key(token.getKey())
+                .access(token.getAccess())
+                .refresh(token.getRefresh())
                 .build();
 
         } catch (AuthenticationException ex) {
@@ -97,21 +116,18 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public UserLoginResponseDTO refresh(String authorization) {
-
-        String resolveToken = jwtTokenProvider.resolveToken(authorization);
-        String refresh = jwtTokenProvider.getRefresh(resolveToken);
-        User user = jwtAuthorizationToUserConverter.convert(authorization);
-        String token = jwtTokenProvider.refreshToken(user, refresh);
-
-        String username = user.getUsername();
+    public UserLoginResponseDTO refresh(String key, String authorization) {
+        String refresh = jwtTokenProvider.resolveToken(authorization);
+        User user = jwtAuthorizationToUserConverter.convert(key, authorization);
+        JwtToken token = jwtTokenProvider.updateJwtToken(user, refresh);
 
         return UserLoginResponseDTO.builder()
-            .username(username)
-            .access(token)
+            .username(user.getUsername())
+            .key(token.getKey())
+            .access(token.getAccess())
+            .refresh(token.getRefresh())
             .build();
     }
-
 
     @Override
     public boolean isEquals(Authentication authentication, Long authorizedUserId) {
@@ -122,11 +138,23 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
         String jwtUserEmail = jwtUser.getEmail();
-
         String authorizedUserEmail = user.getEmail();
 
         return jwtUserEmail.equalsIgnoreCase(authorizedUserEmail);
     }
 
+    @Override
+    public void logout(User user, String key) {
+        tokenStore.removeTokenByKey(user.getId(), key);
+    }
 
+    @Override
+    public void logoutAll(User user) {
+        tokenStore.clearTokensByUserId(user.getId());
+    }
+
+    @Override
+    public void logoutSecure(User user, String key) {
+        tokenStore.clearExceptByKey(user.getId(), key);
+    }
 }

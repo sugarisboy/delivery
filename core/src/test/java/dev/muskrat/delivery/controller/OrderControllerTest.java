@@ -3,15 +3,12 @@ package dev.muskrat.delivery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.order.dao.Order;
+import dev.muskrat.delivery.order.dao.OrderRepository;
+import dev.muskrat.delivery.order.dao.OrderStatusRepository;
 import dev.muskrat.delivery.order.dto.*;
 import dev.muskrat.delivery.order.service.OrderService;
-import dev.muskrat.delivery.product.dao.Product;
-import dev.muskrat.delivery.product.dto.ProductCreateDTO;
-import dev.muskrat.delivery.product.dto.ProductCreateResponseDTO;
 import dev.muskrat.delivery.shop.dao.Shop;
-import dev.muskrat.delivery.shop.dto.ShopCreateDTO;
 import dev.muskrat.delivery.shop.dto.ShopCreateResponseDTO;
 import dev.muskrat.delivery.validations.dto.ValidationExceptionDTO;
 import lombok.SneakyThrows;
@@ -21,19 +18,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,6 +50,15 @@ public class OrderControllerTest {
     @Autowired
     private DemoData demoData;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderStatusRepository orderStatusRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Test
     @SneakyThrows
     @Transactional
@@ -68,10 +73,12 @@ public class OrderControllerTest {
             .email(email)
             .build();
 
-        MockHttpServletResponse response = mockMvc.perform(get("/order/page?size=1000")
+        MockHttpServletResponse response = mockMvc.perform(post("/order/page?size=1000")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestDTO))
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
         )
             .andExpect(status().isOk())
             .andReturn().getResponse();
@@ -79,12 +86,35 @@ public class OrderControllerTest {
         OrderPageDTO pageDTO = objectMapper
             .readValue(response.getContentAsString(), OrderPageDTO.class);
 
-        assertEquals(6, pageDTO.getOrders().size());
+        assertEquals(9, pageDTO.getOrders().size());
     }
 
     @Test
     @SneakyThrows
     @Transactional
+    public void cancelOrder() {
+        Order order = demoData.orders.get(0);
+        Long orderId = order.getId();
+
+        MockHttpServletResponse response = mockMvc.perform(get("/order/cancel/" + orderId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_USER)
+            .header("Key", demoData.KEY_USER)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse();
+
+        OrderDTO orderDTO = objectMapper
+            .readValue(response.getContentAsString(), OrderDTO.class);
+
+        Order updated = orderRepository.findById(orderId).get();
+
+        assertEquals(11, updated.getStatus().intValue());
+    }
+
+    @Test
+    @SneakyThrows
     public void orderCreateSuccessfulTest() {
         Shop shop = demoData.shops.get(0);
         Long shopId = shop.getId();
@@ -109,7 +139,6 @@ public class OrderControllerTest {
         MockHttpServletResponse response = mockMvc.perform(post("/order/create")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_ADMIN)
             .content(objectMapper.writeValueAsString(orderCreateDTO))
         )
             .andExpect(status().isOk())
@@ -124,7 +153,6 @@ public class OrderControllerTest {
             .findById(createdOrderId).orElseThrow();
 
         assertEquals(createdItem.getId(), createdOrderId);
-        assertTrue(createdItem.getStatus() == 0);
     }
 
     @Test
@@ -170,7 +198,7 @@ public class OrderControllerTest {
     @SneakyThrows
     @Transactional
     public void updateStatusTest() {
-        Shop shop = demoData.shops.get(0);
+        Shop shop = demoData.shops.get(1);
         Long shopId = shop.getId();
 
         OrderUpdateDTO updateDTO = OrderUpdateDTO.builder()
@@ -181,7 +209,8 @@ public class OrderControllerTest {
         MockHttpServletResponse response = mockMvc.perform(patch("/order/update")
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header("Authorization", demoData.ACCESS_PARTNER)
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
             .content(objectMapper.writeValueAsString(updateDTO))
         )
             .andExpect(status().isOk())
@@ -190,7 +219,9 @@ public class OrderControllerTest {
         OrderDTO updatedItem = objectMapper
             .readValue(response.getContentAsString(), OrderDTO.class);
 
-        assertTrue(updatedItem.getStatus() == 10L);
+        boolean flag = updatedItem.getStatus().stream()
+            .anyMatch(i -> i.getStatus() == 10L);
+        assertTrue(flag);
     }
 
     @Test
@@ -206,6 +237,8 @@ public class OrderControllerTest {
             .perform(get("/order/" + orderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", demoData.ACCESS_ADMIN)
+                .header("Key", demoData.KEY_ADMIN)
             )
             .andExpect(status().isOk())
             .andReturn().getResponse();
@@ -215,6 +248,8 @@ public class OrderControllerTest {
         Date createdTime = responseDTO.getCreatedTime();
 
         assertTrue(startTime.getTime() - createdTime.getTime() < 10_000);
+        assertNotNull(responseDTO.getCost());
+        assertNotNull(responseDTO.getCostAndDelivery());
         assertEquals(responseDTO.getId(), orderId);
     }
 }

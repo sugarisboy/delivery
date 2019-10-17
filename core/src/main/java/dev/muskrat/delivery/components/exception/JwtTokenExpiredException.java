@@ -1,11 +1,11 @@
 package dev.muskrat.delivery.components.exception;
 
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class JwtTokenExpiredException extends AuthenticationException {
-    public JwtTokenExpiredException(String msg, Throwable t) {
-        super(msg, t);
-    }
+@ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Token is expired")
+public class JwtTokenExpiredException extends AccessDeniedException {
 
     public JwtTokenExpiredException(String msg) {
         super(msg);

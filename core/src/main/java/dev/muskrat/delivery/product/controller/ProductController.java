@@ -47,7 +47,7 @@ public class ProductController {
         );
     }
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     public ProductPageDTO page(
         @Valid @RequestBody(required = false) ProductPageRequestDTO requestDTO,
         @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
