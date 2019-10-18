@@ -7,10 +7,12 @@ import dev.muskrat.delivery.components.events.order.OrderCreateEvent;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.components.exception.NotCancelableOrderException;
 import dev.muskrat.delivery.components.exception.OrderAmountLowerLowestException;
+import dev.muskrat.delivery.components.exception.OrderProductsIsEmptyException;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.service.MappingService;
 import dev.muskrat.delivery.order.converter.OrderCreateDTOTOOrderConverter;
+import dev.muskrat.delivery.order.converter.OrderProductTOOrderProductDTOConverter;
 import dev.muskrat.delivery.order.converter.OrderStatusTOOrderStatusDTOConverter;
 import dev.muskrat.delivery.order.converter.OrderTOOrderDTOConverter;
 import dev.muskrat.delivery.order.dao.*;
@@ -22,19 +24,15 @@ import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -57,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderCreateDTOTOOrderConverter orderCreateDTOTOOrderConverter;
     private final OrderTOOrderDTOConverter orderTOOrderDTOConverter;
     private final OrderStatusTOOrderStatusDTOConverter orderStatusTOOrderStatusDTOConverter;
+    private final OrderProductTOOrderProductDTOConverter orderProductTOOrderProductDTOConverter;
 
     @Value("${application.order.irrevocable-status}")
     private Integer irrevocableStatus;
@@ -65,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO create(OrderCreateDTO orderDTO) {
         Order order = orderCreateDTOTOOrderConverter.convert(orderDTO);
 
-        calculateCost(order, orderDTO);
+        calculateCost(order, orderDTO.getShopId());
         RegionDelivery region = calculateRegionDelivery(order, orderDTO);
         calculateCostDelivery(order, region);
 
@@ -83,28 +82,63 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
             .orElseThrow(()-> new EntityNotFoundException("Order with id " + id + " not found"));
 
-        if (isClient && order.getStatus() >= irrevocableStatus)
-            throw new NotCancelableOrderException("This order already don't be cancel");
+        if (orderDTO.getStatus() != null) {
+            if (isClient && order.getStatus() >= irrevocableStatus)
+                throw new NotCancelableOrderException("This order already don't be cancel");
 
-        OrderStatusEntry orderStatusEntry = new OrderStatusEntry();
-        orderStatusEntry.setUpdatedTime(Instant.now());
-        orderStatusEntry.setStatus(orderDTO.getStatus());
-        orderStatusEntry.setOrder(order);
+            OrderStatusEntry orderStatusEntry = new OrderStatusEntry();
+            orderStatusEntry.setUpdatedTime(Instant.now());
+            orderStatusEntry.setStatus(orderDTO.getStatus());
+            orderStatusEntry.setOrder(order);
 
-        orderStatusRepository.save(orderStatusEntry);
-        order.setStatus(orderDTO.getStatus());
-        orderRepository.save(order);
+            orderStatusRepository.save(orderStatusEntry);
+            order.setStatus(orderDTO.getStatus());
 
-        Order order1 = orderRepository.findById(id).get();
-        Hibernate.initialize(order1.getOrderStatusLog());
+        }
+
+        if (orderDTO.getProducts() != null && orderDTO.getProducts().size() != 0) {
+            for (OrderProductDTO dto : orderDTO.getProducts()) {
+                order.getProducts().stream()
+                    .filter(p -> p.getProductId().longValue() == dto.getProductId().longValue())
+                    .findFirst()
+                    .ifPresent(p -> {
+                        if (dto.getCount() == 0) {
+                            order.getProducts().remove(p);
+                        }
+                        else {
+                            p.setCount(dto.getCount());
+                        }
+                    });
+            }
+
+            if (order.getProducts().size() == 0)
+                throw new OrderProductsIsEmptyException();
+
+            calculateCost(order, order.getShop().getId());
+        }
+
+        if (orderDTO.getCostAndDelivery() != null) {
+            order.setCostAndDelivery(orderDTO.getCostAndDelivery());
+        }
+
+        Order updated = orderRepository.save(order);
+        Hibernate.initialize(updated.getOrderStatusLog());
 
         List<OrderStatusEntryDTO> orderStatusLog = order.getOrderStatusLog().stream()
             .map(orderStatusTOOrderStatusDTOConverter::convert)
             .collect(Collectors.toList());
 
+        List<OrderProductDTO> products = updated.getProducts().stream()
+            .map(orderProductTOOrderProductDTOConverter::convert)
+            .collect(Collectors.toList());
+
         return OrderDTO.builder()
-            .id(order.getId())
+            .id(updated.getId())
+            .localStatus(updated.getStatus())
+            .cost(updated.getCost())
+            .costAndDelivery(updated.getCostAndDelivery())
             .status(orderStatusLog)
+            .products(products)
             .build();
     }
 
@@ -240,9 +274,8 @@ public class OrderServiceImpl implements OrderService {
         return shopOwnerId.longValue() == senderId.longValue();
     }
 
-    private void calculateCost(Order order, OrderCreateDTO orderDTO) {
+    private void calculateCost(Order order, long shopId) {
         List<OrderProduct> products = order.getProducts();
-        Long shopId = orderDTO.getShopId();
 
         double orderCost = 0;
         for (OrderProduct orderProduct : products) {

@@ -36,6 +36,7 @@ public class OrderController {
     }
 
     @PatchMapping("/update")
+    @CrossOrigin(origins = "http://localhost:3000")
     @PreAuthorize("hasAuthority('ADMIN') or" +
         "(hasAuthority('PARTNER') and @orderServiceImpl.isOwnerByOrder(authentication, #orderDTO.id))")
     public OrderDTO orderStatusUpdate(
