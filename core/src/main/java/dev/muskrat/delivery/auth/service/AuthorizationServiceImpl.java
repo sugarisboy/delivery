@@ -45,9 +45,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public UserRegisterResponseDTO register(UserRegisterDTO userRegisterDTO) {
 
         String email = userRegisterDTO.getEmail();
-        String lastName = userRegisterDTO.getLastName();
+        String name = userRegisterDTO.getName();
         String password = userRegisterDTO.getPassword();
-        String firstName = userRegisterDTO.getFirstName();
         String repeatPassword = userRegisterDTO.getRepeatPassword();
 
         Optional<User> byEmail = userService.findByEmail(email);
@@ -63,9 +62,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         user.setEmail(email);
         user.setUsername(email);
-        user.setLastName(lastName);
+        user.setName(name);
         user.setPassword(password);
-        user.setFirstName(firstName);
         user.setStatus(Status.ACTIVE);
 
         User registeredUser = userService.register(user);

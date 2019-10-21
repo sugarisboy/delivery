@@ -27,11 +27,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="first_name" type="VARCHAR(63)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="last_name" type="VARCHAR(63)">
+            <column name="name" type="VARCHAR(63)">
                 <constraints nullable="false"/>
             </column>
 

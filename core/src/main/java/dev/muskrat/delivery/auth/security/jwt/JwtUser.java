@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 
 public class JwtUser implements UserDetails {
 
@@ -17,10 +16,7 @@ public class JwtUser implements UserDetails {
     private final String email;
 
     @Getter
-    private final String firstName;
-
-    @Getter
-    private final String lastName;
+    private final String name;
 
     @Getter
     private final Instant lastPasswordResetDate;
@@ -33,8 +29,7 @@ public class JwtUser implements UserDetails {
     public JwtUser(
         Long id,
         String username,
-        String firstName,
-        String lastName,
+        String name,
         String password,
         String email,
         boolean enabled,
@@ -43,8 +38,7 @@ public class JwtUser implements UserDetails {
     ) {
         this.id = id;
         this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.name = name;
         this.password = password;
         this.email = email;
         this.enabled = enabled;

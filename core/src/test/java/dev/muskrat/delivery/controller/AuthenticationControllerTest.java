@@ -88,8 +88,7 @@ public class AuthenticationControllerTest {
     public void registerUserTest() {
         UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
             .email("sugarisboy@muskrat.dev")
-            .firstName("Nikita")
-            .lastName("Smirnov")
+            .name("Nikita Selsky")
             .password("test")
             .repeatPassword("test")
             .build();

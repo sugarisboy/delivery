@@ -23,14 +23,11 @@ public class UserUpdateDTO {
     @Email
     private String email;
 
-    @Size(min = 3, max = 15)
+    @Size(min = 5, max = 15)
     private String phone;
 
     @Size(min = 3)
-    private String lastName;
-
-    @Size(min = 3)
-    private String firstName;
+    private String name;
 
     @Positive
     private Long cityId;

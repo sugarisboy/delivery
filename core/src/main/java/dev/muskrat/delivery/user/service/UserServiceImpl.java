@@ -68,8 +68,7 @@ public class UserServiceImpl implements UserService {
         Long cityId = city != null ? city.getId() : null;
 
         return UserDTO.builder()
-            .firstName(user.getFirstName())
-            .lastName(user.getLastName())
+            .name(user.getName())
             .email(user.getEmail())
             .phone(user.getPhone())
             .cityId(cityId)
@@ -87,11 +86,8 @@ public class UserServiceImpl implements UserService {
         if (userUpdateDTO.getEmail() != null)
             user.setEmail(userUpdateDTO.getEmail());
 
-        if (userUpdateDTO.getFirstName() != null)
-            user.setFirstName(userUpdateDTO.getFirstName());
-
-        if (userUpdateDTO.getLastName() != null)
-            user.setLastName(userUpdateDTO.getLastName());
+        if (userUpdateDTO.getName() != null)
+            user.setName(userUpdateDTO.getName());
 
         if (userUpdateDTO.getPhone() != null)
             user.setPhone(userUpdateDTO.getPhone());

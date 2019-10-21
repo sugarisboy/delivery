@@ -75,8 +75,7 @@ public class UserControllerTest {
         Long cityId = demoData.cities.get(0).getId();
 
         UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
-            .firstName("new1")
-            .lastName("new2")
+            .name("new1")
             .phone("1234567890")
             .email("sugarisboy@muskrat.dev")
             .cityId(cityId)
@@ -99,8 +98,7 @@ public class UserControllerTest {
         user = userRepository.findById(userId).get();
 
         assertEquals(   userUpdateDTO.getEmail(),      user.getEmail()      );
-        assertEquals(   userUpdateDTO.getFirstName(),  user.getFirstName()  );
-        assertEquals(   userUpdateDTO.getLastName(),   user.getLastName()   );
+        assertEquals(   userUpdateDTO.getName(),       user.getName()       );
         assertEquals(   userUpdateDTO.getPhone(),      user.getPhone()      );
     }
 
