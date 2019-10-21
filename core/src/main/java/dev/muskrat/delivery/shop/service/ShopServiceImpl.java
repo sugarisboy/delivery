@@ -30,7 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,6 +66,30 @@ public class ShopServiceImpl implements ShopService {
         shop.setName(shopDTO.getName());
         shop.setCity(city);
         shop.setPartner(partner);
+
+        shop.setOpen(
+            Arrays.asList(
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0)
+            )
+        );
+
+        shop.setClose(
+            Arrays.asList(
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0)
+            )
+        );
 
         String cityName = city.getName();
         String address = shopDTO.getAddress();
