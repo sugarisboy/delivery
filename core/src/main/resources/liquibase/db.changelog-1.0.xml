@@ -9,6 +9,8 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
+            <column name="partner_id" type="BIGINT"/>
+
             <column name="username" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
@@ -414,7 +416,7 @@
                                  baseTableName="user_partner"
                                  constraintName="fk_user_partner_user"
                                  onDelete="CASCADE"
-                                 onUpdate="RESTRICT"
+                                 onUpdate="CASCADE"
                                  referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
@@ -424,7 +426,7 @@
                                  baseTableName="user_partner"
                                  constraintName="fk_user_partner_partner"
                                  onDelete="CASCADE"
-                                 onUpdate="RESTRICT"
+                                 onUpdate="CASCADE"
                                  referencedColumnNames="id"
                                  referencedTableName="partners"/>
     </changeSet>

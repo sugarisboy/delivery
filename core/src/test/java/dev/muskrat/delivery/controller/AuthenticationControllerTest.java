@@ -228,7 +228,6 @@ public class AuthenticationControllerTest {
         assertTrue(tokenStore.findTokensByUserId(userId).size() == 0);
 
         //tokenStore.saveToken(userId, demoToken);
-        System.out.println();
     }
 
     @Test

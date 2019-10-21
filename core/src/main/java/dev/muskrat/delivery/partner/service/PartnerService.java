@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 
 public interface PartnerService {
 
-    PartnerRegisterResponseDTO create(User executor);
+    PartnerRegisterResponseDTO create(User user);
 
     boolean isCurrentPartner(Authentication authentication, Long id);
 }

@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
         City city = user.getCity();
-        Long cityId = city.getId();
+        Long cityId = city != null ? city.getId() : null;
 
         return UserDTO.builder()
             .firstName(user.getFirstName())

@@ -47,6 +47,7 @@ public class User extends BaseEntity {
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
     )
+    //@JoinColumn(name = "partner_id")
     private Partner partner;
 
     @ManyToOne(fetch = FetchType.EAGER)

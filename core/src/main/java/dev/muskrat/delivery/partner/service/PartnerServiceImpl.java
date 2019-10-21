@@ -10,6 +10,7 @@ import dev.muskrat.delivery.partner.dto.PartnerRegisterResponseDTO;
 import dev.muskrat.delivery.user.dao.User;
 import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -25,24 +26,23 @@ public class PartnerServiceImpl implements PartnerService {
     private final UserRepository userRepository;
 
     @Override
-    public PartnerRegisterResponseDTO create(User executor) {
-        if (executor.getPartner() != null)
+    public PartnerRegisterResponseDTO create(User user) {
+        if (user.getPartner() != null)
             throw new RuntimeException("User already partner");
 
         Partner partner = new Partner();
-        partner.setUser(executor);
+        partner.setUser(user);
         partnerRepository.save(partner);
 
         Role rolePartner = roleRepository.findByName(Role.Name.PARTNER.getName()).get();
-        ArrayList<Role> roles = new ArrayList<>(executor.getRoles());
+        ArrayList<Role> roles = new ArrayList<>(user.getRoles());
         roles.add(rolePartner);
-        executor.setRoles(roles);
-        executor.setPartner(partner);
-
-        userRepository.save(executor);
+        user.setRoles(roles);
+        user.setPartner(partner);
+        userRepository.save(user);
 
         return PartnerRegisterResponseDTO.builder()
-            .id(executor.getId())
+            .id(user.getId())
             .build();
     }
 

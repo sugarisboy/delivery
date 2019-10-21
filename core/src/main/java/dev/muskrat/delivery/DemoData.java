@@ -32,7 +32,9 @@ import dev.muskrat.delivery.user.repository.UserRepository;
 import dev.muskrat.delivery.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
@@ -140,6 +142,9 @@ public class DemoData {
         KEY_USER = userDTO.getKey();
         KEY_PARTNER = partnerDTO.getKey();
         KEY_ADMIN = secureLoader.getLoginAdminDTO().getKey();
+
+        System.out.println("Access:\t\t\t" + ACCESS_ADMIN);
+        System.out.println("Key:\t\t\t" + KEY_ADMIN);
     }
 
     private void generateCategory() {
