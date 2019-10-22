@@ -206,4 +206,10 @@ public class ProductServiceImpl implements ProductService {
         return userEmail.equalsIgnoreCase(jwtUserEmail);
     }
 
+    @Override
+    public List<CategoryDTO> findAllCategories() {
+        return categoryRepository.findAll().stream()
+            .map(category -> new CategoryDTO(category.getId(), category.getTitle()))
+            .collect(Collectors.toList());
+    }
 }
