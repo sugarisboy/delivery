@@ -14,6 +14,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,8 +125,8 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
             .body(jwtAccessDeniedExceptionDTO);
     }
 
-    @ExceptionHandler(value = {EntityExistException.class})
-    public ResponseEntity<Object> commence(RuntimeException ex) {
+    @ExceptionHandler(value = {RuntimeException.class})
+    public ResponseEntity<Object> commence(HttpServletResponse response, RuntimeException ex) {
 
         StackTraceElement[] stackTrace = ex.getStackTrace();
         List<StackTraceElement> collect = Arrays.stream(stackTrace)
@@ -139,8 +141,10 @@ public class ControllerAdviceManager extends ResponseEntityExceptionHandler {
             .method(stackTraceElement.getMethodName())
             .build();
 
+        HttpStatus status = response.getStatus() == 200 ? HttpStatus.CONFLICT : HttpStatus.valueOf(response.getStatus());
+
         return ResponseEntity
-            .status(HttpStatus.CONFLICT)
+            .status(status)
             .contentType(MediaType.APPLICATION_JSON)
             .body(exceptionDTO);
     }

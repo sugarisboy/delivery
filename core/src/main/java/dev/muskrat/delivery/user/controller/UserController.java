@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/user")
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PARTNER') or @authorizationServiceImpl.isEquals(authentication, #userUpdateDTO.id)")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PARTNER') or @authorizationServiceImpl.isEquals(authentication, #id)")
     public UserDTO findById(
         @PathVariable Long id
     ) {
@@ -31,5 +32,13 @@ public class UserController {
         @Valid @RequestBody UserUpdateDTO userUpdateDTO
     ) {
         return userService.update(userUpdateDTO);
+    }
+
+    @GetMapping("/email/{email:.+}")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER') or authentication.principal == #email")
+    public UserDTO findByEmail(
+        @NotNull @PathVariable String email
+    ) {
+        return userService.findByEmail(email);
     }
 }

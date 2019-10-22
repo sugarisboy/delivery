@@ -14,13 +14,13 @@ public interface UserService {
 
     List<User> findAll();
 
-    Optional<User> findByEmail(String email);
+    UserDTO findByEmail(String email);
 
     UserDTO findById(Long id);
 
     UserUpdateResponseDTO update(UserUpdateDTO userUpdateDTO);
 
-    default Optional<User> findByUsername(String username) {
+    default UserDTO findByUsername(String username) {
         return findByEmail(username);
     }
 }

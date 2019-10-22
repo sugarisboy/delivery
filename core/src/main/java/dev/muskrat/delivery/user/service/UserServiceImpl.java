@@ -7,6 +7,7 @@ import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
+import dev.muskrat.delivery.user.converter.UserToUserDTOConverter;
 import dev.muskrat.delivery.user.dao.User;
 import dev.muskrat.delivery.user.dto.UserDTO;
 import dev.muskrat.delivery.user.dto.UserUpdateDTO;
@@ -16,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CitiesRepository citiesRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtAuthorizationToUserConverter jwtAuthorizationToUserConverter;
+    private final UserToUserDTOConverter userToUserDTOConverter;
 
     @Override
     public User register(User user) {
@@ -56,23 +56,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public UserDTO findByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("User with email " + email + " not found"));
+        return userToUserDTOConverter.convert(user);
     }
 
     @Override
     public UserDTO findById(Long id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
-        City city = user.getCity();
-        Long cityId = city != null ? city.getId() : null;
-
-        return UserDTO.builder()
-            .name(user.getName())
-            .email(user.getEmail())
-            .phone(user.getPhone())
-            .cityId(cityId)
-            .build();
+        return userToUserDTOConverter.convert(user);
     }
 
     @Override

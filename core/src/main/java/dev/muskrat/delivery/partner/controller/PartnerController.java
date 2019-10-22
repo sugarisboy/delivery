@@ -20,17 +20,8 @@ public class PartnerController {
     private final AuthIdToAuthorizedUserConverter authIdToAuthorizedUserConverter;
 
     @PostMapping("/create/{userId}")
-    //@PreAuthorize("hasAuthority('ADMIN')")
-    public PartnerRegisterResponseDTO register(
-        @NotNull @PathVariable Long userId
-    ) {
-        User user = authIdToAuthorizedUserConverter.convert(userId);
-        return partnerService.create(user);
-    }
-
-    @PostMapping("/creat/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public PartnerRegisterResponseDTO registerr(
+    public PartnerRegisterResponseDTO register(
         @NotNull @PathVariable Long userId
     ) {
         User user = authIdToAuthorizedUserConverter.convert(userId);
