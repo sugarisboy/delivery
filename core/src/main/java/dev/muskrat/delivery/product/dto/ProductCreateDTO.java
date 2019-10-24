@@ -31,8 +31,7 @@ public class ProductCreateDTO {
     @ValidShop
     private Long shopId;
 
-    @Min(1)
-    @Max(7)
+    @Positive
     private Long category;
 
 }
