@@ -25,4 +25,6 @@ public class ShopPageRequestDTO {
 
     @Positive
     private Double maxFreeOrderPrice;
+
+    private String deliveryFor;
 }

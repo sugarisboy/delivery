@@ -12,6 +12,7 @@ import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
+import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.service.MappingService;
 import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.partner.dao.Partner;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -155,9 +157,16 @@ public class ShopServiceImpl implements ShopService {
 
         Page<Shop> page = shopRepository.findWithFilter(name, city, pageable);
 
+
         List<Shop> content = page.getContent();
-        List<ShopDTO> collect = content.stream()
-            .map(shopToShopDTOConverter::convert)
+        Stream<Shop> stream = content.stream();
+        if (requestDTO.getDeliveryFor() != null) {
+            String address = requestDTO.getDeliveryFor();
+            RegionPoint point = mappingService.getPointByAddress(address);
+            stream = stream.filter(shop -> shop.getRegion().isRegionAvailable(point));
+        }
+
+        List<ShopDTO> collect = stream.map(shopToShopDTOConverter::convert)
             .collect(Collectors.toList());
 
         return ShopPageDTO.builder()

@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.map.controller;
 
 import dev.muskrat.delivery.map.dto.AutoCompleteResponseDTO;
+import dev.muskrat.delivery.map.dto.RegionDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.map.service.MappingService;
@@ -31,5 +32,12 @@ public class MapController {
         @Valid @RequestBody RegionUpdateDTO regionUpdateDTO
     ) {
        return mappingService.updateRegion(regionUpdateDTO);
+    }
+
+    @GetMapping("/region/shop/{shopId}")
+    public RegionDTO findRegion(
+        @PathVariable @NotNull Long shopId
+    ) {
+        return mappingService.findShopRegion(shopId);
     }
 }
