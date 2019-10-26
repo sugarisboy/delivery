@@ -47,7 +47,13 @@ public class MappingServiceImpl implements MappingService {
     }
 
     public RegionUpdateResponseDTO updateRegion(RegionUpdateDTO regionUpdateDTO) {
-        RegionDelivery regionDelivery = new RegionDelivery();
+        Long shopId = regionUpdateDTO.getShopId();
+        Optional<Shop> byId = shopRepository.findById(shopId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Shop with " + shopId + " not found");
+        Shop shop = byId.get();
+
+        RegionDelivery regionDelivery = shop.getRegion() == null ? new RegionDelivery() : shop.getRegion();
 
         List<Double> pointsDTO = regionUpdateDTO.getPoints();
         Iterator<Double> iter = pointsDTO.iterator();
@@ -58,17 +64,12 @@ public class MappingServiceImpl implements MappingService {
         while (iter.hasNext()) {
             abscissa.add(iter.next());
             ordinate.add(iter.next());
+            iter.next();
         }
 
         regionDelivery.setAbscissa(abscissa);
         regionDelivery.setOrdinate(ordinate);
         regionDelivery = regionDeliveryRepository.save(regionDelivery);
-
-        Long shopId = regionUpdateDTO.getShopId();
-        Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("Shop with " + shopId + " not found");
-        Shop shop = byId.get();
 
         shop.setRegion(regionDelivery);
         shopRepository.save(shop);
