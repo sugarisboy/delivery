@@ -51,7 +51,7 @@ public class ProductController {
     @PostMapping("/page")
     public ProductPageDTO page(
         @Valid @RequestBody(required = false) ProductPageRequestDTO requestDTO,
-        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
+        @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
     ) {
         return productService.findAll(requestDTO, page);
     }

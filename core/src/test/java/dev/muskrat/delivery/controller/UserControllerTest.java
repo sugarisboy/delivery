@@ -3,6 +3,7 @@ package dev.muskrat.delivery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.dto.UserPageDTO;
 import dev.muskrat.delivery.user.dto.UserUpdateDTO;
 import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
 import dev.muskrat.delivery.user.repository.UserRepository;
@@ -63,6 +64,25 @@ public class UserControllerTest {
             .readValue(contentAsString, UserDTO.class);
 
         assertEquals(userDTO.getEmail(), user.getEmail());
+    }
+
+    @Test
+    @SneakyThrows
+    public void pageTest() {
+
+        String contentAsString = mockMvc.perform(post("/user/page")
+            //.contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        UserPageDTO userPageDTO = objectMapper
+            .readValue(contentAsString, UserPageDTO.class);
+
+        System.out.println();
     }
 
     @Test

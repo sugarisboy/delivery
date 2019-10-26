@@ -65,7 +65,7 @@ public class OrderController {
         "(hasAuthority('USER') and @orderServiceImpl.isClientByUser(authentication, #orderPageRequestDTO.userId))")
     public OrderPageDTO page(
         @Valid @RequestBody(required = false) OrderPageRequestDTO orderPageRequestDTO,
-        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+        @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return orderService.findAll(orderPageRequestDTO, pageable);
     }

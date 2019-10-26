@@ -78,7 +78,7 @@ public class ShopController {
     @PostMapping("/page")
     public ShopPageDTO page(
         @Valid @RequestBody(required = false) ShopPageRequestDTO shopPageRequestDTO,
-        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
+        @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
     ) {
         return shopService.findAll(shopPageRequestDTO, page);
     }

@@ -15,6 +15,7 @@ import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.order.dao.OrderProduct;
 import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.order.dto.OrderCreateDTO;
+import dev.muskrat.delivery.order.dto.OrderDTO;
 import dev.muskrat.delivery.order.dto.OrderProductDTO;
 import dev.muskrat.delivery.order.dto.OrderUpdateDTO;
 import dev.muskrat.delivery.order.service.OrderService;
@@ -251,7 +252,7 @@ public class DemoData {
 
     public void generateOrder() {
         for (Shop shop : shops) {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 30; i++) {
                 OrderProduct product1 = new OrderProduct();
                 product1.setProductId(shop.getProducts().get(0).getId());
                 product1.setCount(1);
@@ -281,7 +282,11 @@ public class DemoData {
                     build = build.comment("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 
                 OrderCreateDTO orderCreateDTO = build.build();
-                orderService.create(orderCreateDTO);
+                OrderDTO orderDTO = orderService.create(orderCreateDTO);
+                Long orderId = orderDTO.getId();
+                Order order = orderRepository.findById(orderId).get();
+                order.setCreated(order.getCreated().minusSeconds((long) (5184000L * Math.random())));
+                orderRepository.save(order);
             }
         }
 

@@ -160,7 +160,8 @@ public class ShopServiceImpl implements ShopService {
 
         List<Shop> content = page.getContent();
         Stream<Shop> stream = content.stream();
-        if (requestDTO.getDeliveryFor() != null) {
+
+        if (requestDTO != null && requestDTO.getDeliveryFor() != null) {
             String address = requestDTO.getDeliveryFor();
             RegionPoint point = mappingService.getPointByAddress(address);
             stream = stream.filter(shop -> shop.getRegion().isRegionAvailable(point));

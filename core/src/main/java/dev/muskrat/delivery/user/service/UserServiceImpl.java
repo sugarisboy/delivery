@@ -6,20 +6,20 @@ import dev.muskrat.delivery.auth.repository.RoleRepository;
 import dev.muskrat.delivery.cities.dao.CitiesRepository;
 import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
-import dev.muskrat.delivery.user.converter.JwtAuthorizationToUserConverter;
 import dev.muskrat.delivery.user.converter.UserToUserDTOConverter;
 import dev.muskrat.delivery.user.dao.User;
-import dev.muskrat.delivery.user.dto.UserDTO;
-import dev.muskrat.delivery.user.dto.UserUpdateDTO;
-import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
+import dev.muskrat.delivery.user.dto.*;
 import dev.muskrat.delivery.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -97,6 +97,36 @@ public class UserServiceImpl implements UserService {
 
         return UserUpdateResponseDTO.builder()
             .id(user.getId())
+            .build();
+    }
+
+    @Override
+    public UserPageDTO page(UserPageRequestDTO requestDTO, Pageable pageable) {
+        String name = null;
+        String phone = null;
+        City city = null;
+
+        if (requestDTO != null) {
+            name = requestDTO.getName();
+            phone = requestDTO.getPhone();
+
+            if (requestDTO.getCityId() != null) {
+                Long cityId = requestDTO.getCityId();
+                city = citiesRepository.findById(cityId).orElseThrow(
+                    () -> new EntityNotFoundException("City with id " + cityId + " not found")
+                );
+            }
+        }
+
+        Page<User> query = userRepository.findWithFilter(city, name, phone, pageable);
+        List<UserDTO> collect = query.get()
+            .map(userToUserDTOConverter::convert)
+            .collect(Collectors.toList());
+
+        return UserPageDTO.builder()
+            .users(collect)
+            .currentPage(pageable.getPageNumber())
+            .currentPage(query.getTotalPages())
             .build();
     }
 }
