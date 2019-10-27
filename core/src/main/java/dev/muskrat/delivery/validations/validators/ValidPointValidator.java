@@ -14,8 +14,8 @@ public class ValidPointValidator implements ConstraintValidator<ValidPoint, List
 
     @Override
     public boolean isValid(List<Double> list, ConstraintValidatorContext context) {
-        if (list.size() % 2 != 0)
-            return error(context, "Each point must be declared array of latitude and longitude");
+        if (list.size() % 3 != 0)
+            return error(context, "Each point must be declared array of latitude, longitude and altitude");
         return true;
     }
 

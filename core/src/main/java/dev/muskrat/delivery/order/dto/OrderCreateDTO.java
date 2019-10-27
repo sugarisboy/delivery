@@ -30,7 +30,6 @@ public class OrderCreateDTO {
     @NotNull
     private String email;
 
-
     @NotNull
     @ValidShop
     private Long shopId;
