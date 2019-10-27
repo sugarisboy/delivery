@@ -35,7 +35,6 @@ public class PartnerServiceImpl implements PartnerService {
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
     private final OrderRepository orderRepository;
-    private final ShopToShopDTOConverter shopToShopDTOConverter;
 
     @Override
     public PartnerRegisterResponseDTO create(User user) {
@@ -93,7 +92,7 @@ public class PartnerServiceImpl implements PartnerService {
                 timeB = timeA.plus(1, ChronoUnit.HOURS);
                 end = timeA.minus(47, ChronoUnit.HOURS).minus(1, ChronoUnit.SECONDS);
                 decrement = a -> a.minus(1, ChronoUnit.HOURS);
-                print = (a, b) -> String.format("%d - %d", a.getHour(), b.getHour());
+                print = (a, b) -> "" + a.getDayOfMonth();
                 prev = a -> a.minus(1, ChronoUnit.DAYS);
             } else if (type.equalsIgnoreCase("weekly")) {
                 timeA = LocalDate.now().atStartOfDay(ZoneId.of("UTC"));
@@ -116,17 +115,28 @@ public class PartnerServiceImpl implements PartnerService {
             timePrevA = prev.toPrev(timeA);
             timePrevB = prev.toPrev(timeB);
 
-            Double profit;
+            Long currentCountOrder = orderRepository.countOrderByShop(
+                timePrevB.toInstant(),
+                timeB.toInstant(),
+                shop
+            );
+
             PartnerStatsDTO partnerStatsDTO = new PartnerStatsDTO();
+            Double profit = 0D, currentPeriodProfit = 0D, previousPeriodProfit = 0D;
             while (timePrevA.isAfter(end)) {
                 Map<String, Object> period = new HashMap<>();
                 period.put("name", print.print(timeA, timeB));
 
                 profit = orderRepository.getProfitByShop(timeA.toInstant(), timeB.toInstant(), shop);
-                period.put("now", Math.round((profit == null ? 0 : profit) * 100) / 100D);
+                profit = ((profit == null ? 0 : profit) * 100) / 100D;
+                currentPeriodProfit += profit;
+                period.put("now", Math.round(profit));
 
                 profit = orderRepository.getProfitByShop(timePrevA.toInstant(), timePrevB.toInstant(), shop);
-                period.put("previous", Math.round((profit == null ? 0 : profit) * 100) / 100D);
+                profit = ((profit == null ? 0 : profit) * 100) / 100D;
+                previousPeriodProfit += profit;
+                period.put("previous", Math.round(profit));
+
                 data.add(period);
                 // break condition
                 timeB = timeA;
@@ -135,12 +145,28 @@ public class PartnerServiceImpl implements PartnerService {
                 timePrevA = decrement.decrement(timePrevA);
             }
 
+            Long previousCountOrder = orderRepository.countOrderByShop(
+                end.toInstant(),
+                timeB.toInstant(),
+                shop
+            );
+
             Collections.reverse(data);
             partnerStatsDTO.setShopStats(data);
+            partnerStatsDTO.setPrevPeriodProfit(previousPeriodProfit);
+            partnerStatsDTO.setCurrentPeriodProfit(currentPeriodProfit);
+            partnerStatsDTO.setPrevPeriodOrders(previousCountOrder);
+            partnerStatsDTO.setCurrentPeriodOrders(currentCountOrder);
+            partnerStatsDTO.setPrevAveragePeriodProfit(
+                (previousPeriodProfit / previousCountOrder) * 100 / 100D
+            );
+            partnerStatsDTO.setCurrentAveragePeriodProfit(
+                (currentPeriodProfit / currentCountOrder) * 100 / 100D
+            );
+
             return partnerStatsDTO;
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e.getMessage());
         }
     }
 

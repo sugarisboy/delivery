@@ -15,5 +15,17 @@ import java.util.Map;
 @AllArgsConstructor
 public class PartnerStatsDTO {
 
-    List<Map<String, Object>> shopStats = new ArrayList<>();
+    private List<Map<String, Object>> shopStats = new ArrayList<>();
+
+    private Double currentPeriodProfit;
+
+    private Double prevPeriodProfit;
+
+    private Double currentAveragePeriodProfit;
+
+    private Double prevAveragePeriodProfit;
+
+    private Long currentPeriodOrders;
+
+    private Long prevPeriodOrders;
 }

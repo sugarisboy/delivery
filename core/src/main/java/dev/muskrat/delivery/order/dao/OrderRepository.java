@@ -34,9 +34,23 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "o.shop = :shop and " +
             "o.created > :startDate and " +
             "o.created < :endDate and " +
-            "o.status < 10"
+            "o.status > 0"
     )
     Double getProfitByShop(
+        @Param("startDate") Instant startDate,
+        @Param("endDate") Instant endDate,
+        @Param("shop") Shop shop
+    );
+
+    @Query(
+        "SELECT COUNT(o) FROM Order o " +
+            "WHERE " +
+            "o.shop = :shop and " +
+            "o.created > :startDate and " +
+            "o.created < :endDate and " +
+            "o.status > 0"
+    )
+    Long countOrderByShop(
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate,
         @Param("shop") Shop shop
@@ -47,7 +61,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "WHERE " +
             "o.created > :startDate and " +
             "o.created < :endDate and " +
-            "o.status < 10"
+            "o.status > 0"
     )
     Double getProfit(
         @Param("startDate") Instant startDate,
