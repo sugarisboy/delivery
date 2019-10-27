@@ -27,8 +27,5 @@ public class UserRegisterDTO {
     private String repeatPassword;
 
     @NotNull
-    private String firstName;
-
-    @NotNull
-    private String lastName;
+    private String name;
 }

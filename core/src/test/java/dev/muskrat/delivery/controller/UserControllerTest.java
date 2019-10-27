@@ -3,6 +3,7 @@ package dev.muskrat.delivery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.user.dao.User;
+import dev.muskrat.delivery.user.dto.UserPageDTO;
 import dev.muskrat.delivery.user.dto.UserUpdateDTO;
 import dev.muskrat.delivery.user.dto.UserUpdateResponseDTO;
 import dev.muskrat.delivery.user.repository.UserRepository;
@@ -67,6 +68,25 @@ public class UserControllerTest {
 
     @Test
     @SneakyThrows
+    public void pageTest() {
+
+        String contentAsString = mockMvc.perform(post("/user/page")
+            //.contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization", demoData.ACCESS_ADMIN)
+            .header("Key", demoData.KEY_ADMIN)
+        )
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+
+        UserPageDTO userPageDTO = objectMapper
+            .readValue(contentAsString, UserPageDTO.class);
+
+        System.out.println();
+    }
+
+    @Test
+    @SneakyThrows
     @Transactional
     public void userUpdateTest() {
         User user = demoData.users.get(1);
@@ -75,8 +95,7 @@ public class UserControllerTest {
         Long cityId = demoData.cities.get(0).getId();
 
         UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
-            .firstName("new1")
-            .lastName("new2")
+            .name("new1")
             .phone("1234567890")
             .email("sugarisboy@muskrat.dev")
             .cityId(cityId)
@@ -99,8 +118,7 @@ public class UserControllerTest {
         user = userRepository.findById(userId).get();
 
         assertEquals(   userUpdateDTO.getEmail(),      user.getEmail()      );
-        assertEquals(   userUpdateDTO.getFirstName(),  user.getFirstName()  );
-        assertEquals(   userUpdateDTO.getLastName(),   user.getLastName()   );
+        assertEquals(   userUpdateDTO.getName(),       user.getName()       );
         assertEquals(   userUpdateDTO.getPhone(),      user.getPhone()      );
     }
 

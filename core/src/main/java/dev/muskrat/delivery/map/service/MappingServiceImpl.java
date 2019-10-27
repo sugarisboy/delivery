@@ -9,6 +9,7 @@ import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
 import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.dto.AutoCompleteResponseDTO;
+import dev.muskrat.delivery.map.dto.RegionDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateDTO;
 import dev.muskrat.delivery.map.dto.RegionUpdateResponseDTO;
 import dev.muskrat.delivery.shop.dao.Shop;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,86 +28,32 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class MappingServiceImpl implements MappingService {
 
+    private final MapApi mapApi;
     private final ShopRepository shopRepository;
     private final RegionDeliveryRepository regionDeliveryRepository;
 
-    @Value("${geocode.app.id}")
-    private String APP_ID;
-
-    @Value("${geocode.app.code}")
-    private String APP_CODE;
-
-    @Value("${geocode.country}")
-    private String COUNTRY;
-
-    @Value("${geocode.complete.maxresults}")
-    private Integer MAX_RESULTS;
-
+    @Override
     public AutoCompleteResponseDTO autoComplete(String label) {
-        String http = UriComponentsBuilder.newInstance()
-            .scheme("https")
-            .host("autocomplete.geocoder.api.here.com")
-            .path("/6.2/suggest.json")
-            .query("app_id=" + APP_ID)
-            .query("app_code=" + APP_CODE)
-            .query("country=" + COUNTRY)
-            .query("maxresults=" + MAX_RESULTS)
-            .query("query=" + label)
-            .build().toString();
-
-        RestTemplate restTemplate = new RestTemplate();
-        AutoCompleteResponseDTO autoCompleteResponseDTO = restTemplate
-            .getForObject(http, AutoCompleteResponseDTO.class);
-        return autoCompleteResponseDTO;
+        return mapApi.autoComplete(label);
     }
 
+    @Override
     public RegionPoint getPointByAddress(String label) {
-        String http = UriComponentsBuilder.newInstance()
-            .scheme("http")
-            .host("geocoder.api.here.com")
-            .path("/6.2/geocode.json")
-            .query("app_id=" + APP_ID)
-            .query("app_code=" + APP_CODE)
-            .query("locationattributes=none")
-            .query("country=" + COUNTRY)
-            .query("maxresults=" + MAX_RESULTS)
-            .query("searchtext=" + label)
-            .build().toString();
-
-        RestTemplate restTemplate = new RestTemplate();
-        String json = restTemplate.getForObject(http, String.class);
-
-        JsonNode location;
-
-        try {
-            JsonNode httpResponse = new ObjectMapper().readTree(json);
-            if (!httpResponse.has("Response"))
-                throw new LocationParseException("MapApi timeout");
-
-            JsonNode view = httpResponse.get("Response").get("View");
-            if (!view.has(0))
-                throw new AddressNotFoundException("Address not found");
-
-            location = view.get(0)
-                .get("Result").get(0)
-                .get("Location")
-                .get("NavigationPosition").get(0);
-        } catch (IOException ex) {
-            throw new LocationParseException("Location don't parsed");
-        }
-
-        double latitude = location.get("Latitude").asDouble();
-        double longitude = location.get("Longitude").asDouble();
-
-        return new RegionPoint(latitude, longitude, 100D);
+        return mapApi.getPointByAddress(label);
     }
 
     public RegionUpdateResponseDTO updateRegion(RegionUpdateDTO regionUpdateDTO) {
-        RegionDelivery regionDelivery = new RegionDelivery();
+        Long shopId = regionUpdateDTO.getShopId();
+        Optional<Shop> byId = shopRepository.findById(shopId);
+        if (byId.isEmpty())
+            throw new EntityNotFoundException("Shop with " + shopId + " not found");
+        Shop shop = byId.get();
+
+        RegionDelivery regionDelivery = shop.getRegion() == null ? new RegionDelivery() : shop.getRegion();
 
         List<Double> pointsDTO = regionUpdateDTO.getPoints();
         Iterator<Double> iter = pointsDTO.iterator();
@@ -116,17 +64,12 @@ public class MappingServiceImpl implements MappingService {
         while (iter.hasNext()) {
             abscissa.add(iter.next());
             ordinate.add(iter.next());
+            iter.next();
         }
 
         regionDelivery.setAbscissa(abscissa);
         regionDelivery.setOrdinate(ordinate);
         regionDelivery = regionDeliveryRepository.save(regionDelivery);
-
-        Long shopId = regionUpdateDTO.getShopId();
-        Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
-            throw new EntityNotFoundException("Shop with " + shopId + " not found");
-        Shop shop = byId.get();
 
         shop.setRegion(regionDelivery);
         shopRepository.save(shop);
@@ -138,42 +81,27 @@ public class MappingServiceImpl implements MappingService {
 
     @Override
     public boolean isValidAddress(String city, String label) {
-        String http = UriComponentsBuilder.newInstance()
-            .scheme("http")
-            .host("geocoder.api.here.com")
-            .path("/6.2/geocode.json")
-            .query("app_id=" + APP_ID)
-            .query("app_code=" + APP_CODE)
-            .query("locationattributes=address")
-            .query("country=" + COUNTRY)
-            .query("maxresults=" + MAX_RESULTS)
-            .query("searchtext=" + city + " " + label)
-            .build().toString();
+        return mapApi.isValidAddress(city, label);
+    }
 
-        RestTemplate restTemplate = new RestTemplate();
-        String json = restTemplate.getForObject(http, String.class);
+    @Override
+    public RegionDTO findShopRegion(Long shopId) {
+        Shop shop = shopRepository.findById(shopId).orElseThrow(
+            () -> new EntityNotFoundException("Shop with id " + shopId + " not found")
+        );
 
-        JsonNode house;
+        RegionDelivery regionDelivery = regionDeliveryRepository.findByShop(shop).orElseThrow(
+            () -> new EntityNotFoundException("This shop not have region delivery")
+        );
 
-        try {
-            JsonNode httpResponse = new ObjectMapper().readTree(json);
-            if (!httpResponse.has("Response"))
-                throw new LocationParseException("MapApi timeout");
-
-            JsonNode view = httpResponse.get("Response").get("View");
-            if (!view.has(0))
-                throw new AddressNotFoundException("Address not found");
-
-            house = view.get(0)
-                .get("Result").get(0)
-                .get("Location")
-                .get("Address")
-                .get("HouseNumber");
-        } catch (IOException ex) {
-            throw new LocationParseException("Location don't parsed");
-        }
-
-        return !house.isNull();
+        return RegionDTO.builder()
+            .shopId(shopId)
+            .abscissa(regionDelivery.getAbscissa())
+            .ordinate(regionDelivery.getOrdinate())
+            .deliveryCost(regionDelivery.getDeliveryCost())
+            .freeDeliveryCost(regionDelivery.getFreeDeliveryCost())
+            .minOrderCost(regionDelivery.getMinOrderCost())
+            .build();
     }
 
     @Bean

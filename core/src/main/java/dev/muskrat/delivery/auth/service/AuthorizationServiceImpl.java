@@ -45,12 +45,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public UserRegisterResponseDTO register(UserRegisterDTO userRegisterDTO) {
 
         String email = userRegisterDTO.getEmail();
-        String lastName = userRegisterDTO.getLastName();
+        String name = userRegisterDTO.getName();
         String password = userRegisterDTO.getPassword();
-        String firstName = userRegisterDTO.getFirstName();
         String repeatPassword = userRegisterDTO.getRepeatPassword();
 
-        Optional<User> byEmail = userService.findByEmail(email);
+        Optional<User> byEmail = userRepository.findByEmail(email);
         if (byEmail.isPresent()) {
             throw new JwtAuthenticationException("This email is already taken");
         }
@@ -63,9 +62,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         user.setEmail(email);
         user.setUsername(email);
-        user.setLastName(lastName);
+        user.setName(name);
         user.setPassword(password);
-        user.setFirstName(firstName);
         user.setStatus(Status.ACTIVE);
 
         User registeredUser = userService.register(user);
@@ -90,7 +88,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             if (password.equals(""))
                 throw new AccessDeniedException("Password or username not valid");
 
-            Optional<User> byUsername = userService.findByUsername(username);
+            Optional<User> byUsername = userRepository.findByUsername(username);
             if (byUsername.isEmpty())
                 throw new AccessDeniedException("Password or username not valid");
             User user = byUsername.get();

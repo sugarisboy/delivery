@@ -1,4 +1,4 @@
-package dev.muskrat.delivery.shop.dto;
+package dev.muskrat.delivery.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,19 +12,12 @@ import javax.validation.constraints.Positive;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopPageRequestDTO {
-
-    @Min(3)
-    private String name;
+public class UserPageRequestDTO {
 
     @Positive
     private Long cityId;
 
-    @Positive
-    private Double maxMinOrderPrice;
+    private String phone;
 
-    @Positive
-    private Double maxFreeOrderPrice;
-
-    private String deliveryFor;
+    private String name;
 }

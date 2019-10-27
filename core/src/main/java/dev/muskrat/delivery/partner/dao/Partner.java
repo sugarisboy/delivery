@@ -20,10 +20,10 @@ public class Partner extends BaseEntity {
     )
     private Set<Shop> shops;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_partner",
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "partner")
+    /*@JoinTable(name = "user_partner",
         joinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
-    )
+    )*/
     private User user;
 }

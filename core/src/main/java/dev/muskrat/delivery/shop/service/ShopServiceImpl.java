@@ -12,6 +12,7 @@ import dev.muskrat.delivery.files.dto.FileStorageUploadDTO;
 import dev.muskrat.delivery.files.service.FileStorageService;
 import dev.muskrat.delivery.map.dao.RegionDelivery;
 import dev.muskrat.delivery.map.dao.RegionDeliveryRepository;
+import dev.muskrat.delivery.map.dao.RegionPoint;
 import dev.muskrat.delivery.map.service.MappingService;
 import dev.muskrat.delivery.order.dao.OrderRepository;
 import dev.muskrat.delivery.partner.dao.Partner;
@@ -30,10 +31,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +68,30 @@ public class ShopServiceImpl implements ShopService {
         shop.setName(shopDTO.getName());
         shop.setCity(city);
         shop.setPartner(partner);
+
+        shop.setOpen(
+            Arrays.asList(
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 0)
+            )
+        );
+
+        shop.setClose(
+            Arrays.asList(
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0),
+                LocalTime.of(22, 0)
+            )
+        );
 
         String cityName = city.getName();
         String address = shopDTO.getAddress();
@@ -129,9 +157,20 @@ public class ShopServiceImpl implements ShopService {
 
         Page<Shop> page = shopRepository.findWithFilter(name, city, pageable);
 
+
         List<Shop> content = page.getContent();
-        List<ShopDTO> collect = content.stream()
-            .map(shopToShopDTOConverter::convert)
+        Stream<Shop> stream = content.stream();
+
+        if (requestDTO != null
+            && requestDTO.getDeliveryFor() != null
+            && !requestDTO.getDeliveryFor().isBlank()
+        ) {
+            String address = requestDTO.getDeliveryFor();
+            RegionPoint point = mappingService.getPointByAddress(address);
+            stream = stream.filter(shop -> shop.getRegion().isRegionAvailable(point));
+        }
+
+        List<ShopDTO> collect = stream.map(shopToShopDTOConverter::convert)
             .collect(Collectors.toList());
 
         return ShopPageDTO.builder()

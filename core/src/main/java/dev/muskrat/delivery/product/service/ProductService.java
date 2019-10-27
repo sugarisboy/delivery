@@ -26,4 +26,6 @@ public interface ProductService {
     FileStorageUploadDTO updateImg(MultipartFile img, Long productId);
 
     boolean isProductOwner(Authentication authentication, Long productId);
+
+    List<CategoryDTO> findAllCategories();
 }

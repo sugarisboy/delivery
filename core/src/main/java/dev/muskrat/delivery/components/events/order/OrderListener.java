@@ -42,7 +42,7 @@ public class OrderListener {
         user.setPhone(order.getPhone());
         user.setStatus(Status.NOT_ACTIVE);
         user.setUsername(order.getEmail());
-        user.setFirstName(order.getName());
+        user.setName(order.getName());
         user.setPassword("");
         user.setRoles(Collections.singletonList(role));
 

@@ -62,8 +62,6 @@ public class SecureLoader {
 
             loginAdminDTO = authorizationService.login(UserLoginDTO.builder().username("admin").password("admin").build());
         }
-
-        System.out.println(userRepository.countByRolesLike(adminRole));
     }
 
     public UserLoginResponseDTO getLoginAdminDTO() {

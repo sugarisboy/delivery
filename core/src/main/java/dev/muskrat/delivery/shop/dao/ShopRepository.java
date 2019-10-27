@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.shop.dao;
 
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.partner.dao.Partner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -38,4 +39,6 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
         @Param("city") City city,
         Pageable pageable
     );
+
+    List<Shop> findAllByPartner(Partner partner);
 }

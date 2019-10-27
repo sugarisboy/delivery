@@ -45,6 +45,7 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(productCreateDTO.getDescription());
         product.setValue(productCreateDTO.getValue());
         product.setPrice(productCreateDTO.getPrice());
+        product.setAvailable(true);
 
         Long shopId = productCreateDTO.getShopId();
         Optional<Shop> byId = shopRepository.findById(shopId);
@@ -100,7 +101,10 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getValue() != null)
             product.setValue(productDTO.getValue());
 
-        if (productDTO.getCategory() != null) {
+        if (productDTO.getAvailable() != null)
+            product.setAvailable(productDTO.getAvailable());
+
+        if (productDTO.getCategory() != null && productDTO.getCategory().longValue() != product.getCategory().getId()) {
             long productCategoryId = productDTO.getCategory();
             Optional<Category> category = categoryRepository.findById(productCategoryId);
             if (category.isPresent()) {
@@ -206,4 +210,10 @@ public class ProductServiceImpl implements ProductService {
         return userEmail.equalsIgnoreCase(jwtUserEmail);
     }
 
+    @Override
+    public List<CategoryDTO> findAllCategories() {
+        return categoryRepository.findAll().stream()
+            .map(category -> new CategoryDTO(category.getId(), category.getTitle()))
+            .collect(Collectors.toList());
+    }
 }

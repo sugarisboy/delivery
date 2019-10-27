@@ -31,7 +31,7 @@ public class ProductUpdateDTO {
     private String quantity;
 
     @Min(1)
-    @Max(7)
     private Long category;
 
+    private Boolean available;
 }

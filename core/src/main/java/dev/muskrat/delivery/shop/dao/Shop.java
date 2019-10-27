@@ -6,18 +6,15 @@ import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Proxy;
 import org.hibernate.annotations.Where;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -25,6 +22,7 @@ import java.util.List;
 @Proxy(lazy = false)
 @Table(name = "shops")
 @Where(clause = "deleted = 0")
+@ToString(of = "name")
 public class Shop {
 
     @Id

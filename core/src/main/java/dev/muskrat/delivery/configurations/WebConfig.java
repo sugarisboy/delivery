@@ -16,7 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**");
+        registry
+            .addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("*");
     }
   
     @Override
@@ -46,6 +49,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/img/**")
             // For Linux need file://
             .addResourceLocations("file:/" + directoryMain)
-            .setCacheControl(CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic());
+            .setCacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePublic());
     }
 }

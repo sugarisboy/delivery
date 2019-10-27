@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -50,7 +51,7 @@ public class ProductController {
     @PostMapping("/page")
     public ProductPageDTO page(
         @Valid @RequestBody(required = false) ProductPageRequestDTO requestDTO,
-        @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
+        @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable page
     ) {
         return productService.findAll(requestDTO, page);
     }
@@ -61,5 +62,10 @@ public class ProductController {
         @NotNull @PathVariable Long id
     ) {
         productService.delete(id);
+    }
+
+    @GetMapping("/categories")
+    public List<CategoryDTO> findAllCategories() {
+        return productService.findAllCategories();
     }
 }

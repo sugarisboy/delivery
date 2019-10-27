@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDTO {
 
+    private Long id;
     private Long cityId;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
     private String phone;
     private PartnerDTO partnerDTO;

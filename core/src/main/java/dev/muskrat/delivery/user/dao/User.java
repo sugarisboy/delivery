@@ -15,16 +15,14 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
+@ToString(of = "username")
 public class User extends BaseEntity {
 
     @Column(name = "username")
     private String username;
 
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "email")
     private String email;
@@ -47,6 +45,7 @@ public class User extends BaseEntity {
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "partner_id", referencedColumnName = "id")}
     )
+    //@JoinColumn(name = "partner_id")
     private Partner partner;
 
     @ManyToOne(fetch = FetchType.EAGER)

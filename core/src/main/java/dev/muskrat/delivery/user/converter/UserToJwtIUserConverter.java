@@ -20,8 +20,7 @@ public class UserToJwtIUserConverter implements ObjectConverter<User, JwtUser> {
             return new JwtUser(
                 user.getId(),
                 user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
+                user.getName(),
                 user.getPassword(),
                 user.getEmail(),
                 user.getStatus().equals(Status.ACTIVE),
