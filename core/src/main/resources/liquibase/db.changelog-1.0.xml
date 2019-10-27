@@ -621,5 +621,106 @@
                                  referencedColumnNames="id"
                                  referencedTableName="orders_status_entries"/>
     </changeSet>
-    
+
+    <changeSet id="1.0.47" author="muskrat.dev">
+        <createTable tableName="paymentSystems">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(63)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="active" type="BIT" defaultValue="1"/>
+            <column name="online" type="BIT" defaultValue="1"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.48" author="muskrat.dev">
+        <createTable tableName="transactions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="price" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="paid" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.49" author="muskrat.dev">
+        <createTable tableName="transactions_system">
+
+            <column name="transaction_id" type="BIGINT"/>
+            <column name="system_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.50" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="transaction_id"
+                                 baseTableName="transactions_system"
+                                 constraintName="fk_transactions_system_transaction"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="transactions"/>
+    </changeSet>
+
+    <changeSet id="1.0.51" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="system_id"
+                                 baseTableName="transactions_system"
+                                 constraintName="fk_transactions_system_system"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="paymentSystems"/>
+    </changeSet>
+
+    <changeSet id="1.0.52" author="muskrat.dev">
+        <createTable tableName="order_transaction">
+
+            <column name="transaction_id" type="BIGINT"/>
+            <column name="order_id" type="BIGINT"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.0.53" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="transaction_id"
+                                 baseTableName="order_transaction"
+                                 constraintName="fk_order_transaction_transaction"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="transactions"/>
+    </changeSet>
+
+    <changeSet id="1.0.54" author="muskrat.dev">
+        <addForeignKeyConstraint baseColumnNames="order_id"
+                                 baseTableName="order_transaction"
+                                 constraintName="fk_order_transaction_order"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="orders"/>
+    </changeSet>
+
 </databaseChangeLog>

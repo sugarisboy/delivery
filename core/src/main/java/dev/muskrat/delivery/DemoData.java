@@ -22,6 +22,16 @@ import dev.muskrat.delivery.order.service.OrderService;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.service.PartnerService;
+import dev.muskrat.delivery.payment.dao.PaymentSystemEntity;
+import dev.muskrat.delivery.payment.dao.PaymentSystemRepository;
+import dev.muskrat.delivery.payment.dao.Transaction;
+import dev.muskrat.delivery.payment.dao.TransactionRepository;
+import dev.muskrat.delivery.payment.dto.PaymentSystemCreateDTO;
+import dev.muskrat.delivery.payment.dto.PaymentSystemResponseDTO;
+import dev.muskrat.delivery.payment.dto.TransactionCreateDTO;
+import dev.muskrat.delivery.payment.dto.TransactionResponseDTO;
+import dev.muskrat.delivery.payment.service.PaymentsService;
+import dev.muskrat.delivery.payment.service.TransactionService;
 import dev.muskrat.delivery.product.dao.Category;
 import dev.muskrat.delivery.product.dao.CategoryRepository;
 import dev.muskrat.delivery.product.dao.Product;
@@ -61,7 +71,11 @@ public class DemoData {
     private final CitiesRepository citiesRepository;
     private final OrderRepository orderRepository;
     private final ShopRepository shopRepository;
+    private final PaymentSystemRepository paymentSystemRepository;
+    private final TransactionRepository transactionRepository;
 
+    private final PaymentsService paymentsService;
+    private final TransactionService transactionService;
     private final RoleRepository roleRepository;
     private final PartnerService partnerService;
     private final AuthorizationService authorizationService;
@@ -89,6 +103,9 @@ public class DemoData {
     public List<Role> roles;
     public List<User> users;
 
+    public PaymentSystemEntity paymentSystemCash;
+    public Transaction transaction;
+
     public void load() {
         generateUser();
         update();
@@ -110,6 +127,34 @@ public class DemoData {
 
         generateOrder();
         update();
+
+        generatePaymentSystem();
+    }
+
+    private void generatePaymentSystem() {
+        PaymentSystemCreateDTO createSystemDTO = PaymentSystemCreateDTO.builder()
+            .name("cash")
+            .active(true)
+            .online(false)
+            .build();
+
+        PaymentSystemResponseDTO response = paymentsService.create(createSystemDTO);
+        Long systemId = response.getId();
+
+        paymentSystemCash = paymentSystemRepository.findById(systemId).get();
+
+
+
+        TransactionCreateDTO createTransactionDTO = TransactionCreateDTO.builder()
+            .orderId(orders.get(0).getId())
+            .paymentsSystemId(paymentSystemCash.getId())
+            .price(100D)
+            .build();
+
+        TransactionResponseDTO transactionResponseDTO = transactionService.create(createTransactionDTO);
+        Long transactionId = transactionResponseDTO.getId();
+
+        transaction = transactionRepository.findById(transactionId).get();
     }
 
     private void generateUser() {
