@@ -6,6 +6,7 @@ import dev.muskrat.delivery.order.dao.Order;
 import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.product.dao.Product;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Proxy;
@@ -21,6 +22,7 @@ import java.util.List;
 @Proxy(lazy = false)
 @Table(name = "shops")
 @Where(clause = "deleted = 0")
+@ToString(of = "name")
 public class Shop {
 
     @Id

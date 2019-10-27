@@ -3,6 +3,7 @@ package dev.muskrat.delivery.product.dao;
 import dev.muskrat.delivery.components.dao.BaseEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @Data
 @Table(name = "categories")
 @NoArgsConstructor
+@ToString(of = "title")
 public class Category extends BaseEntity {
 
     @Column(name = "title")
