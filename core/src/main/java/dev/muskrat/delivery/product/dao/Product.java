@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @Table(name = "products")
 @Where(clause = "deleted = 0")
-@ToString
+@ToString(of = "title")
 public class Product {
 
     @Id

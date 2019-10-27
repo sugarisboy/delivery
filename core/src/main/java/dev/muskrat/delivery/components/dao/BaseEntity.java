@@ -2,6 +2,7 @@ package dev.muskrat.delivery.components.dao;
 
 import dev.muskrat.delivery.auth.dao.Status;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,6 +14,7 @@ import java.util.Date;
 @Data
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@ToString(of = "id")
 public class BaseEntity {
 
     @Id

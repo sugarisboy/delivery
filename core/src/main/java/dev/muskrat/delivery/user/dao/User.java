@@ -15,6 +15,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
+@ToString(of = "username")
 public class User extends BaseEntity {
 
     @Column(name = "username")

@@ -1,24 +1,22 @@
 package dev.muskrat.delivery.order.dao;
 
 import dev.muskrat.delivery.cities.dao.City;
-import dev.muskrat.delivery.components.dao.BaseEntity;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "orders")
 @EnableJpaAuditing
+@ToString(of = "id")
 public class Order {
 
     @Id
