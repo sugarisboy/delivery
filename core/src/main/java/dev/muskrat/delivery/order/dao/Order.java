@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.order.dao;
 
 import dev.muskrat.delivery.cities.dao.City;
+import dev.muskrat.delivery.payment.dao.Transaction;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.user.dao.User;
 import lombok.Data;
@@ -83,4 +84,6 @@ public class Order {
     )
     private Shop shop;
 
+    @OneToOne(mappedBy = "order")
+    private Transaction transaction;
 }

@@ -28,4 +28,6 @@ public class PartnerStatsDTO {
     private Long currentPeriodOrders;
 
     private Long prevPeriodOrders;
+
+    private String shopName;
 }

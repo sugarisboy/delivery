@@ -9,7 +9,6 @@ import dev.muskrat.delivery.partner.dao.Partner;
 import dev.muskrat.delivery.partner.dao.PartnerRepository;
 import dev.muskrat.delivery.partner.dto.PartnerRegisterResponseDTO;
 import dev.muskrat.delivery.partner.dto.PartnerStatsDTO;
-import dev.muskrat.delivery.shop.converter.ShopToShopDTOConverter;
 import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dao.ShopRepository;
 import dev.muskrat.delivery.user.dao.User;
@@ -18,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -92,7 +93,7 @@ public class PartnerServiceImpl implements PartnerService {
                 timeB = timeA.plus(1, ChronoUnit.HOURS);
                 end = timeA.minus(47, ChronoUnit.HOURS).minus(1, ChronoUnit.SECONDS);
                 decrement = a -> a.minus(1, ChronoUnit.HOURS);
-                print = (a, b) -> "" + a.getDayOfMonth();
+                print = (a, b) -> "" + a.getHour();
                 prev = a -> a.minus(1, ChronoUnit.DAYS);
             } else if (type.equalsIgnoreCase("weekly")) {
                 timeA = LocalDate.now().atStartOfDay(ZoneId.of("UTC"));
@@ -128,14 +129,14 @@ public class PartnerServiceImpl implements PartnerService {
                 period.put("name", print.print(timeA, timeB));
 
                 profit = orderRepository.getProfitByShop(timeA.toInstant(), timeB.toInstant(), shop);
-                profit = ((profit == null ? 0 : profit) * 100) / 100D;
+                profit = round(profit);
                 currentPeriodProfit += profit;
-                period.put("now", Math.round(profit));
+                period.put("current", profit);
 
                 profit = orderRepository.getProfitByShop(timePrevA.toInstant(), timePrevB.toInstant(), shop);
-                profit = ((profit == null ? 0 : profit) * 100) / 100D;
+                profit = round(profit);
                 previousPeriodProfit += profit;
-                period.put("previous", Math.round(profit));
+                period.put("previous", profit);
 
                 data.add(period);
                 // break condition
@@ -152,17 +153,18 @@ public class PartnerServiceImpl implements PartnerService {
             );
 
             Collections.reverse(data);
+
+            partnerStatsDTO.setShopName(shop.getName());
             partnerStatsDTO.setShopStats(data);
-            partnerStatsDTO.setPrevPeriodProfit(previousPeriodProfit);
-            partnerStatsDTO.setCurrentPeriodProfit(currentPeriodProfit);
+
+            partnerStatsDTO.setPrevPeriodProfit(round(previousPeriodProfit));
+            partnerStatsDTO.setCurrentPeriodProfit(round(currentPeriodProfit));
+
             partnerStatsDTO.setPrevPeriodOrders(previousCountOrder);
             partnerStatsDTO.setCurrentPeriodOrders(currentCountOrder);
-            partnerStatsDTO.setPrevAveragePeriodProfit(
-                (previousPeriodProfit / previousCountOrder) * 100 / 100D
-            );
-            partnerStatsDTO.setCurrentAveragePeriodProfit(
-                (currentPeriodProfit / currentCountOrder) * 100 / 100D
-            );
+
+            partnerStatsDTO.setPrevAveragePeriodProfit(round(previousPeriodProfit / (previousCountOrder + 0.0000000000000000001D)));
+            partnerStatsDTO.setCurrentAveragePeriodProfit(round(currentPeriodProfit / (currentCountOrder + 0.0000000000000000001D)));
 
             return partnerStatsDTO;
         } catch (Exception e) {
@@ -260,4 +262,8 @@ public class PartnerServiceImpl implements PartnerService {
         }
     }
     * */
+
+    private double round(Double d) {
+        return d == null ? 0 : new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+    }
 }
