@@ -300,15 +300,15 @@ public class DemoData {
             for (int i = 0; i < 30; i++) {
                 OrderProduct product1 = new OrderProduct();
                 product1.setProductId(shop.getProducts().get(0).getId());
-                product1.setCount(1);
+                product1.setCount(ThreadLocalRandom.current().nextInt(10) + 1);
 
                 OrderProduct product2 = new OrderProduct();
                 product2.setProductId(shop.getProducts().get(4).getId());
-                product2.setCount(2);
+                product2.setCount(ThreadLocalRandom.current().nextInt(10) + 1);
 
                 OrderProduct product3 = new OrderProduct();
                 product3.setProductId(shop.getProducts().get(8).getId());
-                product3.setCount(3);
+                product3.setCount(ThreadLocalRandom.current().nextInt(10) + 1);
 
                 List<OrderProductDTO> collect = Stream.of(product1, product2, product3)
                     .map(orderProductTOOrderProductDTOConverter::convert)
