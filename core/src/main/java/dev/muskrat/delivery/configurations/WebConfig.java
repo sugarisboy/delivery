@@ -48,7 +48,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/img/**")
             // For Linux need file://
-            .addResourceLocations("file:/" + directoryMain)
+            .addResourceLocations("file:" + directoryMain)
             .setCacheControl(CacheControl.maxAge(30, TimeUnit.SECONDS).cachePublic());
     }
 }
