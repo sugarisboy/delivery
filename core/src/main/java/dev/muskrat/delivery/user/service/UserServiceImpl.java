@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
     public UserUpdateResponseDTO update(UserUpdateDTO userUpdateDTO) {
         Long userId = userUpdateDTO.getId();
         Optional<User> byId = userRepository.findById(userId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("User with id " + userId + " not found");
         User user = byId.get();
 

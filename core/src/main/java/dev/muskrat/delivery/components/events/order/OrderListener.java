@@ -36,7 +36,7 @@ public class OrderListener {
     private User registerUser(Order order) {
         User user = new User();
 
-        Role role = roleRepository.findByName("USER").orElseThrow();
+        Role role = roleRepository.findByName("USER").orElseThrow(NullPointerException::new);
 
         user.setEmail(order.getEmail());
         user.setPhone(order.getPhone());

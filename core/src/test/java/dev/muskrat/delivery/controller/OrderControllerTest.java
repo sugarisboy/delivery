@@ -150,7 +150,7 @@ public class OrderControllerTest {
         Long createdOrderId = item.getId();
 
         OrderDTO createdItem = orderService
-            .findById(createdOrderId).orElseThrow();
+            .findById(createdOrderId).orElseThrow(NullPointerException::new);
 
         assertEquals(createdItem.getId(), createdOrderId);
     }

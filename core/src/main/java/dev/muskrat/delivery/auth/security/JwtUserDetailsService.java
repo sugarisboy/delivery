@@ -23,7 +23,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> authorizedUser = userRepository.findByEmail(email);
 
-        if (authorizedUser.isEmpty())
+        if (!authorizedUser.isPresent())
             throw new EntityNotFoundException("User with email " + email + " not found");
         User user = authorizedUser.get();
 

@@ -61,7 +61,7 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     public boolean isCurrentPartner(Authentication authentication, Long id) {
         Optional<User> byId = userRepository.findById(id);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("User with id " + id + " not found");
         User user = byId.get();
 

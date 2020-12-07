@@ -117,11 +117,9 @@ public class ShopServiceImpl implements ShopService {
     public void delete(Long id) {
         Optional<Shop> byId = shopRepository.findById(id);
 
-        byId.ifPresentOrElse(p -> {
+        byId.ifPresent(p -> {
             p.setDeleted(true);
             shopRepository.save(p);
-        }, () -> {
-            throw new EntityNotFoundException("Shop with id " + id + " not found");
         });
     }
 
@@ -141,7 +139,7 @@ public class ShopServiceImpl implements ShopService {
             if (requestDTO.getCityId() != null) {
                 Long cityId = requestDTO.getCityId();
                 Optional<City> byId = citiesRepository.findById(cityId);
-                if (byId.isEmpty())
+                if (!byId.isPresent())
                     throw new EntityNotFoundException("City with " + cityId + " not found");
                 city = byId.get();
             }
@@ -163,7 +161,7 @@ public class ShopServiceImpl implements ShopService {
 
         if (requestDTO != null
             && requestDTO.getDeliveryFor() != null
-            && !requestDTO.getDeliveryFor().isBlank()
+            && !requestDTO.getDeliveryFor().isEmpty()
         ) {
             String address = requestDTO.getDeliveryFor();
             RegionPoint point = mappingService.getPointByAddress(address);
@@ -184,7 +182,7 @@ public class ShopServiceImpl implements ShopService {
     public ShopUpdateResponseDTO update(ShopUpdateDTO shopUpdateDTO) {
         Long id = shopUpdateDTO.getId();
         Optional<Shop> byId = shopRepository.findById(id);
-        if (byId.isEmpty()) {
+        if (!byId.isPresent()) {
             throw new EntityNotFoundException("Shop with id " + id + " not exists");
         }
 
@@ -206,7 +204,7 @@ public class ShopServiceImpl implements ShopService {
             Long cityId = shopUpdateDTO.getCityId();
             Optional<City> cityById = citiesRepository.findById(cityId);
 
-            if (cityById.isEmpty())
+            if (!cityById.isPresent())
                 throw new EntityNotFoundException("City with id " + id + " not found");
 
             City city = cityById.get();
@@ -236,7 +234,7 @@ public class ShopServiceImpl implements ShopService {
     public ShopScheduleResponseDTO updateSchedule(ShopScheduleUpdateDTO updateDTO) {
         Long id = updateDTO.getId();
         Optional<Shop> byId = shopRepository.findById(id);
-        if (byId.isEmpty()) {
+        if (!byId.isPresent()) {
             throw new EntityNotFoundException("Shop with id " + id + " not found");
         }
 
@@ -271,7 +269,7 @@ public class ShopServiceImpl implements ShopService {
         String username = jwtUser.getEmail();
 
         Optional<Shop> byId = shopRepository.findById(id);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Shop with id not found");
         Shop shop = byId.get();
 

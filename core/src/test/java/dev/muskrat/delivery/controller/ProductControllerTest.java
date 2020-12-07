@@ -21,6 +21,7 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -72,7 +73,7 @@ public class ProductControllerTest {
         Long createdProductId = productCreateResponseDTO.getId();
 
         ProductDTO productDTO = productService
-            .findById(createdProductId).orElseThrow();
+            .findById(createdProductId).orElseThrow(NullPointerException::new);
 
         assertEquals(productDTO.getId(), createdProductId);
         assertEquals(productDTO.getTitle(), "title");
@@ -112,7 +113,7 @@ public class ProductControllerTest {
 
         Long updatedProductId = productUpdateDTO.getId();
         ProductDTO productDTO = productService
-            .findById(updatedProductId).orElseThrow();
+            .findById(updatedProductId).orElseThrow(NullPointerException::new);
 
         assertEquals(productDTO.getId(), updatedProductId);
         assertEquals(productDTO.getTitle(), updateDTO.getTitle());
@@ -139,6 +140,6 @@ public class ProductControllerTest {
             .andReturn().getResponse().getContentAsString();
 
         Optional<ProductDTO> byId = productService.findById(productId);
-        assertTrue(byId.isEmpty());
+        assertFalse(byId.isPresent());
     }
 }

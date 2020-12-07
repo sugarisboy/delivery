@@ -18,7 +18,7 @@ public class AuthIdToAuthorizedUserConverter implements ObjectConverter<Long, Us
     @Override
     public User convert(Long id) {
         Optional<User> byId = userRepository.findById(id);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("User with id " + id + " not found");
 
         User user = byId.get();

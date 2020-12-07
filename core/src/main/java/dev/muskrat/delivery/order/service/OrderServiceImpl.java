@@ -170,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
             if (requestDTO.getCityId() != null) {
                 Long cityId = requestDTO.getCityId();
                 Optional<City> byId = citiesRepository.findById(cityId);
-                if (byId.isEmpty())
+                if (!byId.isPresent())
                     throw new EntityNotFoundException("City with id " + cityId + " not found");
                 city = byId.get();
             }
@@ -178,7 +178,7 @@ public class OrderServiceImpl implements OrderService {
             if (requestDTO.getShopId() != null) {
                 Long shopId = requestDTO.getShopId();
                 Optional<Shop> byId = shopRepository.findById(shopId);
-                if (byId.isEmpty())
+                if (!byId.isPresent())
                     throw new EntityNotFoundException("Shop with id " + shopId + " not found");
                 shop = byId.get();
             }
@@ -206,7 +206,7 @@ public class OrderServiceImpl implements OrderService {
         String username = jwtUser.getEmail();
 
         Optional<Order> byId = orderRepository.findById(orderId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Order with id " + orderId + " not found");
         Order order = byId.get();
         Shop shop = order.getShop();
@@ -247,7 +247,7 @@ public class OrderServiceImpl implements OrderService {
         Long senderId = jwtUser.getId();
 
         Optional<Order> byId = orderRepository.findById(orderId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Order with id " + orderId + " not found");
         Order order = byId.get();
 
@@ -264,7 +264,7 @@ public class OrderServiceImpl implements OrderService {
         Long senderId = jwtUser.getId();
 
         Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Shop with id " + shopId + " not found");
         Shop shop = byId.get();
         Partner partner = shop.getPartner();
@@ -281,7 +281,7 @@ public class OrderServiceImpl implements OrderService {
         for (OrderProduct orderProduct : products) {
             Long productId = orderProduct.getProductId();
             Optional<Product> byId = productRepository.findById(productId);
-            if (byId.isEmpty()) {
+            if (!byId.isPresent()) {
                 throw new EntityNotFoundException("Product with id " + productId + " not found");
             }
 

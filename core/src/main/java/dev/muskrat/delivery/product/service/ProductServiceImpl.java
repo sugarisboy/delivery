@@ -1,6 +1,7 @@
 package dev.muskrat.delivery.product.service;
 
 import dev.muskrat.delivery.auth.security.jwt.JwtUser;
+import dev.muskrat.delivery.cities.dao.City;
 import dev.muskrat.delivery.components.exception.EntityNotFoundException;
 import dev.muskrat.delivery.files.components.FileFormat;
 import dev.muskrat.delivery.files.components.FileFormats;
@@ -49,14 +50,14 @@ public class ProductServiceImpl implements ProductService {
 
         Long shopId = productCreateDTO.getShopId();
         Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new RuntimeException("Shop with id " + shopId + " not found");
         Shop shop = byId.get();
         product.setShop(shop);
 
         Long categoryId = productCreateDTO.getCategory();
         Optional<Category> category = categoryRepository.findById(categoryId);
-        if (category.isEmpty())
+        if (!category.isPresent())
             throw new RuntimeException("Category is not defined");
         product.setCategory(category.get());
         Product productWithId = productRepository.save(product);
@@ -70,11 +71,9 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         Optional<Product> byId = productRepository.findById(id);
 
-        byId.ifPresentOrElse(p -> {
+        byId.ifPresent(p -> {
             p.setDeleted(true);
             productRepository.save(p);
-        }, () -> {
-            throw new EntityNotFoundException("Product with id " + id + " not found");
         });
     }
 
@@ -83,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         Long id = productDTO.getId();
 
         Optional<Product> byId = productRepository.findById(id);
-        if (byId.isEmpty()) {
+        if (!byId.isPresent()) {
             throw new EntityNotFoundException("Entity not found");
         }
 
@@ -156,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
             if (requestDTO.getShopId() != null) {
                 Long shopId = requestDTO.getShopId();
                 Optional<Shop> byId = shopRepository.findById(shopId);
-                if (byId.isEmpty())
+                if (!byId.isPresent())
                     throw new EntityNotFoundException("Shop with id " + shopId + " not found");
                 shop = byId.get();
             }
@@ -164,7 +163,7 @@ public class ProductServiceImpl implements ProductService {
             if (requestDTO.getCategoryId() != null) {
                 Long categoryId = requestDTO.getCategoryId();
                 Optional<Category> byId = categoryRepository.findById(categoryId);
-                if (byId.isEmpty())
+                if (!byId.isPresent())
                     throw new EntityNotFoundException("Category with id " + categoryId + " not found");
                 category = byId.get();
             }
@@ -195,7 +194,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public boolean isProductOwner(Authentication authentication, Long productId) {
         Optional<Product> byId = productRepository.findById(productId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Product with id " + productId + " not found");
         Product product = byId.get();
 

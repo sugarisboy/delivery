@@ -47,7 +47,7 @@ public class CitiesServiceImpl implements CitiesService {
         String name = cityUpdateDTO.getName();
 
         Optional<City> byId = citiesRepository.findById(id);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("City with id " + id + " don't found");
 
         Optional<City> byName = citiesRepository.findByName(name);
@@ -81,11 +81,12 @@ public class CitiesServiceImpl implements CitiesService {
     public void delete(Long id) {
         Optional<City> byId = citiesRepository.findById(id);
 
-        byId.ifPresentOrElse(p -> {
-            p.setDeleted(true);
-            citiesRepository.save(p);
-        }, () -> {
+        if (byId.isPresent()) {
+            City city = byId.get();
+            city.setDeleted(true);
+            citiesRepository.save(city);
+        } else {
             throw new EntityNotFoundException("City with id " + id + " not found");
-        });
+        }
     }
 }

@@ -32,7 +32,7 @@ public class JwtAuthorizationToUserConverter {
             throw new JwtAuthenticationException("Jwt auth exception");
 
         Optional<User> byUsername = userRepository.findByUsername(username);
-        if (byUsername.isEmpty())
+        if (!byUsername.isPresent())
             throw new UsernameNotFoundException("User with " + username + " not found");
 
         return byUsername.get();

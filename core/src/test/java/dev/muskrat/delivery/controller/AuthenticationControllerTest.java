@@ -107,7 +107,7 @@ public class AuthenticationControllerTest {
         Long registeredPartnerId = userRegisterResponseDTO.getId();
 
         User user = userRepository
-            .findById(registeredPartnerId).orElseThrow();
+            .findById(registeredPartnerId).orElseThrow(NullPointerException::new);
 
         assertEquals(user.getUsername(), userRegisterResponseDTO.getUsername());
         assertNotNull(userRegisterResponseDTO.getAccess());

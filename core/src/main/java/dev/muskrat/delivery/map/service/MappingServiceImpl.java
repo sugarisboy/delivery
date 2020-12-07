@@ -49,7 +49,7 @@ public class MappingServiceImpl implements MappingService {
     public RegionUpdateResponseDTO updateRegion(RegionUpdateDTO regionUpdateDTO) {
         Long shopId = regionUpdateDTO.getShopId();
         Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Shop with " + shopId + " not found");
         Shop shop = byId.get();
 
