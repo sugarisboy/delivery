@@ -1,5 +1,6 @@
 package dev.muskrat.delivery.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.muskrat.delivery.DemoData;
 import dev.muskrat.delivery.admin.dto.AdminStatsDTO;
@@ -8,6 +9,7 @@ import dev.muskrat.delivery.shop.dao.Shop;
 import dev.muskrat.delivery.shop.dto.ShopStatsDTO;
 import dev.muskrat.delivery.shop.dto.ShopStatsResponseDTO;
 import lombok.SneakyThrows;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,10 @@ public class AdminControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Ignore
     @Test
-    @SneakyThrows
     @Transactional
-    public void statsTest() {
+    public void statsTest() throws Exception {
         AdminStatsDTO statsDTO = AdminStatsDTO.builder()
             .endDate(Instant.now())
             .startDate(Instant.now().minusMillis(10_000_000L))

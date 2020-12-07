@@ -21,7 +21,7 @@ public class ValidShopValidator implements ConstraintValidator<ValidShop, Long> 
         if (shopId == null)
             return error(context, "ShopId is null");
         Optional<Shop> byId = shopRepository.findById(shopId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             return error(context, "Shop with id " + shopId + " not found");
 
         return true;

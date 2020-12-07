@@ -79,7 +79,7 @@ public class ShopControllerTest {
 
         Long createdId = shopCreateResponseDTO.getId();
         Optional<Shop> byId = shopRepository.findById(createdId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("Shop with id " + createdId + " not found");
         Shop shop = byId.get();
 
@@ -125,7 +125,7 @@ public class ShopControllerTest {
         Long updatedProductId = productUpdateDTO.getId();
 
         ShopDTO updatedShopDTO = shopService
-            .findById(updatedProductId).orElseThrow();
+            .findById(updatedProductId).orElseThrow(NullPointerException::new);
 
         assertEquals(updateDTO.getId(), updatedShopDTO.getId());
         assertEquals(updateDTO.getDescription(), updatedShopDTO.getDescription());
@@ -180,7 +180,7 @@ public class ShopControllerTest {
         Long updatedProductId = productUpdateDTO.getId();
 
         ShopDTO updatedShopDTO = shopService
-            .findById(updatedProductId).orElseThrow();
+            .findById(updatedProductId).orElseThrow(NullPointerException::new);
 
         ShopScheduleDTO schedule = updatedShopDTO.getSchedule();
 
@@ -206,7 +206,7 @@ public class ShopControllerTest {
             .andReturn().getResponse().getContentAsString();
 
         Optional<ShopDTO> byId = shopService.findById(shopId);
-        assertTrue(byId.isEmpty());
+        assertTrue(!byId.isPresent());
     }
 
     @Test

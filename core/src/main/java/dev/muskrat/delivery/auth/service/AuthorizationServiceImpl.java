@@ -89,7 +89,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 throw new AccessDeniedException("Password or username not valid");
 
             Optional<User> byUsername = userRepository.findByUsername(username);
-            if (byUsername.isEmpty())
+            if (!byUsername.isPresent())
                 throw new AccessDeniedException("Password or username not valid");
             User user = byUsername.get();
 
@@ -130,7 +130,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public boolean isEquals(Authentication authentication, Long authorizedUserId) {
         Optional<User> byId = userRepository.findById(authorizedUserId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("User with id " + authorizedUserId + " not found");
         User user = byId.get();
 

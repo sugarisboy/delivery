@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -65,7 +66,7 @@ public class CitiesControllerTest {
 
         Long createdCityId = cityCreateResponseDTO.getId();
         Optional<City> byId = citiesRepository.findById(createdCityId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("City with id " + createdCityId + " not found");
         City city = byId.get();
 
@@ -98,7 +99,7 @@ public class CitiesControllerTest {
             .readValue(contentAsString, CityUpdateResponseDTO.class);
 
         Optional<City> byId = citiesRepository.findById(cityId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             throw new EntityNotFoundException("City with id " + cityId + " not found");
         City city = byId.get();
 
@@ -122,6 +123,6 @@ public class CitiesControllerTest {
             .andReturn().getResponse().getContentAsString();
 
         Optional<City> byId = citiesRepository.findById(cityId);
-        assertTrue(byId.isEmpty());
+        assertFalse(byId.isPresent());
     }
 }

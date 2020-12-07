@@ -21,7 +21,7 @@ public class ValidOrderProductValidator implements ConstraintValidator<ValidOrde
         if (productId == null)
             return error(context, "ProductId is null");
         Optional<Product> byId = productRepository.findById(productId);
-        if (byId.isEmpty())
+        if (!byId.isPresent())
             return error(context,"Product with id " + productId + " not found");
         return true;
     }
